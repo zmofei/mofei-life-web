@@ -15,7 +15,7 @@ function Foot(params: { lang: string }) {
         setShowWeChatModal(false);
     };
     return (
-        <div className="w-full bg-gradient-to-br from-red-500 via-red-600 to-red-700 snap-start overflow-hidden relative" >
+        <div className="w-full bg-gradient-to-br from-[#e04b45] via-[#d63d33] to-[#c32e22] snap-start overflow-hidden relative" >
             {/* Background pattern overlay */}
             <div className="absolute inset-0 opacity-10" 
                 style={{
@@ -49,18 +49,27 @@ function Foot(params: { lang: string }) {
                         transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
                     >
                         <Link href={`${params?.lang == 'en' ? '/' : '/zh'}`} 
-                            className="text-white/80 hover:text-white hover:bg-white/10 px-1.5 py-0.5 rounded-lg transition-all duration-300 hover:scale-105
+                            className="text-white/80 hover:text-white hover:bg-white/10 px-1.5 py-0.5 rounded-lg transition-all duration-300 hover:scale-105 flex items-center gap-1
                                 md:px-2 md:py-1 lg:px-2.5 lg:py-1 xl:px-3 xl:py-1.5 2xl:px-4 2xl:py-1.5">
+                            <svg className="w-3 h-3 md:w-4 md:h-4 lg:w-5 lg:h-5 xl:w-6 xl:h-6 2xl:w-7 2xl:h-7" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                            </svg>
                             Home
                         </Link>
                         <Link href={`${params?.lang || 'en'}/blog/1`} 
-                            className="text-white/80 hover:text-white hover:bg-white/10 px-1.5 py-0.5 rounded-lg transition-all duration-300 hover:scale-105
+                            className="text-white/80 hover:text-white hover:bg-white/10 px-1.5 py-0.5 rounded-lg transition-all duration-300 hover:scale-105 flex items-center gap-1
                                 md:px-2 md:py-1 lg:px-2.5 lg:py-1 xl:px-3 xl:py-1.5 2xl:px-4 2xl:py-1.5">
+                            <svg className="w-3 h-3 md:w-4 md:h-4 lg:w-5 lg:h-5 xl:w-6 xl:h-6 2xl:w-7 2xl:h-7" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                            </svg>
                             Blog
                         </Link>
                         <Link href={`${params?.lang || 'en'}/message/1`} 
-                            className="text-white/80 hover:text-white hover:bg-white/10 px-1.5 py-0.5 rounded-lg transition-all duration-300 hover:scale-105
+                            className="text-white/80 hover:text-white hover:bg-white/10 px-1.5 py-0.5 rounded-lg transition-all duration-300 hover:scale-105 flex items-center gap-1
                                 md:px-2 md:py-1 lg:px-2.5 lg:py-1 xl:px-3 xl:py-1.5 2xl:px-4 2xl:py-1.5">
+                            <svg className="w-3 h-3 md:w-4 md:h-4 lg:w-5 lg:h-5 xl:w-6 xl:h-6 2xl:w-7 2xl:h-7" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M20,2H4A2,2 0 0,0 2,4V22L6,18H20A2,2 0 0,0 22,16V4A2,2 0 0,0 20,2M20,16H6L4,18V4H20V16Z"/>
+                            </svg>
                             Message
                         </Link>
                     </motion.div>
