@@ -74,6 +74,16 @@ const nextConfig: NextConfig = {
         hostname: "assets.mofei.life",
         pathname: "**",
       },
+      {
+        protocol: "https",
+        hostname: "github.com",
+        pathname: "**",
+      },
+      {
+        protocol: "https",
+        hostname: "avatars.githubusercontent.com",
+        pathname: "**",
+      },
     ],
   },
 };

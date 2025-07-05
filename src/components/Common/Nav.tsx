@@ -60,6 +60,9 @@ function Nav({ lang }: { lang: string }) {
         } else if (path.includes('/message/')) {
             // Message pages logic
             return pathname.includes('/message/');
+        } else if (path.includes('/friends')) {
+            // Friends pages logic
+            return pathname.includes('/friends');
         }
         return false;
     };
@@ -217,6 +220,21 @@ function Nav({ lang }: { lang: string }) {
                     {lang == 'zh' ? '留言' : 'Message'}
                 </motion.a>
                 <motion.a 
+                    className={`transition-colors duration-200 flex items-center gap-1 ${
+                        isActive(`/${lang}/friends`) 
+                            ? 'text-[#ff5555] font-medium' 
+                            : 'hover:text-[#ff5555]'
+                    }`}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                    href={`/${lang}/friends`}
+                >
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                    {lang == 'zh' ? '友链' : 'Friends'}
+                </motion.a>
+                <motion.a 
                     className="hover:text-[#ff5555] transition-colors duration-200 flex items-center gap-1" 
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.95 }}
@@ -334,6 +352,22 @@ function Nav({ lang }: { lang: string }) {
                                 <path d="M20,2H4A2,2 0 0,0 2,4V22L6,18H20A2,2 0 0,0 22,16V4A2,2 0 0,0 20,2M20,16H6L4,18V4H20V16Z"/>
                             </svg>
                             {lang == 'zh' ? '留言' : 'Message'}
+                        </motion.a>
+                    </li>
+                    <li className="py-3 md:py-4" style={{ "transformOrigin": "top right" }}>
+                        <motion.a 
+                            className={`flex items-center gap-2 ${
+                                isActive(`/${lang}/friends`) 
+                                    ? 'font-bold text-white drop-shadow-lg' 
+                                    : 'text-white/90'
+                            }`}
+                            whileHover={{ scale: 1.2, rotate: -3 }} 
+                            href={`/${lang}/friends`}
+                        >
+                            <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                            </svg>
+                            {lang == 'zh' ? '友链' : 'Friends'}
                         </motion.a>
                     </li>
                     <li className="py-3 md:py-4" style={{ "transformOrigin": "top right" }}>
