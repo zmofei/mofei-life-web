@@ -1,0 +1,257 @@
+"use client"
+
+import { motion, } from "motion/react"
+import React from "react";
+import HtmlToReact from './HtmlToReact';
+import Link from "next/link";
+import Image from "next/image";
+import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
+
+interface BlogContent {
+    title: string;
+    html: string;
+    pubtime?: string;
+    previousArticle?: { _id: string; title: string };
+    nextArticle?: { _id: string; title: string };
+}
+
+export default function PageContent({ params }: { params: { content: BlogContent, lang: 'zh' | 'en', blog_id: string } }) {
+    const { content: blog, lang } = params;
+
+    // Format publication date
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString(
+            lang === 'zh' ? 'zh-CN' : 'en-US',
+            {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            }
+        );
+    };
+
+    return <>
+        <div className="max-w-7xl mx-auto">
+            <motion.div className='
+                      font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#a1c4fd] to-[#c2e9fb] 
+                      text-3xl 
+                      md:text-5xl 
+                      lg:text-6xl
+                      !leading-tight mb-4
+                    '
+                initial={{ translateY: 100, opacity: 0 }}
+                animate={{ translateY: 0, opacity: 1 }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+            >
+                {blog.title}
+            </motion.div>
+            
+            {/* Publication date */}
+            {blog.pubtime && (
+                <motion.div 
+                    className="mb-6"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.3 }}
+                >
+                    <div className="inline-flex items-center bg-gray-800/30 backdrop-blur-sm rounded-full px-5 py-2 border border-gray-700/30 shadow-lg">
+                        <svg className="w-4 h-4 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <span className="text-gray-400 text-xs md:text-sm font-medium">
+                            {lang === 'zh' ? '发布于 ' : 'Published '}
+                            {formatDate(blog.pubtime)}
+                        </span>
+                    </div>
+                </motion.div>
+            )}
+        </div>
+        <motion.div className='max-w-7xl mx-auto prose-stone prose-xl-invert overflow-y-auto break-words 
+                  prose-base prose-gray-300
+                  md:prose-xl lg:prose-2xl
+                  custom-paragraph leading-relaxed
+                  bg-gray-900/30 backdrop-blur-sm rounded-2xl p-6 py-2 md:p-8 md:py-2 lg:p-8
+                  border border-gray-800/50 shadow-2xl
+                '
+            initial={{ opacity: 0, translateY: 20 }}
+            animate={{ opacity: 1, translateY: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+        >
+            {(() => {
+                try {
+                    // 使用 HtmlToReact 进行渲染
+                    return <HtmlToReact htmlString={blog.html} />;
+                } catch (error) {
+                    console.error("HtmlToReact failed:", error);
+                    // HtmlToReact 渲染失败时回退到 dangerouslySetInnerHTML
+                    return <div dangerouslySetInnerHTML={{ __html: blog.html }} />;
+                }
+            })()}
+            
+            {/* WeChat Follow integrated into article content - Only for Chinese */}
+            {lang === 'zh' && (
+                <div className="mt-12 pt-8 border-t border-gray-600/30">
+                    <div className="text-center mb-6">
+                        <h3 className="text-xl font-bold text-white mb-3">
+                            📱 喜欢这篇文章？关注我的公众号
+                        </h3>
+                        <p className="text-gray-400 text-sm">
+                            博客文章会第一时间发布，然后按类型同步到对应公众号
+                        </p>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-6">
+                        {/* Life WeChat */}
+                        <div className="bg-gradient-to-br from-red-50/10 to-red-100/10 rounded-xl p-5 border border-red-300/20 hover:border-red-300/40 transition-all duration-300">
+                            <div className="text-center">
+                                <div className="flex justify-center mb-3">
+                                    <div className="bg-red-500 text-white px-3 py-1.5 rounded-full text-sm font-bold shadow-lg flex items-center gap-2">
+                                        <span>👨‍👩‍👧‍👦</span>
+                                        <span>生活公众号</span>
+                                    </div>
+                                </div>
+                                
+                                <h4 className="text-lg font-bold text-red-400 mb-2">疯狂的超级奶爸在北欧</h4>
+                                <p className="text-red-300 text-sm mb-4">家庭生活 • 育儿日常 • 北欧生活</p>
+                                
+                                <div className="w-32 h-32 mx-auto mb-3 bg-white/10 border border-red-300/30 rounded-lg overflow-hidden">
+                                    <Image 
+                                        src="/img/qrcode_life.jpg" 
+                                        alt="生活公众号二维码"
+                                        width={128}
+                                        height={128}
+                                        className="w-full h-full object-contain not-prose"
+                                    />
+                                </div>
+                                
+                                <p className="text-gray-400 text-sm">🏠 芬兰生活分享</p>
+                            </div>
+                        </div>
+
+                        {/* Tech WeChat */}
+                        <div className="bg-gradient-to-br from-blue-50/10 to-blue-100/10 rounded-xl p-5 border border-blue-300/20 hover:border-blue-300/40 transition-all duration-300">
+                            <div className="text-center">
+                                <div className="flex justify-center mb-3">
+                                    <div className="bg-blue-500 text-white px-3 py-1.5 rounded-full text-sm font-bold shadow-lg flex items-center gap-2">
+                                        <span>👨‍💻</span>
+                                        <span>技术公众号</span>
+                                    </div>
+                                </div>
+                                
+                                <h4 className="text-lg font-bold text-blue-400 mb-2">Mofie</h4>
+                                <p className="text-blue-300 text-sm mb-4">前端开发 • AI技术 • 编程经验</p>
+                                
+                                <div className="w-32 h-32 mx-auto mb-3 bg-white/10 border border-blue-300/30 rounded-lg overflow-hidden">
+                                    <Image 
+                                        src="/img/qrcode_tech.jpg" 
+                                        alt="技术公众号二维码"
+                                        width={128}
+                                        height={128}
+                                        className="w-full h-full object-contain not-prose"
+                                    />
+                                </div>
+                                
+                                <p className="text-gray-400 text-sm">🚀 技术灵感与实战</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </motion.div>
+
+        <motion.div className="text-center my-12 md:my-16"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+        >
+            <div className="inline-flex items-center justify-center gap-4 md:gap-6 bg-gradient-to-r from-gray-800/80 to-gray-700/80 
+                rounded-full px-6 py-3 md:px-8 md:py-4 border border-gray-600/30 shadow-xl backdrop-blur-md 
+                hover:shadow-2xl transition-all duration-300">
+                
+                {/* THE END */}
+                <div className="flex items-center">
+                    <Image src="/article/start.png" alt="" className="w-5 md:w-6 mr-2 opacity-70" width={24} height={24} />
+                    <span className="text-sm md:text-base font-medium text-gray-300 tracking-wider">THE END</span>
+                </div>
+                
+                {/* Separator */}
+                <div className="w-px h-6 bg-gray-600/50"></div>
+                
+                {/* Comment CTA */}
+                <button 
+                    onClick={() => {
+                        const commentsSection = document.querySelector('#comments-section');
+                        if (commentsSection) {
+                            commentsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                    }}
+                    className="group flex items-center hover:scale-105 transition-all duration-300"
+                >
+                    <svg className="w-4 h-4 md:w-5 md:h-5 text-blue-400 mr-2 group-hover:text-blue-300 transition-colors" 
+                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                    <span className="text-sm md:text-base font-medium text-blue-300 group-hover:text-blue-200 transition-colors">
+                        {lang === 'zh' ? '要评论吗？' : 'Comment?'}
+                    </span>
+                </button>
+            </div>
+        </motion.div>
+
+        {/* Navigation */}
+        {(blog.previousArticle?._id || blog.nextArticle?._id) && <motion.div
+            className="max-w-7xl mx-auto mt-8 mb-12 grid grid-cols-1 md:grid-cols-2 gap-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+        >
+                {blog.previousArticle?._id && (
+                    <Link href={`/${lang}/blog/article/${blog.previousArticle._id}`} 
+                        className="group block p-4 rounded-xl bg-gradient-to-br from-gray-800/40 to-gray-900/40 
+                            hover:from-gray-700/50 hover:to-gray-800/50 transition-all duration-300 
+                            border border-gray-700/20 hover:border-gray-600/40 hover:shadow-lg hover:scale-[1.02]"
+                        title={blog.previousArticle.title}>
+                        <div className="flex items-center space-x-3">
+                            <div className="flex-shrink-0">
+                                <ChevronLeftIcon className="size-6 text-blue-400 group-hover:text-blue-300 transition-colors" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <div className="text-xs text-blue-400 font-medium mb-1 uppercase tracking-wider">
+                                    {lang == 'zh' ? '上一篇' : 'Previous'}
+                                </div>
+                                <div className="text-gray-200 group-hover:text-white transition-colors truncate font-medium">
+                                    {blog.previousArticle?.title}
+                                </div>
+                            </div>
+                        </div>
+                    </Link>
+                )}
+                {/* nextArticle */}
+                {blog.nextArticle?._id && (
+                    <Link href={`/${lang}/blog/article/${blog.nextArticle._id}`} 
+                        className="group block p-4 rounded-xl bg-gradient-to-bl from-gray-800/40 to-gray-900/40 
+                            hover:from-gray-700/50 hover:to-gray-800/50 transition-all duration-300 
+                            border border-gray-700/20 hover:border-gray-600/40 hover:shadow-lg hover:scale-[1.02]"
+                        title={blog.nextArticle.title}>
+                        <div className="flex items-center space-x-3 md:flex-row-reverse md:space-x-reverse md:space-x-3 md:text-right">
+                            <div className="flex-shrink-0">
+                                <ChevronRightIcon className="size-6 text-emerald-400 group-hover:text-emerald-300 transition-colors" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <div className="text-xs text-emerald-400 font-medium mb-1 uppercase tracking-wider">
+                                    {lang == 'zh' ? '下一篇' : 'Next'}
+                                </div>
+                                <div className="text-gray-200 group-hover:text-white transition-colors truncate font-medium">
+                                    {blog.nextArticle?.title}
+                                </div>
+                            </div>
+                        </div>
+                    </Link>
+                )}
+        </motion.div>}
+    </>
+}

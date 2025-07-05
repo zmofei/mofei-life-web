@@ -1,0 +1,22 @@
+User-Agent: *
+Allow: /
+Disallow: /api/
+Disallow: /tag/
+Disallow: /*?p=
+Disallow: /admin/
+Disallow: /_next/
+Disallow: /private/
+
+# Allow search engines to access important static files
+Allow: /img/
+Allow: /article/
+Allow: /*.js
+Allow: /*.css
+
+# Crawl delay for better server performance
+Crawl-delay: 1
+
+# Sitemaps
+Sitemap: https://www.mofei.life/sitemap.xml
+Sitemap: https://www.mofei.life/en/rss
+Sitemap: https://www.mofei.life/zh/rss
