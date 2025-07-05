@@ -47,7 +47,7 @@ export default function Base64ToolPage({ params }: { params: Promise<{ lang: 'zh
     if (savedHistory) {
       try {
         setHistory(JSON.parse(savedHistory));
-      } catch (e) {
+      } catch {
         // Ignore invalid history data
       }
     }
@@ -91,7 +91,7 @@ export default function Base64ToolPage({ params }: { params: Promise<{ lang: 'zh
           return newHistory;
         });
       }
-    } catch (err) {
+    } catch {
       setError(lang === 'zh' ? '解码失败：输入的不是有效的Base64字符串' : 'Decode failed: Invalid Base64 string');
       setOutputText('');
     }
@@ -101,7 +101,7 @@ export default function Base64ToolPage({ params }: { params: Promise<{ lang: 'zh
     try {
       await navigator.clipboard.writeText(text);
       // 这里可以添加一个成功提示
-    } catch (err) {
+    } catch {
       // 降级方案
       const textArea = document.createElement('textarea');
       textArea.value = text;
