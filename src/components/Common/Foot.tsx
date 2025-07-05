@@ -80,6 +80,14 @@ function Foot(params: { lang: string }) {
                             </svg>
                             Friends
                         </Link>
+                        <Link href={`${params?.lang || 'en'}/tools`} 
+                            className="text-white/80 hover:text-white hover:bg-white/10 px-1.5 py-0.5 rounded-lg transition-all duration-300 hover:scale-105 flex items-center gap-1
+                                md:px-2 md:py-1 lg:px-2.5 lg:py-1 xl:px-3 xl:py-1.5 2xl:px-4 2xl:py-1.5">
+                            <svg className="w-3 h-3 md:w-4 md:h-4 lg:w-5 lg:h-5 xl:w-6 xl:h-6 2xl:w-7 2xl:h-7" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/>
+                            </svg>
+                            Tools
+                        </Link>
                     </motion.div>
                     
                     <motion.div
