@@ -63,6 +63,9 @@ function Nav({ lang }: { lang: string }) {
         } else if (path.includes('/friends')) {
             // Friends pages logic
             return pathname.includes('/friends');
+        } else if (path.includes('/tools')) {
+            // Tools pages logic
+            return pathname.includes('/tools');
         }
         return false;
     };
@@ -235,6 +238,21 @@ function Nav({ lang }: { lang: string }) {
                     {lang == 'zh' ? '友链' : 'Friends'}
                 </motion.a>
                 <motion.a 
+                    className={`transition-colors duration-200 flex items-center gap-1 ${
+                        isActive(`/${lang}/tools`) 
+                            ? 'text-[#ff5555] font-medium' 
+                            : 'hover:text-[#ff5555]'
+                    }`}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                    href={`/${lang}/tools`}
+                >
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/>
+                    </svg>
+                    {lang == 'zh' ? '工具' : 'Tools'}
+                </motion.a>
+                <motion.a 
                     className="hover:text-[#ff5555] transition-colors duration-200 flex items-center gap-1" 
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.95 }}
@@ -368,6 +386,22 @@ function Nav({ lang }: { lang: string }) {
                                 <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                             </svg>
                             {lang == 'zh' ? '友链' : 'Friends'}
+                        </motion.a>
+                    </li>
+                    <li className="py-3 md:py-4" style={{ "transformOrigin": "top right" }}>
+                        <motion.a 
+                            className={`flex items-center gap-2 ${
+                                isActive(`/${lang}/tools`) 
+                                    ? 'font-bold text-white drop-shadow-lg' 
+                                    : 'text-white/90'
+                            }`}
+                            whileHover={{ scale: 1.2, rotate: 3 }} 
+                            href={`/${lang}/tools`}
+                        >
+                            <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/>
+                            </svg>
+                            {lang == 'zh' ? '工具' : 'Tools'}
                         </motion.a>
                     </li>
                     <li className="py-3 md:py-4" style={{ "transformOrigin": "top right" }}>
