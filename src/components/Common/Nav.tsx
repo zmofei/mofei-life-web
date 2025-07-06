@@ -64,8 +64,8 @@ function Nav({ lang }: { lang: string }) {
             // Friends pages logic
             return pathname.includes('/friends');
         } else if (path.includes('/tools')) {
-            // Tools pages logic
-            return pathname.includes('/tools');
+            // Tools pages are now external - never active
+            return false;
         }
         return false;
     };
@@ -203,7 +203,7 @@ function Nav({ lang }: { lang: string }) {
                     href={`/${lang}/blog/1`}
                 >
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
                     </svg>
                     {lang == 'zh' ? '博客' : 'Blog'}
                 </motion.a>
@@ -218,7 +218,7 @@ function Nav({ lang }: { lang: string }) {
                     href={`/${lang}/message/1`}
                 >
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M20,2H4A2,2 0 0,0 2,4V22L6,18H20A2,2 0 0,0 22,16V4A2,2 0 0,0 20,2M20,16H6L4,18V4H20V16Z"/>
+                        <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h4l4 4 4-4h4c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
                     </svg>
                     {lang == 'zh' ? '留言' : 'Message'}
                 </motion.a>
@@ -238,14 +238,12 @@ function Nav({ lang }: { lang: string }) {
                     {lang == 'zh' ? '友链' : 'Friends'}
                 </motion.a>
                 <motion.a 
-                    className={`transition-colors duration-200 flex items-center gap-1 ${
-                        isActive(`/${lang}/tools`) 
-                            ? 'text-[#ff5555] font-medium' 
-                            : 'hover:text-[#ff5555]'
-                    }`}
+                    className={`transition-colors duration-200 flex items-center gap-1 hover:text-[#ff5555]`}
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.95 }}
-                    href={`/${lang}/tools`}
+                    href={lang === 'zh' ? 'https://tools.mofei.life/zh/' : 'https://tools.mofei.life/'}
+                    target="_blank"
+                    rel="noopener noreferrer"
                 >
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/>
@@ -266,8 +264,8 @@ function Nav({ lang }: { lang: string }) {
                     {lang == 'zh' ? '源码' : 'Code'}
                 </motion.a>
                 <motion.button 
-                    className="hover:text-[#ff5555] transition-colors duration-200 cursor-pointer flex items-center gap-1" 
-                    whileHover={{ scale: 1.1 }}
+                    className="relative inline-flex items-center h-8 w-16 rounded-full bg-gray-600/80 hover:bg-gray-500/80 transition-colors duration-200 cursor-pointer" 
+                    whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => {
                         if (location.pathname == '/zh') {
@@ -282,10 +280,19 @@ function Nav({ lang }: { lang: string }) {
                         document.cookie = `lang=${lang == 'zh' ? 'en' : 'zh'}; path=/; max-age=${3600 * 24 * 365 * 10}`;
                     }}
                 >
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12.87,15.07L10.33,12.56L10.36,12.53C12.1,10.59 13.34,8.36 14.07,6H17V4H10V2H8V4H1V6H12.17C11.5,7.92 10.44,9.75 9,11.35C8.07,10.32 7.3,9.19 6.69,8H4.69C5.42,9.63 6.42,11.17 7.67,12.56L2.58,17.58L4,19L9,14L12.11,17.11L12.87,15.07Z"/>
-                    </svg>
-                    {lang == 'zh' ? 'English' : '中文'}
+                    <motion.div 
+                        className="absolute top-0.5 left-0.5 w-7 h-7 bg-white rounded-full shadow-lg flex items-center justify-center"
+                        animate={{ x: lang === 'zh' ? 0 : 32 }}
+                        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                    >
+                        <span className="text-xs font-bold text-gray-800">
+                            {lang === 'zh' ? '中' : 'EN'}
+                        </span>
+                    </motion.div>
+                    <div className="flex items-center justify-between w-full px-2 text-xs font-medium text-white">
+                        <span className={`transition-opacity duration-200 ${lang === 'zh' ? 'opacity-100' : 'opacity-40'}`}>中</span>
+                        <span className={`transition-opacity duration-200 ${lang === 'zh' ? 'opacity-40' : 'opacity-100'}`}>EN</span>
+                    </div>
                 </motion.button>
             </motion.div>
 
@@ -351,7 +358,7 @@ function Nav({ lang }: { lang: string }) {
                             href={`/${lang}/blog/1`}
                         >
                             <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
                             </svg>
                             {lang == 'zh' ? '博客' : 'Blog'}
                         </motion.a>
@@ -367,7 +374,7 @@ function Nav({ lang }: { lang: string }) {
                             href={`/${lang}/message/1`}
                         >
                             <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M20,2H4A2,2 0 0,0 2,4V22L6,18H20A2,2 0 0,0 22,16V4A2,2 0 0,0 20,2M20,16H6L4,18V4H20V16Z"/>
+                                <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h4l4 4 4-4h4c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
                             </svg>
                             {lang == 'zh' ? '留言' : 'Message'}
                         </motion.a>
@@ -390,13 +397,11 @@ function Nav({ lang }: { lang: string }) {
                     </li>
                     <li className="py-3 md:py-4" style={{ "transformOrigin": "top right" }}>
                         <motion.a 
-                            className={`flex items-center gap-2 ${
-                                isActive(`/${lang}/tools`) 
-                                    ? 'font-bold text-white drop-shadow-lg' 
-                                    : 'text-white/90'
-                            }`}
+                            className={`flex items-center gap-2 text-white/90`}
                             whileHover={{ scale: 1.2, rotate: 3 }} 
-                            href={`/${lang}/tools`}
+                            href={lang === 'zh' ? 'https://tools.mofei.life/zh/' : 'https://tools.mofei.life/'}
+                            target="_blank"
+                            rel="noopener noreferrer"
                         >
                             <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/>
@@ -419,23 +424,36 @@ function Nav({ lang }: { lang: string }) {
                         </motion.a>
                     </li>
                     <li className="py-3 md:py-4" style={{ "transformOrigin": "top right" }}>
-                        <motion.a className="flex items-center gap-2" whileHover={{ scale: 1.2, rotate: -3 }} onClick={() => {
-                            if (location.pathname == '/zh') {
-                                location.href = '/'
-                            } else if (location.pathname == '/') {
-                                location.href = '/zh'
-                            } else if (lang == 'zh') {
-                                location.href = location.href.replace('/zh', '/en')
-                            } else {
-                                location.href = location.href.replace('/en', '/zh')
-                            }
-                            document.cookie = `lang=${lang == 'zh' ? 'en' : 'zh'}; path=/; max-age=${3600 * 24 * 365 * 10}`;
-                        }}>
-                            <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12.87,15.07L10.33,12.56L10.36,12.53C12.1,10.59 13.34,8.36 14.07,6H17V4H10V2H8V4H1V6H12.17C11.5,7.92 10.44,9.75 9,11.35C8.07,10.32 7.3,9.19 6.69,8H4.69C5.42,9.63 6.42,11.17 7.67,12.56L2.58,17.58L4,19L9,14L12.11,17.11L12.87,15.07Z"/>
-                            </svg>
-                            {lang == 'zh' ? 'English' : '中文'}
-                        </motion.a>
+                        <motion.button 
+                            className="relative inline-flex items-center h-10 w-20 rounded-full bg-gray-600/80 hover:bg-gray-500/80 transition-colors duration-200 cursor-pointer" 
+                            whileHover={{ scale: 1.1, rotate: -3 }}
+                            onClick={() => {
+                                if (location.pathname == '/zh') {
+                                    location.href = '/'
+                                } else if (location.pathname == '/') {
+                                    location.href = '/zh'
+                                } else if (lang == 'zh') {
+                                    location.href = location.href.replace('/zh', '/en')
+                                } else {
+                                    location.href = location.href.replace('/en', '/zh')
+                                }
+                                document.cookie = `lang=${lang == 'zh' ? 'en' : 'zh'}; path=/; max-age=${3600 * 24 * 365 * 10}`;
+                            }}
+                        >
+                            <motion.div 
+                                className="absolute top-0.5 left-0.5 w-9 h-9 bg-white rounded-full shadow-lg flex items-center justify-center"
+                                animate={{ x: lang === 'zh' ? 0 : 40 }}
+                                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                            >
+                                <span className="text-sm font-bold text-gray-800">
+                                    {lang === 'zh' ? '中' : 'EN'}
+                                </span>
+                            </motion.div>
+                            <div className="flex items-center justify-between w-full px-3 text-sm font-medium text-white">
+                                <span className={`transition-opacity duration-200 ${lang === 'zh' ? 'opacity-100' : 'opacity-40'}`}>中</span>
+                                <span className={`transition-opacity duration-200 ${lang === 'zh' ? 'opacity-40' : 'opacity-100'}`}>EN</span>
+                            </div>
+                        </motion.button>
                     </li>
                 </ul>
             </nav>
