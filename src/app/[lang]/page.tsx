@@ -102,7 +102,7 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
         dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
       />
       
-      <div className="snap-y snap-mandatory overflow-y-scroll w-full">
+      <div className="snap-y snap-mandatory overflow-y-auto w-full h-screen">
 
         <div className="h-svh w-full flex items-center justify-center snap-start pt-30 relative">
 

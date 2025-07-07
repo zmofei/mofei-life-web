@@ -15,7 +15,7 @@ function Foot(params: { lang: string }) {
         setShowWeChatModal(false);
     };
     return (
-        <div className="w-full bg-gradient-to-br from-[#e04b45] via-[#d63d33] to-[#c32e22] snap-start overflow-hidden relative" >
+        <div className="w-full bg-gradient-to-br from-[#e04b45] via-[#d63d33] to-[#c32e22] snap-start overflow-hidden relative pb-safe" >
             {/* Background pattern overlay */}
             <div className="absolute inset-0 opacity-10" 
                 style={{
@@ -83,12 +83,18 @@ function Foot(params: { lang: string }) {
                         <a href={params?.lang === 'zh' ? 'https://tools.mofei.life/zh/' : 'https://tools.mofei.life/'} 
                             target="_blank"
                             rel="noopener noreferrer"
+                            title={params?.lang === 'zh' ? '在新窗口打开工具页面' : 'Open tools in new window'}
                             className="text-white/80 hover:text-white hover:bg-white/10 px-1.5 py-0.5 rounded-lg transition-all duration-300 hover:scale-105 flex items-center gap-1
                                 md:px-2 md:py-1 lg:px-2.5 lg:py-1 xl:px-3 xl:py-1.5 2xl:px-4 2xl:py-1.5">
                             <svg className="w-3 h-3 md:w-4 md:h-4 lg:w-5 lg:h-5 xl:w-6 xl:h-6 2xl:w-7 2xl:h-7" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/>
                             </svg>
-                            Tools
+                            <span className="flex items-center gap-1">
+                                Tools
+                                <svg className="w-2 h-2 md:w-3 md:h-3 lg:w-3 lg:h-3 xl:w-3 xl:h-3 2xl:w-3 2xl:h-3 opacity-60" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/>
+                                </svg>
+                            </span>
                         </a>
                     </motion.div>
                     
@@ -136,7 +142,7 @@ function Foot(params: { lang: string }) {
             </div>
                 
             <motion.div
-                className="w-full mt-4 md:mt-6 lg:mt-7 xl:mt-8 2xl:mt-9"
+                className="w-full mt-4 md:mt-6 lg:mt-7 xl:mt-8 2xl:mt-9 overflow-hidden"
                 initial={{ opacity: 0, translateY: 30 }}
                 whileInView={{ opacity: 1, translateY: 0 }}
                 transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
@@ -155,10 +161,10 @@ function Foot(params: { lang: string }) {
                     </svg>
 
                     <svg
-                        className="outline-none flex md:hidden mt-10" viewBox="0 0 2318 200"
+                        className="outline-none flex md:hidden mt-6" viewBox="0 0 2318 120"
                     >
                         <foreignObject width="100%" height="100%">
-                            <p className="text-[200px] text-center font-extrabold text-white" style={{
+                            <p className="text-[120px] text-center font-extrabold text-white" style={{
                                 fontFamily: '"Inter", sans-serif',
                                 fontWeight: 700,
                                 letterSpacing: "-0px",
@@ -167,10 +173,10 @@ function Foot(params: { lang: string }) {
                         </foreignObject>
                     </svg>
                     <svg
-                        className="outline-none flex md:hidden mb-10 " viewBox="0 0 2318 200"
+                        className="outline-none flex md:hidden mb-6" viewBox="0 0 2318 120"
                     >
                         <foreignObject width="100%" height="100%">
-                            <p className="text-[200px] text-center font-extrabold text-white" style={{
+                            <p className="text-[120px] text-center font-extrabold text-white" style={{
                                 fontFamily: '"Inter", sans-serif',
                                 fontWeight: 700,
                                 letterSpacing: "-0px",

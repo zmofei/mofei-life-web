@@ -101,6 +101,19 @@
     font-family: 'Inter variant0', sans-serif, Arial, Helvetica, sans-serif;
     color: white;
     /* font-weight: 200; */
+    overflow-x: hidden;
+  }
+
+  /* Fix mobile scrolling issues */
+  @media (max-width: 768px) {
+    html, body {
+      overflow-x: hidden;
+      max-width: 100vw;
+    }
+    
+    * {
+      max-width: 100%;
+    }
   }
 
   .prose-stone pre {
@@ -272,31 +285,31 @@
   left: 0;
 }
 
-/* 为整个代码块添加样式 */
+/* Styles for the entire code block */
 .custom-paragraph .code-block {
   position: relative;
   padding-left: 0rem;
-  /* 给行号留出空间 */
+  /* Leave space for line numbers */
   background-color: #2d2d2d;
-  /* 背景色 */
+  /* Background color */
   color: #ffffff;
-  /* 字体颜色 */
+  /* Font color */
   font-family: 'Fira Code', monospace;
-  /* 使用等宽字体 */
+  /* Use monospace font */
   line-height: 1.5;
-  /* 行高 */
+  /* Line height */
   overflow: auto;
-  /* 滚动条 */
+  /* Scrollbar */
 }
 
-/* 每一行代码的行号样式 */
+/* Line number styles for each code line */
 .custom-paragraph .code-block div {
   position: relative;
   padding-left: 3.5rem;
-  /* 确保行号不覆盖代码 */
+  /* Ensure line numbers don't overlap code */
 }
 
-/* 使用伪类为每行代码添加行号 */
+/* Use pseudo-class to add line numbers to each code line */
 .custom-paragraph .code-block div::before {
   content: counter(line);
   counter-increment: line;
@@ -305,12 +318,12 @@
   width: 2.5rem;
   text-align: right;
   color: #888;
-  /* 行号颜色 */
+  /* Line number color */
   user-select: none;
-  /* 禁止选中行号 */
+  /* Prevent line number selection */
 }
 
-/* 在代码块开始时初始化行号计数器 */
+/* Initialize line number counter at start of code block */
 .custom-paragraph .code-block {
   counter-reset: line;
 }

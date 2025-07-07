@@ -238,17 +238,23 @@ function Nav({ lang }: { lang: string }) {
                     {lang == 'zh' ? '友链' : 'Friends'}
                 </motion.a>
                 <motion.a 
-                    className={`transition-colors duration-200 flex items-center gap-1 hover:text-[#ff5555]`}
+                    className={`transition-colors duration-200 flex items-center gap-1 hover:text-[#ff5555] relative group`}
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.95 }}
                     href={lang === 'zh' ? 'https://tools.mofei.life/zh/' : 'https://tools.mofei.life/'}
                     target="_blank"
                     rel="noopener noreferrer"
+                    title={lang === 'zh' ? '在新窗口打开工具页面' : 'Open tools in new window'}
                 >
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/>
                     </svg>
-                    {lang == 'zh' ? '工具' : 'Tools'}
+                    <span className="flex items-center gap-1">
+                        {lang == 'zh' ? '工具' : 'Tools'}
+                        <svg className="w-3 h-3 opacity-60" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/>
+                        </svg>
+                    </span>
                 </motion.a>
                 <motion.a 
                     className="hover:text-[#ff5555] transition-colors duration-200 flex items-center gap-1" 
@@ -402,11 +408,17 @@ function Nav({ lang }: { lang: string }) {
                             href={lang === 'zh' ? 'https://tools.mofei.life/zh/' : 'https://tools.mofei.life/'}
                             target="_blank"
                             rel="noopener noreferrer"
+                            title={lang === 'zh' ? '在新窗口打开工具页面' : 'Open tools in new window'}
                         >
                             <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/>
                             </svg>
-                            {lang == 'zh' ? '工具' : 'Tools'}
+                            <span className="flex items-center gap-1">
+                                {lang == 'zh' ? '工具' : 'Tools'}
+                                <svg className="w-4 h-4 opacity-60" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/>
+                                </svg>
+                            </span>
                         </motion.a>
                     </li>
                     <li className="py-3 md:py-4" style={{ "transformOrigin": "top right" }}>
