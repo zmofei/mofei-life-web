@@ -73,13 +73,53 @@ export default function PageContent({ params }: { params: { content: BlogContent
                   prose-base prose-gray-300
                   md:prose-xl lg:prose-2xl
                   custom-paragraph leading-relaxed
-                  bg-gray-900/30 backdrop-blur-sm rounded-2xl p-6 py-2 md:p-8 md:py-2 lg:p-8
-                  border border-gray-800/50 shadow-2xl
+                  bg-white/10 backdrop-blur-lg rounded-2xl p-6 py-2 md:p-8 md:py-2 lg:p-8
+                  shadow-2xl hover:shadow-3xl transition-all duration-500
+                  relative group overflow-hidden
                 '
+                style={{
+                    border: '1px solid rgba(255, 255, 255, 0.18)',
+                    borderTop: '1px solid rgba(255, 255, 255, 0.25)',
+                    borderLeft: '1px solid rgba(255, 255, 255, 0.22)'
+                }}
             initial={{ opacity: 0, translateY: 20 }}
             animate={{ opacity: 1, translateY: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
         >
+            {/* Glass effect overlays */}
+            <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none rounded-2xl"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-white/5 pointer-events-none rounded-2xl"></div>
+            
+            {/* Inner glow effect */}
+            <div className="absolute inset-0 bg-gradient-to-br from-white/3 via-transparent to-white/2 pointer-events-none rounded-2xl"></div>
+            
+            {/* Glass border reflections */}
+            <div className="absolute inset-0 rounded-2xl pointer-events-none" style={{
+                background: `linear-gradient(135deg, 
+                    rgba(255,255,255,0.15) 0%, 
+                    transparent 20%, 
+                    transparent 80%, 
+                    rgba(255,255,255,0.08) 100%)`
+            }}></div>
+            
+            {/* Top edge highlight */}
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent rounded-t-2xl pointer-events-none"></div>
+            
+            {/* Left edge highlight */}
+            <div className="absolute top-0 left-0 bottom-0 w-px bg-gradient-to-b from-white/8 via-white/5 to-transparent rounded-l-2xl pointer-events-none"></div>
+            
+            {/* Bottom right subtle reflection */}
+            <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-tl from-white/3 to-transparent rounded-br-2xl pointer-events-none"></div>
+            
+            {/* Soft directional light */}
+            <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-white/4 to-transparent rounded-tl-2xl pointer-events-none"></div>
+            
+            {/* Shimmer effect */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/8 to-transparent 
+                -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out
+                skew-x-12 pointer-events-none rounded-2xl"></div>
+                
+            <div className="relative z-10">
             {(() => {
                 try {
                     // 使用 HtmlToReact 进行渲染
@@ -160,6 +200,7 @@ export default function PageContent({ params }: { params: { content: BlogContent
                     </div>
                 </div>
             )}
+            </div>
         </motion.div>
 
         <motion.div className="text-center my-12 md:my-16"
@@ -167,9 +208,18 @@ export default function PageContent({ params }: { params: { content: BlogContent
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.4 }}
         >
-            <div className="inline-flex items-center justify-center gap-4 md:gap-6 bg-gradient-to-r from-gray-800/80 to-gray-700/80 
-                rounded-full px-6 py-3 md:px-8 md:py-4 border border-gray-600/30 shadow-xl backdrop-blur-md 
-                hover:shadow-2xl transition-all duration-300">
+            <div className="inline-flex items-center justify-center gap-4 md:gap-6 bg-white/10 backdrop-blur-lg
+                rounded-full px-6 py-3 md:px-8 md:py-4 border border-white/20 shadow-xl 
+                hover:shadow-2xl transition-all duration-300 relative group overflow-hidden">
+                
+                {/* Glass effect overlays */}
+                <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none rounded-full"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-white/5 pointer-events-none rounded-full"></div>
+                
+                {/* Shimmer effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent 
+                    -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out
+                    skew-x-12 pointer-events-none rounded-full"></div>
                 
                 {/* THE END */}
                 <div className="flex items-center">
@@ -211,11 +261,21 @@ export default function PageContent({ params }: { params: { content: BlogContent
         >
                 {blog.previousArticle?._id && (
                     <Link href={`/${lang}/blog/article/${blog.previousArticle._id}`} 
-                        className="group block p-4 rounded-xl bg-gradient-to-br from-gray-800/40 to-gray-900/40 
-                            hover:from-gray-700/50 hover:to-gray-800/50 transition-all duration-300 
-                            border border-gray-700/20 hover:border-gray-600/40 hover:shadow-lg hover:scale-[1.02]"
+                        className="group block p-4 rounded-xl bg-white/10 backdrop-blur-lg
+                            hover:bg-white/15 transition-all duration-300 
+                            border border-white/20 hover:border-white/30 hover:shadow-lg hover:scale-[1.02]
+                            relative overflow-hidden"
                         title={blog.previousArticle.title}>
-                        <div className="flex items-center space-x-3">
+                        {/* Glass effect overlays */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none rounded-xl"></div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-white/5 pointer-events-none rounded-xl"></div>
+                        
+                        {/* Shimmer effect */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/8 to-transparent 
+                            -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out
+                            skew-x-12 pointer-events-none rounded-xl"></div>
+                            
+                        <div className="flex items-center space-x-3 relative z-10">
                             <div className="flex-shrink-0">
                                 <ChevronLeftIcon className="size-6 text-blue-400 group-hover:text-blue-300 transition-colors" />
                             </div>
@@ -233,11 +293,21 @@ export default function PageContent({ params }: { params: { content: BlogContent
                 {/* nextArticle */}
                 {blog.nextArticle?._id && (
                     <Link href={`/${lang}/blog/article/${blog.nextArticle._id}`} 
-                        className="group block p-4 rounded-xl bg-gradient-to-bl from-gray-800/40 to-gray-900/40 
-                            hover:from-gray-700/50 hover:to-gray-800/50 transition-all duration-300 
-                            border border-gray-700/20 hover:border-gray-600/40 hover:shadow-lg hover:scale-[1.02]"
+                        className="group block p-4 rounded-xl bg-white/10 backdrop-blur-lg
+                            hover:bg-white/15 transition-all duration-300 
+                            border border-white/20 hover:border-white/30 hover:shadow-lg hover:scale-[1.02]
+                            relative overflow-hidden"
                         title={blog.nextArticle.title}>
-                        <div className="flex items-center space-x-3 md:flex-row-reverse md:space-x-reverse md:space-x-3 md:text-right">
+                        {/* Glass effect overlays */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none rounded-xl"></div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-white/5 pointer-events-none rounded-xl"></div>
+                        
+                        {/* Shimmer effect */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/8 to-transparent 
+                            -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out
+                            skew-x-12 pointer-events-none rounded-xl"></div>
+                            
+                        <div className="flex items-center space-x-3 md:flex-row-reverse md:space-x-reverse md:space-x-3 md:text-right relative z-10">
                             <div className="flex-shrink-0">
                                 <ChevronRightIcon className="size-6 text-emerald-400 group-hover:text-emerald-300 transition-colors" />
                             </div>

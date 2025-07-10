@@ -35,36 +35,51 @@ const Pagination: React.FC<PaginationProps> = ({
     };
 
     return (
-        <div className="flex justify-center items-center space-x-3 
-            mt-2 text-base
-            md:mt-4 md:text-xl
-            px-4 py-6
-        ">
+        <div className="flex justify-center px-6 py-8">
+            <div 
+                className="flex items-center gap-3 text-white text-sm md:text-base px-4 py-2 rounded-full border border-white/20"
+                style={{
+                    background: 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.05) 100%)',
+                    backdropFilter: 'blur(15px) saturate(180%)',
+                    WebkitBackdropFilter: 'blur(15px) saturate(180%)',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.2)'
+                }}
+            >
             {/* Previous Button */}
             {_page > 1 && (
                 singlePageMode ? (
                     <motion.button
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
-                        className="px-4 py-2.5 rounded-lg bg-gradient-to-r from-[#f05a54] to-[#e04b45] hover:from-[#e04b45] hover:to-[#d03c37] text-white font-medium shadow-lg hover:shadow-xl transition-all duration-200"
+                        className="px-3 py-1.5 rounded-full bg-white/20 hover:bg-white/30 text-white font-medium transition-all duration-300 cursor-pointer"
                         onClick={() => handlePageChange(_page - 1)}
                         initial={{ opacity: 0, y: 10 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5, delay: 0 }}
                     >
-                        {lang == 'zh' ? '上一页' : 'Previous'}
+                        <div className="flex items-center gap-2">
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                            {lang == 'zh' ? '上一页' : 'Previous'}
+                        </div>
                     </motion.button>
                 ) : (
                     <Link href={`${baseURL}/${_page - 1}${anchor ? `#${anchor}` : ''}`} prefetch={true}>
                         <motion.button
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}
-                            className="px-4 py-2.5 rounded-lg bg-gradient-to-r from-[#f05a54] to-[#e04b45] hover:from-[#e04b45] hover:to-[#d03c37] text-white font-medium shadow-lg hover:shadow-xl transition-all duration-200"
+                            className="px-3 py-1.5 rounded-full bg-white/20 hover:bg-white/30 text-white font-medium transition-all duration-300 cursor-pointer"
                             initial={{ opacity: 0, y: 10 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.5, delay: 0 }}
                         >
-                            {lang == 'zh' ? '上一页' : 'Previous'}
+                            <div className="flex items-center gap-2">
+                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+                                </svg>
+                                {lang == 'zh' ? '上一页' : 'Previous'}
+                            </div>
                         </motion.button>
                     </Link>
                 )
@@ -85,12 +100,17 @@ const Pagination: React.FC<PaginationProps> = ({
                                     y: -2
                                 }}
                                 whileTap={{ scale: 0.9 }}
-                                className={`px-4 py-2.5 rounded-lg font-medium transition-all duration-200 
+                                className={`px-3 py-1.5 rounded-full font-medium transition-all duration-300 cursor-pointer relative overflow-hidden
                                 ${page === _page
-                                        ? "bg-gradient-to-r from-[#f05a54] to-[#e04b45] text-white shadow-lg"
-                                        : "bg-gray-700/50 text-gray-200 hover:bg-gray-600/50 border border-gray-600/50 hover:border-gray-500/50 backdrop-blur-sm"
+                                        ? "bg-white/25 text-white font-medium shadow-lg"
+                                        : "hover:bg-white/15 hover:text-white"
                                     }
                             `}
+                                style={{
+                                    background: page === _page 
+                                        ? 'linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.15) 100%)'
+                                        : 'transparent'
+                                }}
                                 onClick={() => handlePageChange(page)}
                             >
                                 {page}
@@ -106,12 +126,17 @@ const Pagination: React.FC<PaginationProps> = ({
                                         y: -2
                                     }}
                                     whileTap={{ scale: 0.9 }}
-                                    className={`px-4 py-2.5 rounded-lg font-medium transition-all duration-200 
+                                    className={`px-3 py-1.5 rounded-full font-medium transition-all duration-300 cursor-pointer relative overflow-hidden
                                     ${page === _page
-                                            ? "bg-gradient-to-r from-[#f05a54] to-[#e04b45] text-white shadow-lg"
-                                            : "bg-gray-700/50 text-gray-200 hover:bg-gray-600/50 border border-gray-600/50 hover:border-gray-500/50 backdrop-blur-sm"
+                                            ? "bg-white/25 text-white font-medium shadow-lg"
+                                            : "hover:bg-white/15 hover:text-white"
                                         }
                                 `}
+                                    style={{
+                                        background: page === _page 
+                                            ? 'linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.15) 100%)'
+                                            : 'transparent'
+                                    }}
                                 >
                                     {page}
                                 </motion.button>
@@ -121,7 +146,7 @@ const Pagination: React.FC<PaginationProps> = ({
                 </>
             </div>
 
-            <div className="md:hidden px-4 py-2 bg-gray-700/30 rounded-lg text-gray-200 font-medium backdrop-blur-sm border border-gray-600/30">{_page}/{totalPages}</div>
+            <div className="md:hidden px-3 py-1.5 bg-white/20 rounded-full text-white/80 font-medium cursor-default">{_page}/{totalPages}</div>
 
             {/* Next Button */}
             {_page < totalPages && (
@@ -132,10 +157,15 @@ const Pagination: React.FC<PaginationProps> = ({
                         transition={{ duration: 0.5, delay: 0 }}
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
-                        className="px-4 py-2.5 rounded-lg bg-gradient-to-r from-[#f05a54] to-[#e04b45] hover:from-[#e04b45] hover:to-[#d03c37] text-white font-medium shadow-lg hover:shadow-xl transition-all duration-200"
+                        className="px-3 py-1.5 rounded-full bg-white/20 hover:bg-white/30 text-white font-medium transition-all duration-300 cursor-pointer"
                         onClick={() => handlePageChange(_page + 1)}
                     >
-                        {lang == 'zh' ? '下一页' : 'Next'}
+                        <div className="flex items-center gap-2">
+                            {lang == 'zh' ? '下一页' : 'Next'}
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                            </svg>
+                        </div>
                     </motion.button>
                 ) : (
                     <Link href={`${baseURL}/${_page + 1}${anchor ? `#${anchor}` : ''}`} prefetch={true}>
@@ -145,13 +175,19 @@ const Pagination: React.FC<PaginationProps> = ({
                             transition={{ duration: 0.5, delay: 0 }}
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}
-                            className="px-4 py-2.5 rounded-lg bg-gradient-to-r from-[#f05a54] to-[#e04b45] hover:from-[#e04b45] hover:to-[#d03c37] text-white font-medium shadow-lg hover:shadow-xl transition-all duration-200"
+                            className="px-3 py-1.5 rounded-full bg-white/20 hover:bg-white/30 text-white font-medium transition-all duration-300 cursor-pointer"
                         >
-                            {lang == 'zh' ? '下一页' : 'Next'}
+                            <div className="flex items-center gap-2">
+                                {lang == 'zh' ? '下一页' : 'Next'}
+                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                                </svg>
+                            </div>
                         </motion.button>
                     </Link>
                 )
             )}
+            </div>
         </div>
     );
 };

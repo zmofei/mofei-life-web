@@ -1,0 +1,9 @@
+.blog-grid {
+  grid-auto-rows: max-content;
+}
+
+@media (min-width: 768px) {
+  .blog-grid {
+    grid-auto-rows: 1fr;
+  }
+}

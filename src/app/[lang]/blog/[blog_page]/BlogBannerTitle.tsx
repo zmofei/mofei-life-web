@@ -1,14 +1,13 @@
 "use client"
 
-import { motion, AnimatePresence } from "motion/react"
+import { motion } from "motion/react"
 import Lan from "@/components/util/Language";
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 
 
 export default function BlogBannerTitle(params: { lang: 'zh' | 'en' }) {
 
     const { lang } = params
-
 
     const TitleList = [
         { "zh": "生活的热爱", "en": "Love & Life" },
@@ -20,142 +19,80 @@ export default function BlogBannerTitle(params: { lang: 'zh' | 'en' }) {
         { "zh": "一切有趣的事", "en": "Everything Interesting" }
     ]
 
-    const [TitleIndex, setTitleIndex] = useState(0);
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [isAnimating, setIsAnimating] = useState(true);
+
+    // Final index is "一切有趣的事" / "Everything Interesting"
+    const finalIndex = TitleList.length - 1;
 
     useEffect(() => {
-        const timer = setInterval(() => {
-            setTitleIndex((prevIndex) => {
-                if (prevIndex != TitleList.length - 1) {
-                    return prevIndex === TitleList.length - 1 ? 0 : prevIndex + 1
-                } else {
-                    clearInterval(timer)
-                    return TitleList.length - 1
-                }
-            });
-        }, lang == 'zh' ? 300 : 300); // 2秒钟切换下一句
+        if (!isAnimating) return;
 
-        return () => clearInterval(timer); // 清理定时器
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+        const interval = setInterval(() => {
+            setCurrentIndex((prev) => {
+                const nextIndex = (prev + 1) % TitleList.length;
+                
+                // If we've reached the final index, stop animating
+                if (nextIndex === finalIndex) {
+                    setIsAnimating(false);
+                    return finalIndex;
+                }
+                
+                return nextIndex;
+            });
+        }, 200); // Change every 0.2 seconds for fast cycling
+
+        return () => clearInterval(interval);
+    }, [isAnimating, finalIndex, TitleList.length]);
 
     return (
         <>
             <div className='container max-w-[2000px] m-auto width-full overflow-hidden'>
-                <div className='font-extrabold overflow-hidden pt-20 w-full px-5 md:px-10'>
-                    <motion.h2 className={`text-white leading-snug
-                        ${(lang == 'zh' ? 'text-5xl' : 'text-3xl')}
-                        ${(lang == 'zh' ? 'lg:text-8xl' : 'lg:text-7xl')}
-                        2xl:ml-0 2xl:mt-14 2xl:leading-tight ${(lang == 'zh' ? '2xl:text-[9rem]' : '2xl:text-[8rem]')}`}
+                <div className='font-extrabold overflow-hidden pt-20 w-full px-5 md:px-10 lg:px-16'>
+                    <motion.h1 
+                        className={`font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#a1c4fd] to-[#c2e9fb] leading-tight 
+                            text-3xl mt-5 mb-4
+                            md:text-5xl md:mt-24 md:mb-6
+                            lg:text-6xl lg:mt-28 lg:mb-8
+                            xl:text-7xl xl:mt-32 xl:mb-10
+                        `}
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8, ease: "easeOut" }}
                     >
-                        <motion.div
-                            className='2xl:-mb-10 inline-block'
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{
-                                duration: 0,
-                                delay: 0
-                            }}
-                        >
-                            <Lan lang={lang} candidate={{
-                                "zh": "我",
-                                "en": "I "
-                            }} />
-                        </motion.div>
-                        {lang == 'en' ? " " : ""}
-                        <motion.div
-                            className='2xl:-mb-10 inline-block'
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{
-                                duration: 0,
-                                delay: .3
-                            }}
-                        >
-                            <Lan lang={lang} candidate={{
-                                "zh": "书写",
-                                "en": "Write"
-                            }} />
-                        </motion.div>
-
-                        <motion.div className=''
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{
-                                duration: 0,
-                                delay: .6
-                            }}
-                        >
-                            <AnimatePresence>
-                                <motion.div
-                                    className='no-wrap text-ellipsis pb-2'
-                                    key={TitleIndex}
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    exit={{ opacity: 0 }}
-                                    transition={{
-                                        opacity: { duration: 0 },
-                                    }}
-                                    style={{
-                                        position: "absolute", // 确保只有一行可见
-                                        textOverflow: "ellipsis",
-                                        letterSpacing: "-0.05em",
-                                    }}
-                                >
-                                    <Lan lang={lang} candidate={TitleList[TitleIndex]} />
-                                    {TitleIndex === TitleList.length - 1 &&
-                                        <motion.span
-                                            className='inline-block text-2xl lg:text-8xl ml-2'
-                                            initial={{ rotate: 0 }}
-                                            animate={{ rotate: 45 }}
-                                            transition={{
-                                                type: "spring",
-                                                stiffness: 100,
-                                                duration: .4,
-                                                // delay: .6
-                                            }}
-                                        > * </motion.span>
-                                    }
-                                </motion.div>
-                            </AnimatePresence>
-
-                            <div className='invisible no-wrap text-ellipsis overflow-hidden pb-2 pr-2' style={{
-                                whiteSpace: "nowrap",
-                                letterSpacing: "-0.05em",
-                            }}>{TitleList[TitleIndex][lang]}</div>
-                        </motion.div>
-                    </motion.h2>
-                    <div></div>
-                </div >
-
-                <div className="px-5 md:px-10">
-                    {TitleIndex !== TitleList.length - 1 && (
-                        <div className='box-border 2xl:top-20 invisible'>
-                            <Lan lang={lang} candidate={{
-                                "zh": "*只要心怀梦想，写下的每个字都能点亮世界，哪怕只是开始，也是在书写属于自己的奇迹。",
-                                "en": "*As long as you have a dream, every word you write can light up the world. "
-                            }} />
-                        </div>)}
-                    {TitleIndex === TitleList.length - 1 &&
-                        (<motion.div className='box-border 2xl:top-20'
-                            initial={{ opacity: 0, translateX: -100 }}
-                            animate={{ opacity: 1, translateX: 0 }}
-                            transition={{
-                                type: "spring",
-                                stiffness: 100,
-                                duration: .5,
-                                delay: 0.3
-                            }}
-                        >
-                            <Lan lang={lang} candidate={{
-                                "zh": "* 只要心怀梦想，写下的每个字都能点亮世界，哪怕只是开始，也是在书写属于自己的奇迹。",
-                                "en": "* As long as you have a dream, every word you write can light up the world. "
-                            }} />
-                        </motion.div>)
-                    }
+                        <Lan lang={lang} candidate={{
+                            "zh": "我书写",
+                            "en": "I Write "
+                        }} />
+                        <br />
+                        <Lan lang={lang} candidate={TitleList[currentIndex]} />
+                    </motion.h1>
+                    
+                    <motion.p 
+                        className="text-gray-300/90 text-lg md:text-xl lg:text-2xl font-medium leading-relaxed tracking-wide"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+                    >
+                        <Lan lang={lang} candidate={{
+                            "zh": "在文字的世界里探索思想，在故事中寻找生活的意义。每一篇文章都是一次心灵的旅行。",
+                            "en": "Exploring thoughts in the world of words, finding meaning in stories. Every article is a journey of the soul."
+                        }} />
+                    </motion.p>
+                    
+                    <motion.p 
+                        className="text-gray-400/80 text-sm md:text-base leading-relaxed mt-4 md:mt-6"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
+                    >
+                        <Lan lang={lang} candidate={{
+                            "zh": "只要心怀梦想，写下的每个字都能点亮世界，哪怕只是开始，也是在书写属于自己的奇迹。",
+                            "en": "As long as you have a dream, every word you write can light up the world. Even if it's just a beginning, you're writing your own miracle."
+                        }} />
+                    </motion.p>
                 </div>
-
-            </div >
-
+            </div>
         </>
     );
 }

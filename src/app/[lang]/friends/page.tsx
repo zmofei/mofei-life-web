@@ -127,7 +127,104 @@ export default function FriendsPage({ params }: { params: Promise<{ lang: 'zh' |
 
   return (
     <>
-      <div className='container max-w-[2000px] m-auto'>
+      {/* Animated background pattern to make glass effects visible */}
+      <div className="fixed inset-0 pointer-events-none">
+        {/* Main gradient background with animation */}
+        <motion.div 
+          className="absolute inset-0 bg-gradient-to-br from-blue-500/30 via-purple-500/30 to-pink-500/30"
+          animate={{
+            backgroundPosition: ['0% 0%', '100% 100%', '0% 0%']
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+        />
+        
+        {/* Animated colorful circles with gentle, flowing movement */}
+        <div className="absolute inset-0">
+          <motion.div 
+            className="absolute top-20 left-20 w-96 h-96 bg-blue-400/20 rounded-full blur-3xl"
+            animate={{
+              x: [0, 80, -40, 0],
+              y: [0, 60, 80, 0],
+              scale: [1, 1.2, 1.1, 1]
+            }}
+            transition={{
+              duration: 20,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          />
+          <motion.div 
+            className="absolute top-40 right-20 w-80 h-80 bg-purple-400/20 rounded-full blur-3xl"
+            animate={{
+              x: [0, -100, -60, 0],
+              y: [0, 120, -40, 0],
+              scale: [1, 1.3, 1.15, 1]
+            }}
+            transition={{
+              duration: 25,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 3
+            }}
+          />
+          <motion.div 
+            className="absolute bottom-20 left-40 w-72 h-72 bg-pink-400/20 rounded-full blur-3xl"
+            animate={{
+              x: [0, 90, 30, 0],
+              y: [0, -60, -100, 0],
+              scale: [1, 1.25, 1.05, 1]
+            }}
+            transition={{
+              duration: 22,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 7
+            }}
+          />
+          <motion.div 
+            className="absolute bottom-40 right-40 w-64 h-64 bg-cyan-400/20 rounded-full blur-3xl"
+            animate={{
+              x: [0, -80, 50, 0],
+              y: [0, -90, 40, 0],
+              scale: [1, 1.4, 1.2, 1]
+            }}
+            transition={{
+              duration: 18,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 5
+            }}
+          />
+        </div>
+        
+        {/* Subtle animated pattern overlay */}
+        <motion.div 
+          className="absolute inset-0 opacity-10" 
+          style={{
+            backgroundImage: `repeating-linear-gradient(
+              45deg,
+              transparent,
+              transparent 80px,
+              rgba(255,255,255,0.1) 80px,
+              rgba(255,255,255,0.1) 81px
+            )`
+          }}
+          animate={{
+            backgroundPosition: ['0px 0px', '160px 160px', '0px 0px']
+          }}
+          transition={{
+            duration: 25,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+        />
+      </div>
+      
+      <div className='container max-w-[2000px] m-auto relative z-10'>
         <div className='overflow-hidden font-extrabold px-5 md:px-10 lg:px-16'>
           <motion.h1 
             className={`font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#a1c4fd] to-[#c2e9fb] leading-tight 
@@ -166,7 +263,7 @@ export default function FriendsPage({ params }: { params: Promise<{ lang: 'zh' |
         </div>
       </div>
 
-      <div className='container max-w-[2000px] m-auto min-h-screen px-5 md:px-10 lg:px-16 py-6 md:py-8 lg:py-12'>
+      <div className='container max-w-[2000px] m-auto min-h-screen px-5 md:px-10 lg:px-16 py-6 md:py-8 lg:py-12 relative z-10'>
         {Object.entries(groupedLinks).map(([category, links], categoryIndex) => (
           <motion.div 
             key={category}
@@ -193,10 +290,46 @@ export default function FriendsPage({ params }: { params: Promise<{ lang: 'zh' |
                     href={link.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block h-full"
+                    className="block h-full cursor-pointer"
                   >
-                    <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl shadow-md hover:shadow-xl transition-all duration-300 p-6 border border-gray-700 hover:border-[#e04b45]/50 h-full flex flex-col">
-                      <div className="flex items-start gap-4 mb-4">
+                    <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 p-6 border border-white/20 hover:border-white/40 h-full flex flex-col relative overflow-hidden
+                      group hover:-translate-y-1">
+                      
+                      {/* Avatar/Icon cover background */}
+                      <div 
+                        className="absolute inset-0 opacity-10 group-hover:opacity-15 transition-opacity duration-500 rounded-2xl"
+                        style={{
+                          backgroundImage: link.avatar 
+                            ? `url(${link.avatar})`
+                            : `url("data:image/svg+xml,${encodeURIComponent(`
+                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+                                <defs>
+                                  <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#e04b45;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#ff7b54;stop-opacity:1" />
+                                  </linearGradient>
+                                </defs>
+                                <rect width="100" height="100" fill="url(#grad)"/>
+                                <circle cx="50" cy="50" r="30" fill="white" fill-opacity="0.2"/>
+                                <path d="M50 30L60 50L50 70L40 50Z" fill="white" fill-opacity="0.3"/>
+                              </svg>
+                            `)}")`,
+                          backgroundSize: 'cover',
+                          backgroundRepeat: 'no-repeat',
+                          backgroundPosition: 'center'
+                        }}
+                      />
+                      
+                      {/* Glass effect overlays */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none rounded-2xl"></div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-white/5 pointer-events-none rounded-2xl"></div>
+                      
+                      {/* Shimmer effect */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent 
+                        -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out
+                        skew-x-12 pointer-events-none rounded-2xl"></div>
+                      
+                      <div className="flex items-start gap-4 mb-4 relative z-10">
                         {link.avatar ? (
                           <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 bg-gray-100">
                             <Image 
@@ -219,19 +352,19 @@ export default function FriendsPage({ params }: { params: Promise<{ lang: 'zh' |
                           <h3 className="font-semibold text-lg text-white mb-1 truncate">
                             {link.name}
                           </h3>
-                          <p className="text-sm text-gray-400 truncate">
+                          <p className="text-sm text-white/60 truncate">
                             {link.url.replace(/^https?:\/\//, '')}
                           </p>
                         </div>
                         
                         <div className="flex-shrink-0">
-                          <svg className="w-5 h-5 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-5 h-5 text-white/60 group-hover:text-white/80 transition-colors duration-300" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/>
                           </svg>
                         </div>
                       </div>
                       
-                      <p className="text-gray-300 text-sm leading-relaxed flex-1">
+                      <p className="text-white/80 text-sm leading-relaxed flex-1 relative z-10">
                         {link.description[lang]}
                       </p>
                     </div>
@@ -254,15 +387,45 @@ export default function FriendsPage({ params }: { params: Promise<{ lang: 'zh' |
             <div className="w-1 h-8 bg-gradient-to-b from-[#e04b45] to-[#ff7b54] rounded-full"></div>
             {lang === 'zh' ? '申请友链 & 交流讨论' : 'Apply for Links & Discussion'}
           </h2>
-          <div className="mb-4">
-            <p className="text-gray-300 text-sm md:text-base leading-relaxed">
-              {lang === 'zh' 
-                ? '欢迎在下方留言申请友情链接，或者分享你喜欢的网站推荐！请提供网站名称、URL和简短描述。'
-                : 'Feel free to apply for link exchange below, or share your favorite website recommendations! Please provide site name, URL and brief description.'
-              }
-            </p>
+          <div className="mb-4 bg-white/5 backdrop-blur-lg rounded-2xl p-6 border border-white/10 shadow-xl relative overflow-hidden">
+            {/* Glass effect overlays */}
+            <div className="absolute inset-0 bg-gradient-to-br from-white/3 to-transparent pointer-events-none rounded-2xl"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-white/3 pointer-events-none rounded-2xl"></div>
+            
+            <div className="text-white/90 text-sm md:text-base leading-relaxed space-y-4 relative z-10">
+              <p>
+                {lang === 'zh' 
+                  ? '向仍在写博客的你，致敬。'
+                  : 'To those who still write — I see you.'
+                }
+              </p>
+              <p>
+                {lang === 'zh' 
+                  ? '在这个快节奏的时代，你依旧愿意用文字慢下来，记录点滴、分享心事。'
+                  : 'In a world that rarely pauses, you choose to write, to share, to keep your space alive.'
+                }
+              </p>
+              <p>
+                {lang === 'zh' 
+                  ? '如果你也还在守着自己的小站，不妨来换个链接吧。'
+                  : 'If you\'re still tending to your personal blog, I\'d love to exchange links with you.'
+                }
+              </p>
+              <p>
+                {lang === 'zh' 
+                  ? '我们彼此的连接，也许能让一些温暖的灵魂，偶然路过彼此的世界，多停留一会儿。'
+                  : 'Our connection might help kindred spirits stumble into each other\'s worlds — and maybe stay a little longer.'
+                }
+              </p>
+              <p>
+                {lang === 'zh' 
+                  ? '欢迎在下方留言你的博客地址，让我找到你，也让更多有趣的灵魂找到你。'
+                  : 'Drop your blog link below — I\'d love to find you, and maybe others will too.'
+                }
+              </p>
+            </div>
           </div>
-          <Comments lang={lang} message_id="friends_page_comments_001" message_page={1} />
+          <Comments singlePageMode={true} lang={lang} message_id="friends_page_comments_001" message_page={1} baseURL={`/${lang}/friends`} />
         </motion.div>
       </div>
 

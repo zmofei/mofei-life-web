@@ -6,7 +6,7 @@ import { useEffect, useState, useRef } from 'react';
 
 import { fetchMessageList, getToken, postMessage } from '@/app/actions/blog'
 
-import { HomeIcon } from '@heroicons/react/24/outline'
+// import { HomeIcon } from '@heroicons/react/24/outline'
 
 const updateLinks = (htmlContent: string) => {
     // 使用正则表达式替换，避免 DOM 操作安全问题
@@ -30,13 +30,14 @@ interface CommentsParams {
     message_id: string;
     message_page?: number;
     singlePageMode?: boolean;
+    baseURL?: string;
 }
 
 export default function Comments(params: CommentsParams) {
 
-    const { lang, message_id, message_page = 1, singlePageMode = false } = params
+    const { lang, message_id, message_page = 1, singlePageMode = false, baseURL } = params
     const messageArea = useRef<HTMLDivElement>(null);
-    const baseURL = `/${lang}/message`
+    const finalBaseURL = baseURL || `/${lang}/message`
 
     const [blogList, setBlogList] = useState([])
     const [totalPages, setTotalPages] = useState(1)
@@ -53,6 +54,7 @@ export default function Comments(params: CommentsParams) {
     const [freshId, setFreshId] = useState(0)
     const [isLoading, setIsLoading] = useState(false)
     const [isPosting, setIsPosting] = useState(false)
+    const [showSuccess, setShowSuccess] = useState(false)
 
     useEffect(() => {
         const email = localStorage.getItem('email') || ''
@@ -138,12 +140,23 @@ export default function Comments(params: CommentsParams) {
                 setMessagePage(1)
             } else {
                 // Change url hash, push to history
-                history.pushState({}, '', `${baseURL}1`)
+                history.pushState({}, '', `${finalBaseURL}1`)
                 setFreshId(freshId + 1)
                 setMessagePage(1)
             }
             setIsPosting(false)
             setMessageInput('')
+            
+            // Clear the contentEditable div
+            if (editableDivRef.current) {
+                editableDivRef.current.innerHTML = ''
+            }
+            
+            // Show success notification
+            setShowSuccess(true)
+            setTimeout(() => {
+                setShowSuccess(false)
+            }, 3000)
         }).catch((error) => {
             console.error('Failed to post message:', error)
             setIsPosting(false)
@@ -202,32 +215,52 @@ export default function Comments(params: CommentsParams) {
     const [chineseMessagesIndex] = useState(Math.floor(Math.random() * chineseMessages.length));
     const [englishMessagesIndex] = useState(Math.floor(Math.random() * englishMessages.length));
 
+    // 为默认头像生成随机偏移的函数
+    const getAvatarStyle = (email: string, name: string) => {
+        // 使用邮箱和名字生成种子，确保相同用户始终有相同的偏移
+        const seed = (email || '') + (name || '');
+        let hash = 0;
+        for (let i = 0; i < seed.length; i++) {
+            hash = ((hash << 5) - hash + seed.charCodeAt(i)) & 0xffffffff;
+        }
+        
+        // 基于hash生成随机偏移 (-20% 到 +20%)
+        const offsetX = ((hash % 40) - 20);
+        const offsetY = (((hash >> 8) % 40) - 20);
+        const scale = 1 + ((hash >> 16) % 20) / 100; // 1.0 到 1.2 的缩放
+        
+        return {
+            backgroundPosition: `${50 + offsetX}% ${50 + offsetY}%`,
+            backgroundSize: `${scale * 100}%`
+        };
+    };
+
     return (
         <>
 
             {/* Post */}
             <div className='relative mb-8 md:mb-12'>
                 <div className='w-0 h-0 absolute -top-20 md:-top-32 left-0 overflow-hidden invisible' ref={messageArea}></div>
-                <div className='bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl shadow-2xl break-all text-base overflow-hidden relative border border-gray-700/50 hover:border-[#f05a54]/50 transition-all duration-300 backdrop-blur-sm pr-4'>
-                    <div className='bg-transparent rounded-xl break-all text-base md:text-xl py-4 md:py-6 flex'>
-                        <div className='w-12 h-12 md:w-16 md:h-16 mt-2 ml-3 md:mt-3 md:ml-6 mr-3 flex-shrink-0'>
+                <div className='bg-white/10 backdrop-blur-lg rounded-2xl p-6 md:p-8 border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-500 relative group overflow-hidden break-all text-base pr-4'>
+                    <div className='bg-transparent rounded-2xl break-all text-base md:text-xl flex'>
+                        <div className='w-16 h-16 md:w-20 md:h-20 flex-shrink-0 mr-4 md:mr-6'>
                             {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img alt='avatar' className='w-12 h-12 md:w-16 md:h-16 rounded-xl shadow-lg ring-2 ring-[#f05a54]/20 hover:ring-[#f05a54]/40 transition-all duration-300 cursor-pointer hover:scale-105'
+                            <img alt='avatar' className='w-16 h-16 md:w-20 md:h-20 rounded-2xl shadow-xl ring-2 ring-white/20 hover:ring-[#f05a54]/40 transition-all duration-500 cursor-pointer hover:scale-105 group-hover:shadow-2xl'
                                 onClick={() => setEdit(!edit)}
                                 src={`https://assets-eu.mofei.life/gravatar/${hashemail || '0000000000'}?s=200`}
                             /></div>
 
-                        <div className='flex-1 p- md:p-6 md:pt-2 text-sm md:text-base'>
-                            <h2 className='font-bold text-lg md:text-xl mb-3 cursor-pointer group' onClick={() => setEdit(!edit)}>
-                                <span className='text-white group-hover:text-[#f05a54] transition-colors duration-200'>
+                        <div className='flex-1 text-sm md:text-base'>
+                            <h2 className='font-bold text-xl md:text-2xl mb-4 cursor-pointer group hover:text-[#f05a54] transition-colors duration-300' onClick={() => setEdit(!edit)}>
+                                <span className='text-white group-hover:text-[#f05a54] transition-colors duration-300 drop-shadow-lg'>
                                     {username ? username : 'Mofei\'s Friend'} </span>
-                                <span className='text-gray-500 text-sm font-medium group-hover:text-gray-400 transition-colors duration-200'> 
+                                <span className='text-gray-400 text-sm font-medium group-hover:text-gray-300 transition-colors duration-300 ml-2'> 
                                     ({lang == 'zh' ? '点击编辑' : 'Click to edit'})
                                 </span>
                             </h2>
                             <div>
                                 {edit && (
-                                    <div className='mt-4 mb-6 text-gray-400 bg-gray-800/50 backdrop-blur-sm rounded-lg p-4 border border-gray-700/30'>
+                                    <div className='mt-4 mb-6 text-gray-400 bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-500 relative group overflow-hidden'>
                                         <div className='mb-4'>
                                             <label htmlFor="email" className="block font-medium ">
                                                 {lang == 'zh' ? '昵称' : 'Nickname'}
@@ -246,7 +279,7 @@ export default function Comments(params: CommentsParams) {
                                                         localStorage.setItem('username', e.target.value)
                                                     }}
                                                     placeholder="Mofei's Friend"
-                                                    className="block w-full rounded-lg bg-gray-700/50 border border-gray-600/50 focus:border-[#f05a54]/50 focus:ring-2 focus:ring-[#f05a54]/20 px-3 md:px-4 py-2 md:py-2.5 text-sm md:text-base placeholder:text-gray-400 text-white transition-all duration-200 backdrop-blur-sm"
+                                                    className="block w-full bg-white/10 backdrop-blur-lg rounded-2xl p-3 md:p-4 border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-500 relative group overflow-hidden focus:border-[#f05a54]/50 focus:ring-2 focus:ring-[#f05a54]/20 text-sm md:text-base placeholder:text-gray-400 text-white"
                                                 />
                                             </div>
                                         </div>
@@ -278,7 +311,7 @@ export default function Comments(params: CommentsParams) {
                                                         }, 1000);
                                                     }}
                                                     placeholder="you@example.com"
-                                                    className="block w-full rounded-lg bg-gray-700/50 border border-gray-600/50 focus:border-[#f05a54]/50 focus:ring-2 focus:ring-[#f05a54]/20 px-3 md:px-4 py-2 md:py-2.5 text-sm md:text-base placeholder:text-gray-400 text-white transition-all duration-200 backdrop-blur-sm"
+                                                    className="block w-full bg-white/10 backdrop-blur-lg rounded-2xl p-3 md:p-4 border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-500 relative group overflow-hidden focus:border-[#f05a54]/50 focus:ring-2 focus:ring-[#f05a54]/20 text-sm md:text-base placeholder:text-gray-400 text-white"
                                                 />
                                             </div>
                                         </div>
@@ -298,44 +331,64 @@ export default function Comments(params: CommentsParams) {
                                                         localStorage.setItem('website', e.target.value)
                                                     }}
                                                     placeholder="https://example.com"
-                                                    className="block w-full rounded-lg bg-gray-700/50 border border-gray-600/50 focus:border-[#f05a54]/50 focus:ring-2 focus:ring-[#f05a54]/20 px-3 md:px-4 py-2 md:py-2.5 text-sm md:text-base placeholder:text-gray-400 text-white transition-all duration-200 backdrop-blur-sm"
+                                                    className="block w-full bg-white/10 backdrop-blur-lg rounded-2xl p-3 md:p-4 border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-500 relative group overflow-hidden focus:border-[#f05a54]/50 focus:ring-2 focus:ring-[#f05a54]/20 text-sm md:text-base placeholder:text-gray-400 text-white"
                                                 />
                                             </div>
                                         </div>
                                     </div>
                                 )}
                             </div>
-                            <div className='mb-4 relative' >
+                            <div className='mb-6 relative'>
                                 <div 
                                     contentEditable 
                                     translate='no' 
-                                    className='outline-none py-2 md:py-3 px-3 md:px-4 min-h-[80px] md:min-h-[100px] bg-gray-700/30 border border-gray-600/50 rounded-lg focus:border-[#f05a54]/50 focus:ring-2 focus:ring-[#f05a54]/20 transition-all duration-200 backdrop-blur-sm text-white text-sm md:text-base' 
+                                    className='outline-none min-h-[80px] md:min-h-[100px] bg-white/10 backdrop-blur-lg rounded-2xl p-3 md:p-4 border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-500 relative group overflow-hidden focus:border-[#f05a54]/50 focus:ring-2 focus:ring-[#f05a54]/20 text-white text-sm md:text-base' 
                                     ref={editableDivRef} 
                                     onPaste={handlePaste} 
                                     onInput={handleInput} 
                                 />
-                                <div className='absolute top-2 md:top-3 left-3 md:left-4 py-0 pointer-events-none text-gray-500 truncate w-full text-sm md:text-base'>{(
+                                <div className='absolute top-4 left-4 py-0 pointer-events-none text-gray-400 truncate w-full text-sm md:text-base'>{(
                                     messageInput !== '' && messageInput !== '\n'
                                 ) ? '' : (
                                     lang == 'zh' ? chineseMessages[chineseMessagesIndex] : englishMessages[englishMessagesIndex]
                                 )}</div>
                             </div>
-                            <div className='flex justify-end'>
+                            {showSuccess && (
+                                <div className='mb-4 bg-green-400/10 backdrop-blur-lg rounded-2xl p-6 md:p-8 border border-green-400/20 shadow-xl hover:shadow-2xl transition-all duration-500 relative group overflow-hidden flex items-center gap-2 text-green-400 text-sm md:text-base'>
+                                    <svg className='w-5 h-5 flex-shrink-0' fill='currentColor' viewBox='0 0 20 20'>
+                                        <path fillRule='evenodd' d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z' clipRule='evenodd' />
+                                    </svg>
+                                    <span>{lang === 'zh' ? '留言发表成功！' : 'Message posted successfully!'}</span>
+                                </div>
+                            )}
+                            <div className='flex justify-end pt-2'>
                                 <button 
-                                    className='px-4 md:px-6 py-2 md:py-2.5 bg-gradient-to-r from-[#f05a54] to-[#e04b45] hover:from-[#e04b45] hover:to-[#d03c37] text-white rounded-lg font-medium text-sm transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed'
+                                    className='px-6 md:px-8 py-3 md:py-4 bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-500 relative group overflow-hidden text-white font-semibold text-sm md:text-base transform hover:scale-105 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed hover:bg-white/20 focus:ring-2 focus:ring-[#f05a54]/30 cursor-pointer'
                                     onClick={() => {
                                         handleSubmit()
                                     }}
                                     disabled={isPosting || !messageInput.trim()}
                                 >
-                                    {isPosting ? (
-                                        <div className='flex items-center gap-2'>
-                                            <div className='w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin'></div>
-                                            {lang == 'zh' ? '发送中...' : 'Sending...'}
-                                        </div>
-                                    ) : (
-                                        lang == 'zh' ? '发送留言' : 'Send Message'
-                                    )}
+                                    {/* 液态玻璃高光效果 */}
+                                    <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl pointer-events-none"></div>
+                                    {/* 发送图标高光 */}
+                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out skew-x-12 pointer-events-none rounded-2xl"></div>
+                                    {/* 按钮内容 */}
+                                    <div className="relative z-10 flex items-center justify-center gap-3">
+                                        {isPosting ? (
+                                            <>
+                                                <div className='w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin'></div>
+                                                <span>{lang == 'zh' ? '发送中...' : 'Sending...'}</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                                                </svg>
+                                                <span>{lang == 'zh' ? '发送留言' : 'Send Message'}</span>
+                                            </>
+                                        )}
+                                    </div>
                                 </button>
                             </div>
                         </div>
@@ -353,31 +406,28 @@ export default function Comments(params: CommentsParams) {
                             ' key={`${index}_loading`}
                         >
 
-                            <div className='bg-gradient-to-br from-gray-800/60 to-gray-900/60 rounded-xl shadow-xl break-all
+                            <div className='bg-white/10 backdrop-blur-lg rounded-2xl p-6 md:p-8 border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-500 relative group overflow-hidden break-all
                                 text-base
                                 md:text-xl
-                                py-4 md:py-6
                                 flex
-                                border border-gray-700/30
-                                backdrop-blur-sm
                                 animate-pulse
                             '>
                                 <div className='mt-1 ml-3 mr-3 md:mt-2 md:ml-6 md:mr-4 flex-shrink-0
-                                w-12 h-12 md:w-16 md:h-16 bg-gray-700/50 rounded-xl shadow-lg animate-pulse' />
+                                w-16 h-16 md:w-20 md:h-20 bg-white/10 rounded-2xl shadow-xl animate-pulse' />
                                 <div className='
                                     flex-1 
                                     p-3 md:p-5
                                     text-base
                                 '>
-                                    <div className='font-bold bg-gray-700/50 w-32 inline-block h-5 md:h-6 rounded-lg mb-2 animate-pulse' />
-                                    <div className='mt-3 space-y-2'>
-                                        <div className='bg-gray-700/50 w-full h-4 rounded-lg animate-pulse' />
-                                        <div className='bg-gray-700/50 w-3/4 h-4 rounded-lg animate-pulse' />
-                                        <div className='bg-gray-700/50 w-1/2 h-4 rounded-lg animate-pulse' />
+                                    <div className='font-bold bg-white/10 w-32 inline-block h-6 md:h-7 rounded-lg mb-3 animate-pulse' />
+                                    <div className='mt-4 space-y-3'>
+                                        <div className='bg-white/10 w-full h-5 rounded-lg animate-pulse' />
+                                        <div className='bg-white/10 w-3/4 h-5 rounded-lg animate-pulse' />
+                                        <div className='bg-white/10 w-1/2 h-5 rounded-lg animate-pulse' />
                                     </div>
-                                    <div className='mt-4 flex items-center gap-2'>
-                                        <div className='w-2 h-2 bg-gray-700/50 rounded-full animate-pulse' />
-                                        <div className='bg-gray-700/50 w-24 h-3 rounded-lg animate-pulse' />
+                                    <div className='mt-6 flex items-center gap-3'>
+                                        <div className='w-5 h-5 bg-white/10 rounded animate-pulse' />
+                                        <div className='bg-white/10 w-32 h-4 rounded-lg animate-pulse' />
                                     </div>
                                 </div>
                             </div>
@@ -403,52 +453,81 @@ export default function Comments(params: CommentsParams) {
                                     md:mt-10
                                     ' key={`blog._id_${index}`}
                                 >
-                                    <div className='bg-gradient-to-br from-gray-800/80 to-gray-900/80 rounded-xl shadow-xl hover:shadow-2xl
+                                    <div className='bg-white/10 backdrop-blur-lg rounded-2xl p-6 md:p-8 border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-500 relative group overflow-hidden
                                         text-base md:text-lg
-                                        py-4 md:py-6
                                         flex
-                                        border border-gray-700/50 hover:border-[#f05a54]/30
-                                        transition-all duration-300 backdrop-blur-md
-                                        
-                                        relative overflow-hidden
+                                        hover:border-white/40
                                     >'>
-                                        <div className='mt-1 ml-3 mr-3 md:mt-2 md:ml-6 md:mr-4 flex-shrink-0'>
+                                        {/* Avatar background */}
+                                        {blog.email && blog.email !== '0000000000' ? (
+                                            <div 
+                                                className="absolute inset-0 opacity-[0.025] group-hover:opacity-[0.04] transition-opacity duration-500 rounded-2xl"
+                                                style={{
+                                                    backgroundImage: `url(https://assets-eu.mofei.life/gravatar/${blog.email}?s=200)`,
+                                                    backgroundSize: 'cover',
+                                                    backgroundRepeat: 'no-repeat',
+                                                    backgroundPosition: 'center'
+                                                }}
+                                            />
+                                        ) : (
+                                            <div 
+                                                className="absolute inset-0 opacity-[0.025] group-hover:opacity-[0.04] transition-opacity duration-500 rounded-2xl"
+                                                style={{
+                                                    backgroundImage: `url(https://assets-eu.mofei.life/gravatar/${blog.email || '0000000000'}?s=200)`,
+                                                    backgroundRepeat: 'no-repeat',
+                                                    ...getAvatarStyle(blog.email || '', blog.name || '')
+                                                }}
+                                            />
+                                        )}
+                                        
+                                        {/* Glass effect overlays */}
+                                        <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none rounded-2xl"></div>
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-white/5 pointer-events-none rounded-2xl"></div>
+                                        
+                                        {/* Shimmer effect */}
+                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent 
+                                            -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out
+                                            skew-x-12 pointer-events-none rounded-2xl"></div>
+                                        
+                                        <div className='flex-shrink-0 mr-4 md:mr-6 relative z-10'>
                                             {/* eslint-disable-next-line @next/next/no-img-element */}
-                                            <img alt='avatar' className='rounded-xl shadow-lg ring-2 ring-gray-600/40 
-                                                w-12 h-12 md:w-16 md:h-16
-                                                transition-all duration-300 group-hover:scale-110 group-hover:shadow-2xl
-                                                group-hover:ring-4'
+                                            <img alt='avatar' className='rounded-2xl shadow-xl ring-2 ring-white/20 
+                                                w-16 h-16 md:w-20 md:h-20
+                                                transition-all duration-500 group-hover:scale-105 group-hover:shadow-2xl
+                                                group-hover:ring-white/40'
                                                 src={`https://assets-eu.mofei.life/gravatar/${blog.email || '0000000000'}?s=200`}
                                             />
                                         </div>
-                                        <div className='
-                                            flex-1 
-                                            p-3 md:p-5 md:pt-0
-                                            text-base
-                                        '>
-                                            <h2 className='font-bold text-lg md:text-xl mb-2 flex items-center gap-2'>
-                                                <span className='text-white transition-all duration-300 group-hover:drop-shadow-lg'>{blog.name}</span>
+                                        <div className='flex-1 text-base relative z-10'>
+                                            <h2 className='font-bold text-xl md:text-2xl mb-3 flex items-center gap-3'>
+                                                <span className='text-white transition-all duration-300 group-hover:drop-shadow-lg drop-shadow-md'>{blog.name}</span>
                                                 {blog.blog ? (
                                                     <a
                                                         href={blog.blog.startsWith('http://') || blog.blog.startsWith('https://') ? blog.blog : `https://${blog.blog}`}
                                                         target='_blank'
-                                                        className="text-[#f05a54] hover:text-[#ff6b65] transition-all duration-300 hover:scale-125 transform hover:rotate-12 hover:drop-shadow-lg"
-                                                    ><HomeIcon className='inline-block size-5' /></a>
+                                                        className="text-white/60 hover:text-white/80 transition-all duration-300 hover:scale-110 transform hover:drop-shadow-lg"
+                                                    >
+                                                        <svg className='inline-block size-6' fill='currentColor' viewBox='0 0 20 20'>
+                                                            <path fillRule='evenodd' d='M4.083 9h1.946c.089-1.546.383-2.97.837-4.118A6.004 6.004 0 004.083 9zM10 2a8 8 0 100 16 8 8 0 000-16zm0 2c-.076 0-.232.032-.465.262-.238.234-.497.623-.737 1.182-.389.907-.673 2.142-.766 3.556h3.936c-.093-1.414-.377-2.649-.766-3.556-.24-.56-.5-.948-.737-1.182C10.232 4.032 10.076 4 10 4zm3.971 5c-.089-1.546-.383-2.97-.837-4.118A6.004 6.004 0 0115.917 9h-1.946zm-2.003 2H8.032c.093 1.414.377 2.649.766 3.556.24.56.5.948.737 1.182.233.23.389.262.465.262.076 0 .232-.032.465-.262.238-.234.498-.623.737-1.182.389-.907.673-2.142.766-3.556zm1.166 4.118c.454-1.147.748-2.572.837-4.118h1.946a6.004 6.004 0 01-2.783 4.118zm-6.268 0C6.412 13.97 6.118 12.546 6.03 11H4.083a6.004 6.004 0 002.783 4.118z' clipRule='evenodd' />
+                                                        </svg>
+                                                    </a>
                                                 ) : ''}
                                             </h2>
-                                            <div className='mt-3 text-gray-200 leading-relaxed prose prose-invert max-w-none group-hover:text-gray-100 transition-colors duration-300' dangerouslySetInnerHTML={{
+                                            <div className='mt-4 text-gray-100 leading-relaxed prose prose-invert max-w-none group-hover:text-white transition-colors duration-300 text-base md:text-lg' dangerouslySetInnerHTML={{
                                                 __html: updateLinks(
                                                     lang == 'zh' ? (blog.translate_zh || blog.content) : (blog.translate_en || blog.content)
                                                 )
                                             }} />
-                                            <div className='mt-4 flex items-center justify-between'>
-                                                <div className='flex items-center gap-2'>
-                                                    <div className='w-2 h-2 bg-blue-400 rounded-full opacity-60 group-hover:opacity-100 group-hover:scale-125 transition-all duration-300 group-hover:shadow-lg group-hover:shadow-blue-400/50'></div>
-                                                    <span className='text-gray-400 text-sm font-medium group-hover:text-gray-300 transition-colors duration-300'>
+                                            <div className='mt-6 flex items-center justify-between'>
+                                                <div className='flex items-center gap-3'>
+                                                    <svg className='w-5 h-5 text-white/60 group-hover:text-white/80 drop-shadow-lg group-hover:scale-110 transition-all duration-300' fill='currentColor' viewBox='0 0 20 20'>
+                                                        <path fillRule='evenodd' d='M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z' clipRule='evenodd' />
+                                                    </svg>
+                                                    <span className='text-gray-300 text-base font-medium group-hover:text-white transition-colors duration-300 drop-shadow-sm'>
                                                         {getRelativeTime(blog.time, lang == 'zh' ? 'zh-CN' : 'en-US')}
                                                     </span>
                                                 </div>
-                                                <div className='text-xs text-gray-500 bg-gray-800/30 px-2 py-1 rounded-md backdrop-blur-sm border border-gray-700/30 group-hover:border-gray-600/30 transition-all duration-300' title={new Date(blog.time).toLocaleDateString(
+                                                <div className='text-sm text-white/80 bg-white/10 backdrop-blur-lg rounded-2xl px-4 py-2 border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-500 relative group overflow-hidden group-hover:border-white/30 group-hover:bg-white/15 font-medium' title={new Date(blog.time).toLocaleDateString(
                                                     lang == 'zh' ? 'zh-CN' : 'en-US'
                                                     , {
                                                         weekday: "short",
@@ -481,12 +560,12 @@ export default function Comments(params: CommentsParams) {
             {totalPages > 1 && (<div className='py-6 md:py-8 
                 mt-6 md:mt-8
                 '>
-                <Pagination lang={lang} key={freshId} currentPage={Number(messagePage)} totalPages={totalPages} baseURL={baseURL} singlePageMode={singlePageMode} onPageChange={(page: number) => {
+                <Pagination lang={lang} key={freshId} currentPage={Number(messagePage)} totalPages={totalPages} baseURL={finalBaseURL} singlePageMode={singlePageMode} onPageChange={(page: number) => {
                     if (singlePageMode) {
                         setMessagePage(page)
                     } else {
                         // Change url hash, push to history
-                        history.pushState({}, '', `${baseURL}${page}`)
+                        history.pushState({}, '', `${finalBaseURL}${page}`)
                         setMessagePage(page)
                     }
                     setFreshId(freshId + 1)

@@ -1,6 +1,37 @@
 "use client"
 
-const VideoBackground = () => {
+const VideoBackground = ({ isFullPage = false }: { isFullPage?: boolean }) => {
+    if (isFullPage) {
+        return (
+            <>
+                <video
+                    className="fixed top-0 left-0 w-full h-full object-cover z-[-10]"
+                    id="bgvid"
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    poster="//cdn.zhuwenlong.com/image/index/cover-820e030cca.jpg"
+                >
+                    <source src="//cdn.zhuwenlong.com/video/bgvideo-0c73e2c57a.mp4" type="video/mp4" />
+                    <source src="//cdn.zhuwenlong.com/video/bgvideo-513397179e.webm" type="video/webm" />
+                    <source src="//cdn.zhuwenlong.com/video/bgvideo-5428b1617d.ogv" type="video/ogg" />
+                </video>
+                <div className="fixed top-0 left-0 w-full h-full bg-black/30 z-[-9] overlay">
+                    {/* 全页面粒子背景 */}
+                </div>
+
+                <style jsx>{`
+                    .overlay {
+                        background-image: radial-gradient(transparent 1px, rgba(15, 17, 21, 0.4) 1px);
+                        background-size: 4px 4px;
+                        backdrop-filter: blur(1px);
+                    }
+                `}</style>
+            </>
+        )
+    }
+
     return (
         <>
             <video

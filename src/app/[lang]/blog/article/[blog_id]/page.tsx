@@ -6,6 +6,7 @@ import Recommend from './recommends';
 import BlogComments from './comments';
 import type { Metadata } from 'next'
 import PageContent from './page_content';
+import BlogBackground from '../../[blog_page]/BlogBackground';
 
 type Props = {
   params: Promise<{ lang: 'zh' | 'en', blog_page: number, blog_id: string }>
@@ -171,8 +172,11 @@ export default async function Home({ params }: { params: Promise<{ lang: 'zh' | 
       dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
     />
 
+    {/* Animated background */}
+    <BlogBackground />
+
     {/* Main html */}
-    <div className='min-h-screen
+    <div className='min-h-screen relative z-10
       mt-20 px-5 
       md:mt-32 md:px-10
       lg:px-16 xl:px-20 2xl:px-24
@@ -187,7 +191,7 @@ export default async function Home({ params }: { params: Promise<{ lang: 'zh' | 
     </div >
 
     {/* Foot */}
-    <div className='mt-10 md:mt-20'>
+    <div className='mt-10 md:mt-20 relative z-10'>
       <Foot lang={lang} />
     </div>
   </>
