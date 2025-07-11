@@ -64,6 +64,8 @@ const nextConfig: NextConfig = {
         hostname: "www.mofei.life",
         pathname: "**",
       },
+      { protocol: "https", hostname: "mofei.life", pathname: "**" },
+      { protocol: "https", hostname: "static.mofei.life", pathname: "**" },
       {
         protocol: "https",
         hostname: "assets-eu.mofei.life",

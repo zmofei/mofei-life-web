@@ -137,7 +137,7 @@ const Sparkle: React.FC<Sparkle> = ({ id, x, y, color, delay, scale }) => {
         scale: [0, scale, 0],
         rotate: [75, 120, 150],
       }}
-      transition={{ duration: 0.8, repeat: Infinity, delay }}
+      transition={{ duration: 0.1, repeat: Infinity, delay }}
       width="21"
       height="21"
       viewBox="0 0 21 21"

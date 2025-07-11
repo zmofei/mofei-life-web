@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useAnimate, stagger, AnimationSequence } from "motion/react"
+import { useAnimate, stagger, AnimationSequence } from "motion/react"
 import { useState, useEffect, useRef, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -22,7 +22,7 @@ function useMenuAnimation(isOpen: boolean) {
                 ],
                 [
                     "li",
-                    { transform: "scale(1)", opacity: 1, filter: "blur(0px)" },
+                    { opacity: 1, filter: "blur(0px)" },
                     { delay: stagger(0.05), at: "-0.1" }
                 ]
             ]
@@ -30,7 +30,7 @@ function useMenuAnimation(isOpen: boolean) {
                 ["nav", { transform: "translateX(100%)" }, { at: "-0.1" }],
                 [
                     "li",
-                    { transform: "scale(0.5)", opacity: 0, filter: "blur(10px)" },
+                    { opacity: 0, filter: "blur(10px)" },
                     { delay: stagger(0.05, { from: "last" }), at: "<" }
                 ],
 
@@ -116,7 +116,7 @@ function Nav({ lang }: { lang: string }) {
     // 外链图标组件
     const ExternalIcon = () => (
         <svg className="w-4 h-4 opacity-60" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/>
+            <path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z" />
         </svg>
     );
 
@@ -126,7 +126,7 @@ function Nav({ lang }: { lang: string }) {
             navAnimationsPlayed = true;
             hasAnimated.current = true;
         }
-        
+
         setTimeout(() => {
             const _isChineseUser =
                 [navigator.language, ...(navigator.languages || [])]
@@ -147,12 +147,11 @@ function Nav({ lang }: { lang: string }) {
     return (
         <div ref={scope} >
             {isChineseUser && (
-                <motion.div
+                <div
                     className="fixed top-18 right-4 w-[22rem] max-w-[90vw] z-[100] 
                 bg-[#f05a54]/100 text-white px-4 py-3 rounded-lg 
                 shadow-lg backdrop-blur-sm   transition-all "
-                    initial={{ scale: 1, opacity: 0.5, }}
-                    animate={{ scale: 1, opacity: 1, transition: { duration: 0.5 } }}
+
 
                 >
                     <p className="leading-relaxed">
@@ -195,27 +194,23 @@ function Nav({ lang }: { lang: string }) {
 
                         </button>
                     </div>
-                </motion.div>
+                </div>
 
             )}
             <div className="fixed w-full h-20 2xl:h-22 top-0 z-50 flex items-center justify-between px-5 2xl:px-10">
-                
+
                 {/* Logo */}
-                <motion.div
+                <div
                     className="z-60"
-                    initial={hasAnimated.current ? { scale: 1, opacity: 1 } : { scale: 0.5, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1, transition: hasAnimated.current ? { duration: 0 } : { type: "spring", damping: 10, stiffness: 200 } }}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    transition={{ type: "spring", }}
+
                 >
                     <Link className="flex" href="/">
                         <Image src="/img/mofei-logo.svg" alt="嘿, 我是Mofei!" className="h-8 md:h-10" width={140} height={160} />
                     </Link>
-                </motion.div>
+                </div>
 
                 {/* Desktop Menu - Hidden on mobile */}
-                <motion.div
+                <div
                     className="hidden lg:flex items-center gap-3 text-white text-sm 2xl:text-base px-4 py-2 rounded-full border border-white/20"
                     style={{
                         background: 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.05) 100%)',
@@ -223,31 +218,23 @@ function Nav({ lang }: { lang: string }) {
                         WebkitBackdropFilter: 'blur(15px) saturate(180%)',
                         boxShadow: '0 8px 32px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.2)'
                     }}
-                    initial={hasAnimated.current ? { scale: 1, opacity: 1 } : { scale: 0.5, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1, transition: hasAnimated.current ? { duration: 0 } : { type: "spring", damping: 10, stiffness: 200 } }}
-                    whileHover={{
-                        boxShadow: '0 12px 40px rgba(255,255,255,0.15), inset 0 1px 0 rgba(255,255,255,0.3)'
-                    }}
+
                 >
                     {/* 桌面端也使用数据驱动 */}
                     {navItems.map((item, index) => (
-                        <motion.a 
+                        <a
                             key={index}
-                            className={`px-3 py-1.5 rounded-full transition-all duration-300 flex items-center gap-2 ${
-                                item.external ? 'hover:bg-white/20 hover:text-white' :
+                            className={`px-3 py-1.5 rounded-full transition-all duration-300 flex items-center gap-2 ${item.external ? 'hover:bg-white/20 hover:text-white' :
                                 isActive(item.href)
-                                    ? 'bg-white/25 text-white font-medium shadow-lg' 
+                                    ? 'bg-white/25 text-white font-medium shadow-lg'
                                     : 'hover:bg-white/15 hover:text-white'
-                            }`}
+                                }`}
                             style={{
-                                background: isActive(item.href) 
+                                background: isActive(item.href)
                                     ? 'linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.15) 100%)'
                                     : 'transparent'
                             }}
-                            whileHover={{ 
-                                scale: 1.05,
-                            }}
-                            whileTap={{ scale: 0.95 }}
+
                             href={item.href}
                             {...(item.external && {
                                 target: "_blank",
@@ -257,31 +244,28 @@ function Nav({ lang }: { lang: string }) {
                             aria-label={`${item.label[lang as 'zh' | 'en']}${item.external ? (lang === 'zh' ? '（外部链接）' : ' (external link)') : ''}`}
                         >
                             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                                <path d={item.icon}/>
+                                <path d={item.icon} />
                             </svg>
                             <span className={item.external ? "flex items-center gap-1" : ""}>
                                 {item.label[lang as 'zh' | 'en']}
                                 {item.external && (
                                     <svg className="w-3 h-3 opacity-60" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/>
+                                        <path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z" />
                                     </svg>
                                 )}
                             </span>
-                        </motion.a>
+                        </a>
                     ))}
-                    
+
                     {/* 分隔线 */}
                     <div className="w-px h-6 bg-white/20"></div>
-                    
-                    <motion.button 
-                        className="relative inline-flex items-center h-7 w-14 rounded-full cursor-pointer transition-all duration-300" 
+
+                    <button
+                        className="relative inline-flex items-center h-7 w-14 rounded-full cursor-pointer transition-all duration-300"
                         style={{
                             background: 'linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.1) 100%)',
                         }}
-                        whileHover={{ 
-                            scale: 1.05,
-                        }}
-                        whileTap={{ scale: 0.95 }}
+
                         onClick={() => {
                             if (location.pathname == '/zh') {
                                 location.href = '/'
@@ -295,39 +279,35 @@ function Nav({ lang }: { lang: string }) {
                             document.cookie = `lang=${lang == 'zh' ? 'en' : 'zh'}; path=/; max-age=${3600 * 24 * 365 * 10}`;
                         }}
                     >
-                        <motion.div 
+                        <div
                             className="absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow-lg flex items-center justify-center"
-                            animate={{ x: lang === 'zh' ? 0 : 28 }}
-                            transition={{ type: "spring", stiffness: 300, damping: 20 }}
                         >
                             <span className="text-xs font-bold text-gray-800">
                                 {lang === 'zh' ? '中' : 'EN'}
                             </span>
-                        </motion.div>
+                        </div>
                         <div className="flex items-center justify-between w-full px-2 text-xs font-medium text-white">
                             <span className={`transition-opacity duration-200 ${lang === 'zh' ? 'opacity-100' : 'opacity-40'}`}>中</span>
                             <span className={`transition-opacity duration-200 ${lang === 'zh' ? 'opacity-40' : 'opacity-100'}`}>EN</span>
                         </div>
-                    </motion.button>
-                </motion.div>
+                    </button>
+                </div>
             </div>
 
             {/* Mobile Menu Button - Only visible on mobile */}
-            <motion.button
-                layout
-                initial={hasAnimated.current ? 
-                    { backgroundColor: show ? "#ff5555" : '', scale: 1, opacity: 1 } : 
-                    { backgroundColor: show ? "#ff5555" : '', scale: 0.5, opacity: 0 }
-                }
-                animate={{ scale: 1, opacity: 1, transition: hasAnimated.current ? { duration: 0 } : { type: "spring", damping: 10, stiffness: 200 } }}
-                whileHover={{ scale: 1.2, backgroundColor: "#ff5555", rotate: 3 }}
-                whileTap={{ scale: 0.9 }}
-                transition={{ type: "spring", damping: 17, stiffness: 200 }}
-                className={`fixed rounded-full p-2 px-4 z-60 lg:hidden
-                    ${(show ? "bg-[#ff5555]" : "")}
-                    right-5 top-3 text-xl
-                    2xl:right-10 2xl:top-5 md:text-2xl
-                `}
+            <button
+                className="fixed rounded-full p-2 px-4 z-60 lg:hidden right-5 top-3 text-xl 2xl:right-10 2xl:top-5 md:text-2xl"
+                style={{
+                    background: show
+                        ? 'linear-gradient(135deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.1) 100%)'
+                        : 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%)',
+                    backdropFilter: 'blur(20px) saturate(200%)',
+                    WebkitBackdropFilter: 'blur(20px) saturate(200%)',
+                    boxShadow: show
+                        ? '0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2)'
+                        : '0 4px 16px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.1)',
+                    border: '1px solid rgba(255,255,255,0.18)'
+                }}
                 aria-expanded={show}
                 aria-label={lang === 'zh' ? '导航菜单' : 'Navigation menu'}
                 onClick={() => {
@@ -340,30 +320,35 @@ function Nav({ lang }: { lang: string }) {
                 <span className="inline-block align-middle ml-2">
                     {lang == 'zh' ? (show ? "关闭" : "菜单") : (show ? "Close" : "Menu")}
                 </span>
-            </motion.button>
+            </button>
 
             <nav className="fixed top-0 right-0 bottom-0 will-change-transform z-55" style={{
                 transform: "translateX(100%)"
             }}>
-                <ul className="bg-[#ff5555] h-full text-right pl-16 
-                text-2xl pt-16 pr-6
-                md:text-4xl md:pt-20 md:pr-10
-                ">
+                <ul className="h-full text-right pl-12 
+                text-xl pt-18
+                sm:text-2xl sm:pt-14 sm:pl-14 sm:mt-3
+                md:text-4xl md:pt-20 md:pl-16 md:mt-4
+                "
+                    style={{
+                        background: 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%)',
+                        backdropFilter: 'blur(30px) saturate(200%)',
+                        WebkitBackdropFilter: 'blur(30px) saturate(200%)',
+                        boxShadow: '0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2)',
+                        border: '1px solid rgba(255,255,255,0.18)'
+                    }}>
                     {/* 语言切换按钮移到顶部 */}
-                    <li className="py-3 md:py-4 mb-4" style={{ "transformOrigin": "top right" }}>
-                        <motion.button 
-                            className="relative inline-flex items-center h-10 w-20 rounded-full border border-white/20 cursor-pointer ml-auto transition-all duration-300" 
+                    <li className="py-2 sm:py-3 md:py-4 mb-2 sm:mb-4 pr-6 md:pr-10" style={{ "transformOrigin": "top right" }}>
+                        <button
+                            className="inline-flex items-center justify-center gap-2 h-8 w-16 sm:h-10 sm:w-18 md:h-12 md:w-20 rounded-xl sm:rounded-2xl cursor-pointer ml-auto transition-all duration-300"
                             style={{
                                 background: 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%)',
-                                backdropFilter: 'blur(10px) saturate(150%)',
-                                WebkitBackdropFilter: 'blur(10px) saturate(150%)',
-                                boxShadow: '0 4px 16px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.1)'
+                                backdropFilter: 'blur(15px) saturate(150%)',
+                                WebkitBackdropFilter: 'blur(15px) saturate(150%)',
+                                boxShadow: '0 8px 32px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.15)',
+                                border: '1px solid rgba(255,255,255,0.2)'
                             }}
-                            whileHover={{ 
-                                scale: 1.1, 
-                                rotate: -3,
-                                boxShadow: '0 8px 32px rgba(255,255,255,0.1), inset 0 1px 0 rgba(255,255,255,0.2)'
-                            }}
+
                             onClick={() => {
                                 if (location.pathname == '/zh') {
                                     location.href = '/'
@@ -378,38 +363,31 @@ function Nav({ lang }: { lang: string }) {
                             }}
                             aria-label={lang === 'zh' ? '切换到英文' : 'Switch to Chinese'}
                         >
-                            <motion.div 
-                                className="absolute top-0.5 left-0.5 w-9 h-9 rounded-full shadow-lg flex items-center justify-center border border-white/30"
-                                style={{
-                                    background: 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%)',
-                                    backdropFilter: 'blur(10px)',
-                                    WebkitBackdropFilter: 'blur(10px)',
-                                    boxShadow: '0 2px 8px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.5)'
-                                }}
-                                animate={{ x: lang === 'zh' ? 0 : 40 }}
-                                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                            >
-                                <span className="text-sm font-bold text-gray-800">
-                                    {lang === 'zh' ? '中' : 'EN'}
-                                </span>
-                            </motion.div>
-                            <div className="flex items-center justify-between w-full px-3 text-sm font-medium text-white">
-                                <span className={`transition-opacity duration-200 ${lang === 'zh' ? 'opacity-100' : 'opacity-40'}`}>中</span>
-                                <span className={`transition-opacity duration-200 ${lang === 'zh' ? 'opacity-40' : 'opacity-100'}`}>EN</span>
-                            </div>
-                        </motion.button>
+                            <span className={`text-xs sm:text-sm font-medium transition-all duration-300 ${lang === 'zh' ? 'text-white' : 'text-white/60'}`}>中</span>
+                            <span className={`text-xs sm:text-sm font-medium transition-all duration-300 ${lang === 'zh' ? 'text-white/60' : 'text-white'}`}>EN</span>
+                        </button>
                     </li>
                     {/* 使用数据驱动的方式渲染导航项 */}
                     {navItems.map((item, index) => (
-                        <li key={index} className="py-3 md:py-4" style={{ "transformOrigin": "top right" }}>
-                            <motion.a 
-                                className={`${mobileNavItemClass} ${
-                                    item.external ? 'text-white/90' :
-                                    isActive(item.href) 
-                                        ? 'font-bold text-white drop-shadow-lg' 
+                        <li key={index} className="py-2 sm:py-3 md:py-4 pr-6 md:pr-10 pl-3 sm:pl-4" style={{ "transformOrigin": "top right" }}>
+                            <a
+                                className={`${mobileNavItemClass} ${item.external ? 'text-white/90' :
+                                    isActive(item.href)
+                                        ? 'font-bold text-white drop-shadow-lg'
                                         : 'text-white/90'
-                                }`}
-                                whileHover={{ scale: 1.2, rotate: item.rotate }} 
+                                    } rounded-xl sm:rounded-2xl p-3 sm:p-4 transition-all duration-300`}
+                                style={{
+                                    background: isActive(item.href)
+                                        ? 'linear-gradient(135deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.1) 100%)'
+                                        : 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%)',
+                                    backdropFilter: 'blur(15px) saturate(150%)',
+                                    WebkitBackdropFilter: 'blur(15px) saturate(150%)',
+                                    boxShadow: isActive(item.href)
+                                        ? '0 8px 32px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.2)'
+                                        : '0 4px 16px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.1)',
+                                    border: '1px solid rgba(255,255,255,0.15)'
+                                }}
+
                                 href={item.href}
                                 {...(item.external && {
                                     target: "_blank",
@@ -423,9 +401,9 @@ function Nav({ lang }: { lang: string }) {
                                     {item.external && <ExternalIcon />}
                                 </span>
                                 <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d={item.icon}/>
+                                    <path d={item.icon} />
                                 </svg>
-                            </motion.a>
+                            </a>
                         </li>
                     ))}
                 </ul>

@@ -1,11 +1,23 @@
 "use client";
 const AnimatedTitle = () => {
     return (
-        <div className="flex items-center justify-center title-box px-5 md:px-10 w-full h-auto">
+        <div className="flex items-center justify-center title-box px-4 md:px-10 w-full h-auto">
             <svg id="title" className="animated-stroke" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 498 75"
                 width="100%"
                 height="auto"
             >
+                <defs>
+                    <linearGradient id="strokeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor="#ffffff" stopOpacity="0.8" />
+                        <stop offset="50%" stopColor="#ffffff" stopOpacity="1" />
+                        <stop offset="100%" stopColor="#ffffff" stopOpacity="0.8" />
+                    </linearGradient>
+                    <linearGradient id="redGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor="#FF5851" stopOpacity="0.8" />
+                        <stop offset="50%" stopColor="#FF6B63" stopOpacity="1" />
+                        <stop offset="100%" stopColor="#FF5851" stopOpacity="0.8" />
+                    </linearGradient>
+                </defs>
                 <path strokeWidth="2" fill="none" d="M14.91,4.05V73H0V4.05Z" />
                 <path strokeWidth="2" fillOpacity={0} className="red" d="M26.24,29.66A130.3,130.3,0,0,0,31,0H46.06c-.77,9.61-4,21.55-8.28,29.66Z" />
                 <path strokeWidth="2" fill="none" d="M115.09,47.14c0-11.77.18-25,.48-32.75h-.47C111.86,28.46,105,51.43,98.35,73H85.66c-5-18.86-12.16-45-15.18-58.8H70c.59,8.09.88,22.28.88,34.1V73H57.3V4.05H79.49c5.37,18,11.4,40.62,13.47,50.89h.11c1.69-9.06,9.26-33.22,15-50.89h21.39V73H115.09Z" />
@@ -21,43 +33,76 @@ const AnimatedTitle = () => {
             <style jsx>
                 {`
                     .title-box {
-                        animation: transform-animation 3s ease-in-out forwards; /* 动画效果 */
+                        animation: transform-animation 2.5s ease-out forwards;
+                    }
+                    
+                    /* 手机版进一步简化动画 */
+                    @media (max-width: 768px) {
+                        .title-box {
+                            animation: transform-animation 1.8s ease-out forwards;
+                        }
+                        
+                        .animated-stroke path,.animated-stroke circle {
+                            animation: stroke-animation 1.8s ease-out forwards;
+                        }
+                        
+                        /* 减少动画复杂度 */
+                        .animated-stroke {
+                            will-change: transform;
+                        }
                     }
 
                     .animated-stroke path,.animated-stroke circle {
-                        stroke-dasharray: 300; /* 路径总长度（根据实际路径调整） */
-                        stroke-dashoffset: 300; /* 初始值为路径长度 */
-                        animation: stroke-animation 3s ease-in-out forwards; /* 动画效果 */
+                        stroke-dasharray: 500;
+                        stroke-dashoffset: 500;
+                        animation: stroke-animation 2.5s ease-out forwards;
                     }
                     
                     .animated-stroke path {
                         fill: white;
-                        stroke: #fff;
+                        stroke: url(#strokeGradient);
                         fill-opacity: 0;
-                        stroke-dasharray: 0;
-                        stroke-dashoffset: 0;
+                        stroke-width: 2;
+                        animation-delay: 0.3s;
                     }
 
                     .animated-stroke .red {
-                        stroke: #FF5851;
-                        fill: #FF5851;
+                        stroke: url(#redGradient);
+                        fill: url(#redGradient);
+                        animation-delay: 0.1s;
                     }
+
+                    .animated-stroke path:nth-child(2) { animation-delay: 0.1s; }
+                    .animated-stroke path:nth-child(3) { animation-delay: 0.2s; }
+                    .animated-stroke path:nth-child(4) { animation-delay: 0.3s; }
+                    .animated-stroke path:nth-child(5) { animation-delay: 0.4s; }
+                    .animated-stroke path:nth-child(6) { animation-delay: 0.5s; }
+                    .animated-stroke path:nth-child(7) { animation-delay: 0.6s; }
+                    .animated-stroke path:nth-child(8) { animation-delay: 0.7s; }
+                    .animated-stroke path:nth-child(9) { animation-delay: 0.8s; }
+                    .animated-stroke circle { animation-delay: 0.9s; }
 
                     @keyframes transform-animation {
                         0% {
-                            transform: translateY(0);
+                            transform: translateY(0) scale(0.9);
+                            opacity: 0;
                         }
 
-                        50% {
-                            transform: translateY(0);
+                        40% {
+                            transform: translateY(0) scale(1);
+                            opacity: 1;
+                        }
+
+                        70% {
+                            transform: translateY(0) scale(1);
                         }
 
                         90% {
-                            transform: translateY(-40px);
+                            transform: translateY(-40px) scale(1);
                         }
 
                         100% {
-                            transform: translateY(-40px);
+                            transform: translateY(-40px) scale(1);
                         }
                     }
             
@@ -65,27 +110,32 @@ const AnimatedTitle = () => {
                         0% {
                             stroke-dasharray: 1000;
                             stroke-dashoffset: 1000;
-                            transform: translateY(0);
+                            stroke-width: 0;
                         }
 
-                        50% {
-                            fill-opacity: 0;
+                        30% {
+                            stroke-width: 3;
                         }
 
-                        90% {
+                        70% {
                             stroke-dashoffset: 0;
+                            fill-opacity: 0;
+                            stroke-width: 2;
+                        }
+
+                        85% {
                             fill-opacity: 0.8;
-                            top: 0;
+                            stroke-width: 1;
                         }
 
                         100% {
                             stroke-dasharray: 1000;
                             stroke-dashoffset: 0;
                             stroke-width: 0;
-                            stroke-opacity: 1;
                             fill-opacity: 1;
                         }
                     }
+
                 `}
             </style>
         </div>

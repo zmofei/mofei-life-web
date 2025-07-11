@@ -245,7 +245,7 @@ export default function Comments(params: CommentsParams) {
                     <div className='bg-transparent rounded-2xl break-all text-base md:text-xl flex'>
                         <div className='w-16 h-16 md:w-20 md:h-20 flex-shrink-0 mr-4 md:mr-6'>
                             {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img alt='avatar' className='w-16 h-16 md:w-20 md:h-20 rounded-2xl shadow-xl ring-2 ring-white/20 hover:ring-[#f05a54]/40 transition-all duration-500 cursor-pointer hover:scale-105 group-hover:shadow-2xl'
+                            <img alt='avatar' className='w-16 h-16 md:w-20 md:h-20 rounded-2xl shadow-xl ring-2 ring-white/20 hover:ring-[#f05a54]/40 transition-all duration-500 cursor-pointer hover:opacity-90 group-hover:shadow-2xl'
                                 onClick={() => setEdit(!edit)}
                                 src={`https://assets-eu.mofei.life/gravatar/${hashemail || '0000000000'}?s=200`}
                             /></div>
@@ -363,7 +363,7 @@ export default function Comments(params: CommentsParams) {
                             )}
                             <div className='flex justify-end pt-2'>
                                 <button 
-                                    className='px-6 md:px-8 py-3 md:py-4 bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-500 relative group overflow-hidden text-white font-semibold text-sm md:text-base transform hover:scale-105 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed hover:bg-white/20 focus:ring-2 focus:ring-[#f05a54]/30 cursor-pointer'
+                                    className='px-6 md:px-8 py-3 md:py-4 bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-500 relative group overflow-hidden text-white font-semibold text-sm md:text-base transform hover:opacity-90 active:opacity-70 disabled:opacity-60 disabled:cursor-not-allowed hover:bg-white/20 focus:ring-2 focus:ring-[#f05a54]/30 cursor-pointer'
                                     onClick={() => {
                                         handleSubmit()
                                     }}
@@ -493,7 +493,7 @@ export default function Comments(params: CommentsParams) {
                                             {/* eslint-disable-next-line @next/next/no-img-element */}
                                             <img alt='avatar' className='rounded-2xl shadow-xl ring-2 ring-white/20 
                                                 w-16 h-16 md:w-20 md:h-20
-                                                transition-all duration-500 group-hover:scale-105 group-hover:shadow-2xl
+                                                transition-all duration-500 group-hover:opacity-90 group-hover:shadow-2xl
                                                 group-hover:ring-white/40'
                                                 src={`https://assets-eu.mofei.life/gravatar/${blog.email || '0000000000'}?s=200`}
                                             />
@@ -505,7 +505,7 @@ export default function Comments(params: CommentsParams) {
                                                     <a
                                                         href={blog.blog.startsWith('http://') || blog.blog.startsWith('https://') ? blog.blog : `https://${blog.blog}`}
                                                         target='_blank'
-                                                        className="text-white/60 hover:text-white/80 transition-all duration-300 hover:scale-110 transform hover:drop-shadow-lg"
+                                                        className="text-white/60 hover:text-white/80 transition-all duration-300 hover:opacity-90 transform hover:drop-shadow-lg"
                                                     >
                                                         <svg className='inline-block size-6' fill='currentColor' viewBox='0 0 20 20'>
                                                             <path fillRule='evenodd' d='M4.083 9h1.946c.089-1.546.383-2.97.837-4.118A6.004 6.004 0 004.083 9zM10 2a8 8 0 100 16 8 8 0 000-16zm0 2c-.076 0-.232.032-.465.262-.238.234-.497.623-.737 1.182-.389.907-.673 2.142-.766 3.556h3.936c-.093-1.414-.377-2.649-.766-3.556-.24-.56-.5-.948-.737-1.182C10.232 4.032 10.076 4 10 4zm3.971 5c-.089-1.546-.383-2.97-.837-4.118A6.004 6.004 0 0115.917 9h-1.946zm-2.003 2H8.032c.093 1.414.377 2.649.766 3.556.24.56.5.948.737 1.182.233.23.389.262.465.262.076 0 .232-.032.465-.262.238-.234.498-.623.737-1.182.389-.907.673-2.142.766-3.556zm1.166 4.118c.454-1.147.748-2.572.837-4.118h1.946a6.004 6.004 0 01-2.783 4.118zm-6.268 0C6.412 13.97 6.118 12.546 6.03 11H4.083a6.004 6.004 0 002.783 4.118z' clipRule='evenodd' />
@@ -520,7 +520,7 @@ export default function Comments(params: CommentsParams) {
                                             }} />
                                             <div className='mt-6 flex items-center justify-between'>
                                                 <div className='flex items-center gap-3'>
-                                                    <svg className='w-5 h-5 text-white/60 group-hover:text-white/80 drop-shadow-lg group-hover:scale-110 transition-all duration-300' fill='currentColor' viewBox='0 0 20 20'>
+                                                    <svg className='w-5 h-5 text-white/60 group-hover:text-white/80 drop-shadow-lg group-hover:opacity-90 transition-all duration-300' fill='currentColor' viewBox='0 0 20 20'>
                                                         <path fillRule='evenodd' d='M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z' clipRule='evenodd' />
                                                     </svg>
                                                     <span className='text-gray-300 text-base font-medium group-hover:text-white transition-colors duration-300 drop-shadow-sm'>

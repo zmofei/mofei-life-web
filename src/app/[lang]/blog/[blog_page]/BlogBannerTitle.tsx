@@ -1,6 +1,5 @@
 "use client"
 
-import { motion } from "motion/react"
 import Lan from "@/components/util/Language";
 import { useState, useEffect } from 'react';
 
@@ -31,13 +30,13 @@ export default function BlogBannerTitle(params: { lang: 'zh' | 'en' }) {
         const interval = setInterval(() => {
             setCurrentIndex((prev) => {
                 const nextIndex = (prev + 1) % TitleList.length;
-                
+
                 // If we've reached the final index, stop animating
                 if (nextIndex === finalIndex) {
                     setIsAnimating(false);
                     return finalIndex;
                 }
-                
+
                 return nextIndex;
             });
         }, 200); // Change every 0.2 seconds for fast cycling
@@ -49,16 +48,13 @@ export default function BlogBannerTitle(params: { lang: 'zh' | 'en' }) {
         <>
             <div className='container max-w-[2000px] m-auto width-full overflow-hidden'>
                 <div className='font-extrabold overflow-hidden pt-20 w-full px-5 md:px-10 lg:px-16'>
-                    <motion.h1 
+                    <h1
                         className={`font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#a1c4fd] to-[#c2e9fb] leading-tight 
                             text-3xl mt-5 mb-4
-                            md:text-5xl md:mt-24 md:mb-6
-                            lg:text-6xl lg:mt-28 lg:mb-8
-                            xl:text-7xl xl:mt-32 xl:mb-10
+                            md:text-5xl md:mt-10 md:mb-6
+                            lg:text-6xl lg:mt-10 lg:mb-8
+                            xl:text-7xl xl:mt-10 xl:mb-10
                         `}
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8, ease: "easeOut" }}
                     >
                         <Lan lang={lang} candidate={{
                             "zh": "我书写",
@@ -66,31 +62,27 @@ export default function BlogBannerTitle(params: { lang: 'zh' | 'en' }) {
                         }} />
                         <br />
                         <Lan lang={lang} candidate={TitleList[currentIndex]} />
-                    </motion.h1>
-                    
-                    <motion.p 
+                    </h1>
+
+                    <p
                         className="text-gray-300/90 text-lg md:text-xl lg:text-2xl font-medium leading-relaxed tracking-wide"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+
                     >
                         <Lan lang={lang} candidate={{
                             "zh": "在文字的世界里探索思想，在故事中寻找生活的意义。每一篇文章都是一次心灵的旅行。",
                             "en": "Exploring thoughts in the world of words, finding meaning in stories. Every article is a journey of the soul."
                         }} />
-                    </motion.p>
-                    
-                    <motion.p 
+                    </p>
+
+                    <p
                         className="text-gray-400/80 text-sm md:text-base leading-relaxed mt-4 md:mt-6"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
+
                     >
                         <Lan lang={lang} candidate={{
                             "zh": "只要心怀梦想，写下的每个字都能点亮世界，哪怕只是开始，也是在书写属于自己的奇迹。",
                             "en": "As long as you have a dream, every word you write can light up the world. Even if it's just a beginning, you're writing your own miracle."
                         }} />
-                    </motion.p>
+                    </p>
                 </div>
             </div>
         </>

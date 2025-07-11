@@ -1,5 +1,4 @@
 "use client";
-import { motion } from "motion/react"
 import Comments from '@/components/Comments/Comments';
 
 
@@ -27,13 +26,11 @@ export default function BlogComments(
                   mt-5 text-xl 
                   md:mt-18 md:text-3xl
                 '>
-                <motion.div>
-                    <motion.h3
+                <div>
+                    <h3
                         className='font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#a1c4fd] to-[#c2e9fb] '
-                        animate={{ opacity: 1, translateY: 0 }}
-                        initial={{ opacity: 0, translateY: 20 }}
-                    >{BlogCommentPrompts[blogCommentPromptIndex][lang]}</motion.h3>
-                </motion.div>
+                    >{BlogCommentPrompts[blogCommentPromptIndex][lang]}</h3>
+                </div>
             </div>
             <div className='max-w-7xl mx-auto 
                       mt-5 text-xl 

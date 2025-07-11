@@ -1,6 +1,5 @@
 "use client"
 import React from 'react';
-import { motion } from 'motion/react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
@@ -13,27 +12,25 @@ interface ArticleFooterProps {
     showComments?: boolean;
 }
 
-export default function ArticleFooter({ 
-    lang, 
-    previousArticle, 
+export default function ArticleFooter({
+    lang,
+    previousArticle,
     nextArticle,
-    showComments = true 
+    showComments = true
 }: ArticleFooterProps) {
     return (
-        <motion.div 
+        <div
             className="max-w-7xl mx-auto"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
+
         >
             {/* THE END + Integrated Footer */}
             <div className="bg-gradient-to-br from-gray-900/80 to-gray-800/80 backdrop-blur-md rounded-2xl border border-gray-700/30 shadow-2xl overflow-hidden">
-                
+
                 {/* THE END Section */}
                 <div className="text-center py-8 md:py-12 border-b border-gray-700/30">
                     <div className="inline-flex items-center justify-center bg-gradient-to-r from-gray-800/80 to-gray-700/80 
                         rounded-full px-6 py-3 border border-gray-600/30 shadow-xl backdrop-blur-md 
-                        hover:shadow-2xl hover:scale-105 transition-all duration-300">
+                        hover:shadow-2xl hover:opacity-90 transition-all duration-300">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src="/article/start.png" alt="" className="w-6 md:w-8 mr-2 opacity-70" width={32} height={32} />
                         <span className="text-base md:text-lg font-medium text-gray-300 tracking-wider">THE END</span>
@@ -62,20 +59,20 @@ export default function ArticleFooter({
                                             <span>生活公众号</span>
                                         </div>
                                     </div>
-                                    
+
                                     <h4 className="text-sm font-bold text-red-400 mb-1">疯狂的超级奶爸在北欧</h4>
                                     <p className="text-red-300 text-xs mb-3">家庭生活 • 育儿日常 • 北欧生活</p>
-                                    
+
                                     <div className="w-24 h-24 mx-auto mb-2 bg-white/10 border border-red-300/30 rounded-lg overflow-hidden">
-                                        <Image 
-                                            src="/img/qrcode_life.jpg" 
+                                        <Image
+                                            src="/img/qrcode_life.jpg"
                                             alt="生活公众号二维码"
                                             width={96}
                                             height={96}
                                             className="w-full h-full object-cover"
                                         />
                                     </div>
-                                    
+
                                     <p className="text-gray-400 text-xs">🏠 芬兰生活分享</p>
                                 </div>
                             </div>
@@ -89,20 +86,20 @@ export default function ArticleFooter({
                                             <span>技术公众号</span>
                                         </div>
                                     </div>
-                                    
+
                                     <h4 className="text-sm font-bold text-blue-400 mb-1">Mofie</h4>
                                     <p className="text-blue-300 text-xs mb-3">前端开发 • AI技术 • 编程经验</p>
-                                    
+
                                     <div className="w-24 h-24 mx-auto mb-2 bg-white/10 border border-blue-300/30 rounded-lg overflow-hidden">
-                                        <Image 
-                                            src="/img/qrcode_tech.jpg" 
+                                        <Image
+                                            src="/img/qrcode_tech.jpg"
                                             alt="技术公众号二维码"
                                             width={96}
                                             height={96}
                                             className="w-full h-full object-cover"
                                         />
                                     </div>
-                                    
+
                                     <p className="text-gray-400 text-xs">🚀 技术灵感与实战</p>
                                 </div>
                             </div>
@@ -120,10 +117,10 @@ export default function ArticleFooter({
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {previousArticle?._id && (
-                                <Link href={`/${lang}/blog/article/${previousArticle._id}`} 
+                                <Link href={`/${lang}/blog/article/${previousArticle._id}`}
                                     className="group block p-4 rounded-xl bg-gradient-to-br from-gray-800/40 to-gray-900/40 
                                         hover:from-gray-700/50 hover:to-gray-800/50 transition-all duration-300 
-                                        border border-gray-700/20 hover:border-gray-600/40 hover:shadow-lg hover:scale-[1.02]"
+                                        border border-gray-700/20 hover:border-gray-600/40 hover:shadow-lg hover:opacity-90"
                                     title={previousArticle.title}>
                                     <div className="flex items-center space-x-3">
                                         <div className="flex-shrink-0">
@@ -141,10 +138,10 @@ export default function ArticleFooter({
                                 </Link>
                             )}
                             {nextArticle?._id && (
-                                <Link href={`/${lang}/blog/article/${nextArticle._id}`} 
+                                <Link href={`/${lang}/blog/article/${nextArticle._id}`}
                                     className="group block p-4 rounded-xl bg-gradient-to-bl from-gray-800/40 to-gray-900/40 
                                         hover:from-gray-700/50 hover:to-gray-800/50 transition-all duration-300 
-                                        border border-gray-700/20 hover:border-gray-600/40 hover:shadow-lg hover:scale-[1.02]"
+                                        border border-gray-700/20 hover:border-gray-600/40 hover:shadow-lg hover:opacity-90"
                                     title={nextArticle.title}>
                                     <div className="flex items-center space-x-3 md:flex-row-reverse md:space-x-reverse md:space-x-3 md:text-right">
                                         <div className="flex-shrink-0">
@@ -172,8 +169,8 @@ export default function ArticleFooter({
                             {lang === 'zh' ? '💬 分享你的想法' : '💬 Share Your Thoughts'}
                         </h3>
                         <p className="text-gray-400 text-sm mb-4">
-                            {lang === 'zh' 
-                                ? '有什么想法或问题？欢迎在下方留言交流！' 
+                            {lang === 'zh'
+                                ? '有什么想法或问题？欢迎在下方留言交流！'
                                 : 'Have any thoughts or questions? Feel free to leave a comment below!'}
                         </p>
                         <div className="inline-flex items-center text-blue-400 text-sm font-medium hover:text-blue-300 transition-colors">
@@ -185,6 +182,6 @@ export default function ArticleFooter({
                     </div>
                 )}
             </div>
-        </motion.div>
+        </div>
     );
 }

@@ -1,6 +1,5 @@
 "use client"
 import React, { useState } from "react";
-import { motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -14,10 +13,10 @@ function Foot(params: { lang: string; isHomePage?: boolean }) {
     const closeModal = () => {
         setShowWeChatModal(false);
     };
-    const footerBackgroundClass = params.isHomePage 
-        ? "w-full bg-black/80 snap-start overflow-hidden relative pb-safe"
-        : "w-full bg-white/10 backdrop-blur-lg border-t border-white/20 snap-start overflow-hidden relative pb-safe";
-    
+    const footerBackgroundClass = params.isHomePage
+        ? "w-full bg-black/80 snap-start overflow-hidden relative pb-safe min-h-fit"
+        : "w-full bg-white/10 backdrop-blur-lg border-t border-white/20 snap-start overflow-hidden relative pb-safe min-h-fit";
+
     return (
         <div className={footerBackgroundClass}>
             {/* 分割线 */}
@@ -40,65 +39,55 @@ function Foot(params: { lang: string; isHomePage?: boolean }) {
                     text-2xl px-5 md:px-10 lg:px-16  py-10 ">
 
                     {/* 左侧：版权信息 */}
-                    <motion.div
+                    <div
                         className="rounded-2xl px-4 py-3 border border-white/20 mb-6 md:mb-0"
                         style={{
-                            background: 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.05) 100%)',
-                            backdropFilter: 'blur(15px) saturate(180%)',
-                            WebkitBackdropFilter: 'blur(15px) saturate(180%)',
-                            boxShadow: '0 8px 32px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.2)'
+                            background: 'rgba(255,255,255,0.1)',
+                            backdropFilter: 'blur(8px)',
+                            WebkitBackdropFilter: 'blur(8px)',
+                            boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
                         }}
-                        initial={{ opacity: 0, translateY: 20 }}
-                        whileInView={{ opacity: 1, translateY: 0 }}
-                        transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
-                        whileHover={{
-                            boxShadow: '0 12px 40px rgba(255,255,255,0.15), inset 0 1px 0 rgba(255,255,255,0.3)'
-                        }}
+
                     >
                         <span className="text-white/90 font-medium">© 2012–2025 Mofei</span>
-                    </motion.div>
+                    </div>
 
                     {/* 右侧：两行链接 */}
                     <div className="flex flex-col gap-8 items-start md:items-end w-full md:w-auto">
                         {/* 第一行：导航链接 */}
-                        <motion.div
+                        <div
                             className="grid grid-cols-2 sm:grid-cols-3 md:flex md:flex-row gap-3 p-3 rounded-2xl border border-white/20 w-full md:w-auto"
                             style={{
-                                background: 'linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.03) 100%)',
-                                backdropFilter: 'blur(15px) saturate(180%)',
-                                WebkitBackdropFilter: 'blur(15px) saturate(180%)',
-                                boxShadow: '0 8px 32px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.2)'
+                                background: 'rgba(255,255,255,0.08)',
+                                backdropFilter: 'blur(8px)',
+                                WebkitBackdropFilter: 'blur(8px)',
+                                boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
                             }}
-                            initial={{ opacity: 0, translateY: 20 }}
-                            whileInView={{ opacity: 1, translateY: 0 }}
-                            transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
-                            whileHover={{
-                                boxShadow: '0 12px 40px rgba(255,255,255,0.15), inset 0 1px 0 rgba(255,255,255,0.3)'
-                            }}
+                            
                         >
                             <Link href={`${params?.lang == 'en' ? '/' : '/zh'}`}
-                                className="text-white/80 hover:text-white px-3 py-1.5 rounded-lg transition-all duration-300 hover:scale-105 flex items-center gap-1">
+                                className="text-white/80 hover:text-white hover:opacity-90 px-3 py-1.5 rounded-lg transition-all duration-300 flex items-center gap-1">
                                 <svg className="w-6 h-6 md:w-4 md:h-4 lg:w-5 lg:h-5 xl:w-6 xl:h-6 2xl:w-7 2xl:h-7" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
                                 </svg>
                                 Home
                             </Link>
                             <Link href={`${params?.lang || 'en'}/blog/1`}
-                                className="text-white/80 hover:text-white px-3 py-1.5 rounded-lg transition-all duration-300 hover:scale-105 flex items-center gap-1">
+                                className="text-white/80 hover:text-white hover:opacity-90 px-3 py-1.5 rounded-lg transition-all duration-300 flex items-center gap-1">
                                 <svg className="w-6 h-6 md:w-4 md:h-4 lg:w-5 lg:h-5 xl:w-6 xl:h-6 2xl:w-7 2xl:h-7" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" />
                                 </svg>
                                 Blog
                             </Link>
                             <Link href={`${params?.lang || 'en'}/message/1`}
-                                className="text-white/80 hover:text-white px-3 py-1.5 rounded-lg transition-all duration-300 hover:scale-105 flex items-center gap-1">
+                                className="text-white/80 hover:text-white hover:opacity-90 px-3 py-1.5 rounded-lg transition-all duration-300 flex items-center gap-1">
                                 <svg className="w-6 h-6 md:w-4 md:h-4 lg:w-5 lg:h-5 xl:w-6 xl:h-6 2xl:w-7 2xl:h-7" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h4l4 4 4-4h4c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
                                 </svg>
                                 Message
                             </Link>
                             <Link href={`${params?.lang || 'en'}/friends`}
-                                className="text-white/80 hover:text-white px-3 py-1.5 rounded-lg transition-all duration-300 hover:scale-105 flex items-center gap-1">
+                                className="text-white/80 hover:text-white hover:opacity-90 px-3 py-1.5 rounded-lg transition-all duration-300 flex items-center gap-1">
                                 <svg className="w-6 h-6 md:w-4 md:h-4 lg:w-5 lg:h-5 xl:w-6 xl:h-6 2xl:w-7 2xl:h-7" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
                                 </svg>
@@ -108,7 +97,7 @@ function Foot(params: { lang: string; isHomePage?: boolean }) {
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 title={params?.lang === 'zh' ? '在新窗口打开工具页面' : 'Open tools in new window'}
-                                className="text-white/80 hover:text-white px-3 py-1.5 rounded-lg transition-all duration-300 hover:scale-105 flex items-center gap-1">
+                                className="text-white/80 hover:text-white hover:opacity-90 px-3 py-1.5 rounded-lg transition-all duration-300 flex items-center gap-1">
                                 <svg className="w-6 h-6 md:w-4 md:h-4 lg:w-5 lg:h-5 xl:w-6 xl:h-6 2xl:w-7 2xl:h-7" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z" />
                                 </svg>
@@ -119,40 +108,35 @@ function Foot(params: { lang: string; isHomePage?: boolean }) {
                                     </svg>
                                 </span>
                             </a>
-                        </motion.div>
+                        </div>
 
                         {/* 第二行：社交媒体链接 */}
-                        <motion.div
+                        <div
                             className="grid grid-cols-2 sm:grid-cols-3 md:flex md:flex-row gap-3 p-3 rounded-2xl border border-white/20 w-full md:w-auto"
                             style={{
-                                background: 'linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.03) 100%)',
-                                backdropFilter: 'blur(15px) saturate(180%)',
-                                WebkitBackdropFilter: 'blur(15px) saturate(180%)',
-                                boxShadow: '0 8px 32px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.2)'
+                                background: 'rgba(255,255,255,0.08)',
+                                backdropFilter: 'blur(8px)',
+                                WebkitBackdropFilter: 'blur(8px)',
+                                boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
                             }}
-                            initial={{ opacity: 0, translateY: 20 }}
-                            whileInView={{ opacity: 1, translateY: 0 }}
-                            transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
-                            whileHover={{
-                                boxShadow: '0 12px 40px rgba(255,255,255,0.15), inset 0 1px 0 rgba(255,255,255,0.3)'
-                            }}
+                           
                         >
                             <a href="https://github.com/zmofei/" target="_blank"
-                                className="text-white/80 hover:text-white px-3 py-1.5 rounded-lg transition-all duration-300 hover:scale-105 flex items-center gap-1">
+                                className="text-white/80 hover:text-white hover:opacity-90 px-3 py-1.5 rounded-lg transition-all duration-300 flex items-center gap-1">
                                 <svg className="w-6 h-6 md:w-4 md:h-4 lg:w-5 lg:h-5 xl:w-6 xl:h-6 2xl:w-7 2xl:h-7" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
                                 </svg>
                                 Github
                             </a>
                             <a href="https://www.instagram.com/zhu_wenlong/" target="_blank"
-                                className="text-white/80 hover:text-white px-3 py-1.5 rounded-lg transition-all duration-300 hover:scale-105 flex items-center gap-1">
+                                className="text-white/80 hover:text-white hover:opacity-90 px-3 py-1.5 rounded-lg transition-all duration-300 flex items-center gap-1">
                                 <svg className="w-6 h-6 md:w-4 md:h-4 lg:w-5 lg:h-5 xl:w-6 xl:h-6 2xl:w-7 2xl:h-7" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
                                 </svg>
                                 Instagram
                             </a>
                             <a href={`https://www.mofei.life/${params?.lang || 'en'}/rss`} target="_blank"
-                                className="text-white/80 hover:text-white px-3 py-1.5 rounded-lg transition-all duration-300 hover:scale-105 flex items-center gap-1">
+                                className="text-white/80 hover:text-white hover:opacity-90 px-3 py-1.5 rounded-lg transition-all duration-300 flex items-center gap-1">
                                 <svg className="w-6 h-6 md:w-4 md:h-4 lg:w-5 lg:h-5 xl:w-6 xl:h-6 2xl:w-7 2xl:h-7" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M6.503 20.752c0 1.794-1.456 3.248-3.251 3.248-1.796 0-3.252-1.454-3.252-3.248 0-1.794 1.456-3.248 3.252-3.248 1.795.001 3.251 1.454 3.251 3.248zm-6.503-12.572v4.811c6.05.062 10.96 4.966 11.022 11.009h4.817c-.062-8.71-7.118-15.758-15.839-15.82zm0-3.368c10.58.046 19.152 8.594 19.183 19.188h4.817c-.03-13.231-10.755-23.954-24-24v4.812z" />
                                 </svg>
@@ -160,23 +144,18 @@ function Foot(params: { lang: string; isHomePage?: boolean }) {
                             </a>
                             <button
                                 onClick={handleWeChatClick}
-                                className="text-white/80 hover:text-white px-3 py-1.5 rounded-lg transition-all duration-300 hover:scale-105 flex items-center gap-1">
+                                className="text-white/80 hover:text-white hover:opacity-90 px-3 py-1.5 rounded-lg transition-all duration-300 flex items-center gap-1">
                                 <svg className="w-6 h-6 md:w-4 md:h-4 lg:w-5 lg:h-5 xl:w-6 xl:h-6 2xl:w-7 2xl:h-7" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h4l4 4 4-4h4c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+                                    <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h4l4 4 4-4h4c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
                                 </svg>
                                 公众号
                             </button>
-                        </motion.div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <motion.div
-                className="w-full mt-4 overflow-hidden"
-                initial={{ opacity: 0, translateY: 30 }}
-                whileInView={{ opacity: 1, translateY: 0 }}
-                transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-            >
+            <div className="w-full mt-4 overflow-hidden">
                 <div className="m-auto relative z-10">
                     <svg
                         className="outline-none hidden md:flex" viewBox="0 0 2318 135"
@@ -196,52 +175,26 @@ function Foot(params: { lang: string; isHomePage?: boolean }) {
                         </foreignObject>
                     </svg>
 
-                    <svg
-                        className="outline-none flex md:hidden" viewBox="0 0 2318 240"
-                    >
-                        <foreignObject width="100%" height="100%">
-                            <p className="text-[240px] text-center font-extrabold text-transparent bg-clip-text relative" style={{
-                                fontFamily: '"Inter", sans-serif',
-                                fontWeight: 700,
-                                letterSpacing: "-0px",
-                                lineHeight: "1em",
-                                background: 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.3) 100%)',
-                                WebkitBackgroundClip: 'text',
-                                backgroundClip: 'text',
-                                filter: 'drop-shadow(0 0 16px rgba(255,255,255,0.3))',
-                                textShadow: '0 0 30px rgba(255,255,255,0.5), inset 0 1px 0 rgba(255,255,255,0.8)'
-                            }}>HI. I AM MOFEI!</p>
-                        </foreignObject>
-                    </svg>
-                    <svg
-                        className="outline-none flex md:hidden" viewBox="0 0 2318 240"
-                    >
-                        <foreignObject width="100%" height="100%">
-                            <p className="text-[240px] text-center font-extrabold text-transparent bg-clip-text relative" style={{
-                                fontFamily: '"Inter", sans-serif',
-                                fontWeight: 700,
-                                letterSpacing: "-0px",
-                                lineHeight: "1em",
-                                background: 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.3) 100%)',
-                                WebkitBackgroundClip: 'text',
-                                backgroundClip: 'text',
-                                filter: 'drop-shadow(0 0 16px rgba(255,255,255,0.3))',
-                                textShadow: '0 0 30px rgba(255,255,255,0.5), inset 0 1px 0 rgba(255,255,255,0.8)'
-                            }}>NICE TO MEET YOU!</p>
-                        </foreignObject>
-                    </svg>
+                    {/* 手机版简化文字，避免性能问题 */}
+                    <div className="flex md:hidden">
+                        <div className="w-full text-center py-8">
+                            <p className="text-4xl font-bold text-white/80 mb-2">
+                                HI. I AM MOFEI!
+                            </p>
+                            <p className="text-2xl font-medium text-white/60">
+                                NICE TO MEET YOU!
+                            </p>
+                        </div>
+                    </div>
                 </div>
-            </motion.div>
+            </div>
 
             {/* WeChat Modal */}
             {showWeChatModal && (
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={closeModal}>
-                    <motion.div
+                    <div
                         className="bg-white rounded-2xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto"
-                        initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                        transition={{ duration: 0.3 }}
+                        
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className="flex justify-between items-center mb-6">
@@ -392,9 +345,12 @@ function Foot(params: { lang: string; isHomePage?: boolean }) {
                                 )}
                             </div>
                         </div>
-                    </motion.div>
+                    </div>
                 </div>
             )}
+
+            {/* 页面结束标记 - 防止过度滚动 */}
+            <div className="w-full h-px bg-transparent"></div>
         </div>
     );
 };
