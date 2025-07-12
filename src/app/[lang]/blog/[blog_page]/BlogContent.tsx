@@ -203,7 +203,6 @@ export default function BlogContent({
       )}
 
       
-
       {/* Pagination with enhanced loading state */}
       {!isPageOutOfBounds && (
         <BlogPagination 
