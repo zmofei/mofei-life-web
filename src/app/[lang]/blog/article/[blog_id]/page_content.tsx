@@ -33,10 +33,10 @@ export default function PageContent({ params }: { params: { content: BlogContent
     };
 
     return <>
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
             <div className='
                       font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#a1c4fd] to-[#c2e9fb] 
-                      text-3xl 
+                      text-2xl 
                       md:text-5xl 
                       lg:text-6xl
                       !leading-tight mb-4
@@ -68,7 +68,9 @@ export default function PageContent({ params }: { params: { content: BlogContent
                   prose-base prose-gray-300
                   md:prose-xl lg:prose-2xl
                   custom-paragraph leading-relaxed
-                  bg-white/10 backdrop-blur-lg rounded-2xl p-6 py-2 md:p-8 md:py-2 lg:p-8
+                  bg-white/10 backdrop-blur-lg rounded-xl md:rounded-2xl 
+                  p-3 py-4 md:p-8 md:py-6 lg:p-8
+                  mx-2 md:mx-auto
                   shadow-2xl md:hover:shadow-3xl transition-all duration-300 md:duration-500
                   relative group overflow-hidden
                 '
@@ -80,14 +82,14 @@ export default function PageContent({ params }: { params: { content: BlogContent
 
         >
             {/* Glass effect overlays */}
-            <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none rounded-2xl"></div>
-            <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-white/5 pointer-events-none rounded-2xl"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none rounded-xl md:rounded-2xl"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-white/5 pointer-events-none rounded-xl md:rounded-2xl"></div>
 
             {/* Inner glow effect */}
-            <div className="absolute inset-0 bg-gradient-to-br from-white/3 via-transparent to-white/2 pointer-events-none rounded-2xl"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-white/3 via-transparent to-white/2 pointer-events-none rounded-xl md:rounded-2xl"></div>
 
             {/* Glass border reflections */}
-            <div className="absolute inset-0 rounded-2xl pointer-events-none" style={{
+            <div className="absolute inset-0 rounded-xl md:rounded-2xl pointer-events-none" style={{
                 background: `linear-gradient(135deg, 
                     rgba(255,255,255,0.15) 0%, 
                     transparent 20%, 
@@ -96,21 +98,21 @@ export default function PageContent({ params }: { params: { content: BlogContent
             }}></div>
 
             {/* Top edge highlight */}
-            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent rounded-t-2xl pointer-events-none"></div>
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent rounded-t-xl md:rounded-t-2xl pointer-events-none"></div>
 
             {/* Left edge highlight */}
-            <div className="absolute top-0 left-0 bottom-0 w-px bg-gradient-to-b from-white/8 via-white/5 to-transparent rounded-l-2xl pointer-events-none"></div>
+            <div className="absolute top-0 left-0 bottom-0 w-px bg-gradient-to-b from-white/8 via-white/5 to-transparent rounded-l-xl md:rounded-l-2xl pointer-events-none"></div>
 
             {/* Bottom right subtle reflection */}
-            <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-tl from-white/3 to-transparent rounded-br-2xl pointer-events-none"></div>
+            <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-tl from-white/3 to-transparent rounded-br-xl md:rounded-br-2xl pointer-events-none"></div>
 
             {/* Soft directional light */}
-            <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-white/4 to-transparent rounded-tl-2xl pointer-events-none"></div>
+            <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-white/4 to-transparent rounded-tl-xl md:rounded-tl-2xl pointer-events-none"></div>
 
             {/* Shimmer effect */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/8 to-transparent 
                 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out
-                skew-x-12 pointer-events-none rounded-2xl"></div>
+                skew-x-12 pointer-events-none rounded-xl md:rounded-2xl"></div>
 
             <div className="relative z-10">
                 {(() => {
@@ -245,7 +247,7 @@ export default function PageContent({ params }: { params: { content: BlogContent
 
         {/* Navigation */}
         {(blog.previousArticle?._id || blog.nextArticle?._id) && <div
-            className="max-w-7xl mx-auto mt-8 mb-12 grid grid-cols-1 md:grid-cols-2 gap-6"
+            className="max-w-7xl mx-auto mt-8 mb-12 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 px-2 md:px-6 lg:px-8"
 
         >
             {blog.previousArticle?._id && (

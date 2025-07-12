@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { trackEvent } from '@/lib/gtag';
 import MasonryCard from './MasonryCard';
 import TechCard from './TechCard';
 
@@ -28,8 +29,11 @@ interface MasonryLayoutProps {
 export default function MasonryLayout({ blogList, lang }: MasonryLayoutProps) {
   const [clickedCard, setClickedCard] = useState<string | null>(null);
 
-  const handleCardClick = (blogId: string) => {
-    setClickedCard(blogId);
+  const handleCardClick = (blog: BlogItem) => {
+    // GA跟踪博客卡片点击
+    trackEvent.navClick('Blog Card Click', `${blog._id}: ${blog.title}`);
+    
+    setClickedCard(blog._id);
     // Clear the clicked state after a short delay
     setTimeout(() => {
       setClickedCard(null);
@@ -51,7 +55,7 @@ export default function MasonryLayout({ blogList, lang }: MasonryLayoutProps) {
                   isClicked ? 'opacity-70' : 'hover:opacity-90'
                 }`}
                 prefetch={true}
-                onClick={() => handleCardClick(blog._id)}
+                onClick={() => handleCardClick(blog)}
               >
                 {blog.isTechArticle ? (
                   <TechCard blog={blog} index={index} />

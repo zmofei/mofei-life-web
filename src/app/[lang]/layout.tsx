@@ -2,6 +2,10 @@ import { use } from "react"
 import "../globals.css";
 import Nav from '@/components/Common/Nav'
 import { LanguageProvider } from "@/components/Context/LanguageContext";
+import WebVitalsProvider from '@/components/util/WebVitalsProvider';
+import WebVitalsDashboard from '@/components/util/WebVitalsDashboard';
+import GoogleAnalytics from '@/components/Analytics/GoogleAnalytics';
+import PageTracker from '@/components/Analytics/PageTracker';
 import type { Metadata } from 'next'
 
 
@@ -97,10 +101,15 @@ export default function RootLayout(params: Readonly<{
       <body
         className={`antialiased relative`}
       >
-        <LanguageProvider defaultLang={lang}>
-          <Nav lang={lang} />
-          {children}
-        </LanguageProvider>
+        <GoogleAnalytics />
+        <WebVitalsProvider>
+          <LanguageProvider defaultLang={lang}>
+            <PageTracker />
+            <Nav lang={lang} />
+            {children}
+            <WebVitalsDashboard />
+          </LanguageProvider>
+        </WebVitalsProvider>
       </body>
     </html>
   );

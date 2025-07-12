@@ -5,6 +5,7 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { trackEvent } from '@/lib/gtag';
 
 // Global state to track if nav animations have been played
 let navAnimationsPlayed = false;
@@ -49,11 +50,11 @@ function Nav({ lang }: { lang: string }) {
 
     const [isChineseUser, setIsChineseUser] = useState(false);
 
-    // 提取公共样式类
+    // Extract common style classes
     const mobileNavItemClass = "flex items-center justify-end gap-2 text-right";
     // const desktopNavItemClass = "transition-colors duration-200 flex items-center gap-1";
 
-    // 优化 isActive 函数性能
+    // Optimize isActive function performance
     const isActive = useMemo(() => {
         return (path: string) => {
             if (path === `/${lang === "en" ? '' : lang}`) {
@@ -71,7 +72,7 @@ function Nav({ lang }: { lang: string }) {
         };
     }, [pathname, lang]);
 
-    // 导航项数据
+    // Navigation item data
     const navItems = useMemo(() => [
         {
             href: `/${lang === "en" ? '' : lang}`,
@@ -113,7 +114,7 @@ function Nav({ lang }: { lang: string }) {
         }
     ], [lang]);
 
-    // 外链图标组件
+    // External link icon component
     const ExternalIcon = () => (
         <svg className="w-4 h-4 opacity-60" fill="currentColor" viewBox="0 0 24 24">
             <path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z" />
@@ -224,7 +225,9 @@ function Nav({ lang }: { lang: string }) {
                     {navItems.map((item, index) => (
                         <a
                             key={index}
-                            className={`px-3 py-1.5 rounded-full transition-all duration-300 flex items-center gap-2 ${item.external ? 'hover:bg-white/20 hover:text-white' :
+                            className={`px-3 py-1.5 rounded-full transition-all duration-300 flex items-center gap-2 
+                                       active:scale-95 hover:scale-105 touch-manipulation select-none cursor-pointer
+                                       ${item.external ? 'hover:bg-white/20 hover:text-white' :
                                 isActive(item.href)
                                     ? 'bg-white/25 text-white font-medium shadow-lg'
                                     : 'hover:bg-white/15 hover:text-white'
@@ -234,7 +237,14 @@ function Nav({ lang }: { lang: string }) {
                                     ? 'linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.15) 100%)'
                                     : 'transparent'
                             }}
-
+                            onClick={() => {
+                                // Track navigation click event
+                                if (item.external) {
+                                    trackEvent.externalLink(item.href, item.label[lang as 'zh' | 'en']);
+                                } else {
+                                    trackEvent.navClick(item.label[lang as 'zh' | 'en'], item.href);
+                                }
+                            }}
                             href={item.href}
                             {...(item.external && {
                                 target: "_blank",
@@ -261,7 +271,9 @@ function Nav({ lang }: { lang: string }) {
                     <div className="w-px h-6 bg-white/20"></div>
 
                     <button
-                        className="relative inline-flex items-center h-7 w-14 rounded-full cursor-pointer transition-all duration-300"
+                        className="relative inline-flex items-center h-7 w-14 rounded-full cursor-pointer 
+                                   transition-all duration-300 active:scale-95 hover:scale-105 
+                                   touch-manipulation select-none"
                         style={{
                             background: 'linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.1) 100%)',
                         }}
@@ -279,13 +291,6 @@ function Nav({ lang }: { lang: string }) {
                             document.cookie = `lang=${lang == 'zh' ? 'en' : 'zh'}; path=/; max-age=${3600 * 24 * 365 * 10}`;
                         }}
                     >
-                        <div
-                            className="absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow-lg flex items-center justify-center"
-                        >
-                            <span className="text-xs font-bold text-gray-800">
-                                {lang === 'zh' ? '中' : 'EN'}
-                            </span>
-                        </div>
                         <div className="flex items-center justify-between w-full px-2 text-xs font-medium text-white">
                             <span className={`transition-opacity duration-200 ${lang === 'zh' ? 'opacity-100' : 'opacity-40'}`}>中</span>
                             <span className={`transition-opacity duration-200 ${lang === 'zh' ? 'opacity-40' : 'opacity-100'}`}>EN</span>
@@ -296,7 +301,9 @@ function Nav({ lang }: { lang: string }) {
 
             {/* Mobile Menu Button - Only visible on mobile */}
             <button
-                className="fixed rounded-full p-2 px-4 z-60 lg:hidden right-5 top-3 text-xl 2xl:right-10 2xl:top-5 md:text-2xl"
+                className="fixed rounded-full p-2 px-4 z-60 lg:hidden right-5 top-3 text-xl 2xl:right-10 2xl:top-5 md:text-2xl
+                           transition-all duration-200 active:scale-95 hover:scale-105 
+                           touch-manipulation select-none cursor-pointer"
                 style={{
                     background: show
                         ? 'linear-gradient(135deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.1) 100%)'
@@ -312,6 +319,14 @@ function Nav({ lang }: { lang: string }) {
                 aria-label={lang === 'zh' ? '导航菜单' : 'Navigation menu'}
                 onClick={() => {
                     setShow(!show)
+                }}
+                onTouchStart={(e) => {
+                    // Add visual feedback on touch start
+                    e.currentTarget.style.transform = 'scale(0.95)';
+                }}
+                onTouchEnd={(e) => {
+                    // Restore on touch end
+                    e.currentTarget.style.transform = 'scale(1)';
                 }}
             >
                 <svg viewBox="0 0 1024 1024" className="inline-block align-middle" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="8282" width="23" height="23">
@@ -340,7 +355,9 @@ function Nav({ lang }: { lang: string }) {
                     {/* 语言切换按钮移到顶部 */}
                     <li className="py-2 sm:py-3 md:py-4 mb-2 sm:mb-4 pr-6 md:pr-10" style={{ "transformOrigin": "top right" }}>
                         <button
-                            className="inline-flex items-center justify-center gap-2 h-8 w-16 sm:h-10 sm:w-18 md:h-12 md:w-20 rounded-xl sm:rounded-2xl cursor-pointer ml-auto transition-all duration-300"
+                            className="inline-flex items-center justify-center gap-2 h-8 w-16 sm:h-10 sm:w-18 md:h-12 md:w-20 rounded-xl sm:rounded-2xl cursor-pointer ml-auto 
+                                       transition-all duration-300 active:scale-95 hover:scale-105 
+                                       touch-manipulation select-none"
                             style={{
                                 background: 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%)',
                                 backdropFilter: 'blur(15px) saturate(150%)',
@@ -348,8 +365,19 @@ function Nav({ lang }: { lang: string }) {
                                 boxShadow: '0 8px 32px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.15)',
                                 border: '1px solid rgba(255,255,255,0.2)'
                             }}
+                            onTouchStart={(e) => {
+                                e.currentTarget.style.transform = 'scale(0.95)';
+                                e.currentTarget.style.background = 'linear-gradient(135deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.15) 100%)';
+                            }}
+                            onTouchEnd={(e) => {
+                                e.currentTarget.style.transform = 'scale(1)';
+                                e.currentTarget.style.background = 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%)';
+                            }}
 
                             onClick={() => {
+                                const newLang = lang == 'zh' ? 'en' : 'zh';
+                                trackEvent.languageSwitch(lang, newLang);
+                                
                                 if (location.pathname == '/zh') {
                                     location.href = '/'
                                 } else if (location.pathname == '/') {
@@ -375,7 +403,10 @@ function Nav({ lang }: { lang: string }) {
                                     isActive(item.href)
                                         ? 'font-bold text-white drop-shadow-lg'
                                         : 'text-white/90'
-                                    } rounded-xl sm:rounded-2xl p-3 sm:p-4 transition-all duration-300`}
+                                    } rounded-xl sm:rounded-2xl p-3 sm:p-4 transition-all duration-300 
+                                    active:scale-95 active:bg-white/20 
+                                    hover:bg-white/15 hover:scale-105
+                                    touch-manipulation select-none`}
                                 style={{
                                     background: isActive(item.href)
                                         ? 'linear-gradient(135deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.1) 100%)'
@@ -394,6 +425,12 @@ function Nav({ lang }: { lang: string }) {
                                     rel: "noopener noreferrer",
                                     title: lang === 'zh' ? '在新窗口打开' : 'Open in new window'
                                 })}
+                                onClick={() => {
+                                    // Close menu when navigation item is clicked
+                                    if (!item.external) {
+                                        setShow(false);
+                                    }
+                                }}
                                 aria-label={`${item.label[lang as 'zh' | 'en']}${item.external ? (lang === 'zh' ? '（外部链接）' : ' (external link)') : ''}`}
                             >
                                 <span className={item.external ? "flex items-center gap-1" : ""}>

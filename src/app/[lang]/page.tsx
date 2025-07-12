@@ -9,23 +9,94 @@ import Lan from "@/components/util/Language";
 import { use, useMemo, Suspense, useState } from 'react';
 import Foot from '@/components/Common/Foot';
 
+// Extract skills data outside component to avoid repeated creation
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const SKILLS_DATA = [
+  {
+    title: { zh: "AI & 机器学习", en: "AI & Machine Learning" },
+    icon: "🤖",
+    color: "from-purple-500/20 to-pink-500/20",
+    skills: [
+      "ChatGPT & OpenAI API",
+      "Claude API & MCP",
+      "GitHub Copilot",
+      "AI Agent & Vector DB"
+    ]
+  },
+  {
+    title: { zh: "前端开发", en: "Frontend Development" },
+    icon: "⚡",
+    color: "from-blue-500/20 to-cyan-500/20",
+    skills: [
+      "React & JavaScript",
+      "Redux & HTML/CSS",
+      "Sass & Webpack",
+      "Mini Program"
+    ]
+  },
+  {
+    title: { zh: "后端 & 基础设施", en: "Backend & Infrastructure" },
+    icon: "🔧",
+    color: "from-green-500/20 to-emerald-500/20",
+    skills: [
+      "Node.js & Python",
+      "AWS & Alibaba Cloud",
+      "MySQL & MongoDB",
+      "Nginx & Apache Spark"
+    ]
+  },
+  {
+    title: { zh: "数据处理 & 分析", en: "Data Processing & Analytics" },
+    icon: "📊",
+    color: "from-orange-500/20 to-yellow-500/20",
+    skills: [
+      "Apache Spark & PySpark",
+      "Apache Airflow",
+      "Python Data Science Stack",
+      "Data Pipeline & ETL"
+    ]
+  },
+  {
+    title: { zh: "移动开发", en: "Mobile Development" },
+    icon: "📱",
+    color: "from-red-500/20 to-pink-500/20",
+    skills: [
+      "React Native",
+      "iOS & Android",
+      "Swift & Kotlin",
+      "Flutter"
+    ]
+  },
+  {
+    title: { zh: "运维 & 工具", en: "DevOps & Tools" },
+    icon: "🛠️",
+    color: "from-gray-500/20 to-slate-500/20",
+    skills: [
+      "Docker & Kubernetes",
+      "CI/CD & GitHub Actions",
+      "Linux & Shell Script",
+      "Monitoring & Logging"
+    ]
+  }
+] as const;
+
 export default function Home({ params }: { params: Promise<{ lang: string }> }) {
 
   const { lang } = use(params);
   const [expandedSkills, setExpandedSkills] = useState<Set<number>>(new Set());
 
   const toggleAllSkills = () => {
-    const skillsCount = 6; // 技能卡片总数
+    const skillsCount = 6; // Total number of skill cards
     if (expandedSkills.size === skillsCount) {
-      // 如果全部展开，则全部收起
+      // If all expanded, collapse all
       setExpandedSkills(new Set());
     } else {
-      // 否则全部展开
+      // Otherwise expand all
       setExpandedSkills(new Set([0, 1, 2, 3, 4, 5]));
     }
   };
 
-  // 计算工作年限（从2010年开始）- 使用useMemo缓存计算结果
+  // Calculate work years (from 2010) - use useMemo to cache calculation result
   const yearsOfExperience = useMemo(() => {
     const startYear = 2010;
     const currentYear = new Date().getFullYear();
@@ -109,13 +180,13 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
         dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
       />
 
-      {/* Full page video background - 优化性能 */}
+      {/* Full page video background - optimized performance */}
       <VideoBackground isFullPage={true} />
 
       <div className="w-full relative z-10 min-h-screen">
 
         <div className="h-svh w-full flex items-center justify-center relative">
-          {/* 第一屏遮罩 - 手机版简化 */}
+          {/* First screen overlay - simplified for mobile */}
           <div className="absolute inset-0 bg-black/70 md:bg-black/80 md:backdrop-blur-[1px]"></div>
 
           <div className="w-full max-w-screen-xl z-10 mx-auto relative">
@@ -140,7 +211,7 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
             </motion.div>
 
           </div>
-          {/* 手机版简化滚动提示 */}
+          {/* Simplified scroll hint for mobile */}
           <motion.div
             className="absolute left-0 right-0 bottom-10 md:bottom-20 flex justify-center opacity-60 md:opacity-80"
             initial={{ opacity: 0, y: -20 }}
@@ -169,17 +240,17 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
           </motion.div>
         </div>
 
-        {/* 分割线 */}
+        {/* Divider line */}
         <div className="w-full bg-black">
           <div className="container max-w-[2000px] mx-auto px-5 md:px-10 lg:px-16">
             <div className="h-px bg-gradient-to-r from-transparent via-gray-700 to-transparent"></div>
           </div>
         </div>
 
-        {/* 关于我 - 惊艳设计 */}
+        {/* About me - stunning design */}
         <Suspense fallback={<div className="min-h-svh bg-black/80 flex items-center justify-center text-white">Loading...</div>}>
           <div className="min-h-svh w-full relative bg-black/85 overflow-hidden">
-            {/* 静态背景粒子 - 优化性能 */}
+            {/* Static background particles - optimized performance */}
             <div className="absolute inset-0 opacity-20 hidden md:block">
               {[...Array(6)].map((_, i) => (
                 <div
@@ -193,7 +264,7 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
               ))}
             </div>
 
-            {/* 背景光效 - 优化性能 */}
+            {/* Background light effects - optimized performance */}
             <div className="absolute inset-0 hidden md:block">
               <div
                 className="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-500/5 rounded-full blur-2xl opacity-5"
@@ -207,7 +278,7 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
               <div className='px-5 md:px-10 lg:px-16 py-16 md:py-24 lg:py-32'>
                 <div
                 >
-                  {/* 惊艳标题 */}
+                  {/* Stunning title */}
                   <div className="text-center mb-16 relative">
                     <h1 className="text-4xl md:text-6xl lg:text-7xl font-light text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-200 to-white mb-8 tracking-wider relative">
                       <Lan lang={lang} candidate={{
@@ -215,7 +286,7 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
                         "en": "About Me"
                       }} />
 
-                      {/* 标题装饰线 */}
+                      {/* Title decoration line */}
                       <div
                         className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 h-1 bg-gradient-to-r from-transparent via-white to-transparent"
                         style={{ width: "200px", opacity: 0.6 }}
@@ -224,7 +295,7 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
 
                   </div>
 
-                  {/* 核心介绍 - 高级动效 */}
+                  {/* Core introduction - advanced animations */}
                   <div className="mb-16 md:mb-20 w-full">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
                       {[
@@ -257,13 +328,13 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
                             {item[lang as 'zh' | 'en']}
                           </p>
 
-                          {/* 悬停光效 */}
+                          {/* Hover light effect */}
                           <div
                             className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-blue-500/10 opacity-0"
                             style={{ opacity: 0.3 }}
                           />
 
-                          {/* 装饰点 */}
+                          {/* Decoration dots */}
                           <div
                             className="absolute top-4 right-4 w-2 h-2 bg-white/30 rounded-full"
                             style={{ opacity: 0.3 }}
@@ -273,7 +344,7 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
                     </div>
                   </div>
 
-                  {/* 技能与专长 - 炫酷卡片 */}
+                  {/* Skills & expertise - cool cards */}
                   <div className="mb-16 md:mb-20">
                     <div className="flex items-center justify-between mb-12">
                       <h2 className="text-2xl md:text-3xl font-light text-white tracking-wide">
@@ -516,7 +587,7 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
           </div>
         </Suspense>
 
-        {/* 分割线 */}
+        {/* Divider line */}
         <div className="w-full bg-black">
           <div className="container max-w-[2000px] mx-auto px-5 md:px-10 lg:px-16">
             <div className="h-px bg-gradient-to-r from-transparent via-gray-700 to-transparent"></div>

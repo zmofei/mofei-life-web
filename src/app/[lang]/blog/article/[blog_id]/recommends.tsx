@@ -23,7 +23,7 @@ export default function Recommend({ blogRecommend }: { blogRecommend: Array<Blog
 
 
     return blogRecommend.length == 0 ? <></> : (
-        <div className='max-w-7xl mx-auto 
+        <div className='max-w-7xl mx-auto px-2 md:px-6 lg:px-8
               mt-16 mb-16
               md:mt-20 md:mb-20
             '
@@ -34,7 +34,7 @@ export default function Recommend({ blogRecommend }: { blogRecommend: Array<Blog
                     text-2xl md:text-3xl lg:text-4xl mb-8 md:mb-12 text-center'
 
             >{lang == 'zh' ? '更多精彩文章' : 'More Great Articles'}</h3>
-            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 md:p-8 
+            <div className="bg-white/10 backdrop-blur-lg rounded-xl md:rounded-2xl p-4 md:p-8 
                 border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-500
                 relative group overflow-hidden">
 

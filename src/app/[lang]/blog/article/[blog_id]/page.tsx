@@ -177,7 +177,7 @@ export default async function Home({ params }: { params: Promise<{ lang: 'zh' | 
 
     {/* Main html */}
     <div className='min-h-screen relative z-10
-      mt-20 px-5 
+      mt-20 px-2 
       md:mt-32 md:px-10
       lg:px-16 xl:px-20 2xl:px-24
     '>
