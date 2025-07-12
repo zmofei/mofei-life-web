@@ -3,7 +3,7 @@
 	"version": "0.1.0",
 	"private": true,
 	"scripts": {
-		"dev": "NODE_ENV=development next dev -H 0.0.0.0 --turbopack --experimental-https",
+		"dev": "NODE_ENV=development next dev -H local.mofei.life --turbopack --experimental-https",
 		"build": "next build",
 		"start": "next start",
 		"lint": "next lint",
@@ -32,7 +32,8 @@
 		"react-window-infinite-loader": "^1.0.10",
 		"rss": "^1.2.2",
 		"tailwind-merge": "^2.5.5",
-		"tailwindcss-animate": "^1.0.7"
+		"tailwindcss-animate": "^1.0.7",
+		"web-vitals": "^5.0.3"
 	},
 	"devDependencies": {
 		"@cloudflare/workers-types": "^4.20250405.0",

@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import Comments from '@/components/Comments/Comments';
+import { trackEvent } from '@/lib/gtag';
 
 interface FriendLink {
   name: string;
@@ -107,10 +108,6 @@ export default function FriendsPage({ params }: { params: Promise<{ lang: 'zh' |
 
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
   const groupedLinks = friendsData.reduce((acc, link) => {
     const category = link.category || 'other';
     if (!acc[category]) {
@@ -119,6 +116,27 @@ export default function FriendsPage({ params }: { params: Promise<{ lang: 'zh' |
     acc[category].push(link);
     return acc;
   }, {} as Record<string, FriendLink[]>);
+
+  useEffect(() => {
+    setMounted(true);
+    
+    // Track friends page visit
+    trackEvent.pageView('Friends Page Load', `/friends`);
+    
+    // Track how many categories and links
+    const categoryCount = Object.keys(groupedLinks).length;
+    const totalLinks = friendsData.length;
+    trackEvent.navClick('Friends Page Stats', `Categories: ${categoryCount}, Links: ${totalLinks}`);
+  }, [groupedLinks]);
+
+  // Handle friend link click tracking
+  const handleFriendLinkClick = (link: FriendLink, category: string) => {
+    // Use dedicated friend link tracking function
+    trackEvent.friendLinkClick(link.name, link.url, category);
+    
+    // Also retain general external link tracking for cross-analysis
+    trackEvent.externalLink(link.url, `Friends Page - ${link.name}`);
+  };
 
   if (!mounted) {
     return null;
@@ -225,6 +243,7 @@ export default function FriendsPage({ params }: { params: Promise<{ lang: 'zh' |
                     target="_blank"
                     rel="noopener noreferrer"
                     className="block h-full cursor-pointer"
+                    onClick={() => handleFriendLinkClick(link, category)}
                   >
                     <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 p-6 border border-white/20 hover:border-white/40 h-full flex flex-col relative overflow-hidden
                       group hover:-translate-y-1">

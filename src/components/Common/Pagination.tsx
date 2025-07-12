@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { useState } from 'react';
+import { trackEvent } from '@/lib/gtag';
 
 type PaginationProps = {
     lang: string;
@@ -8,9 +9,9 @@ type PaginationProps = {
     totalPages: number;
     baseURL: string;
     anchor?: string;
-    singlePageMode?: boolean; // 支持单页模式
+    singlePageMode?: boolean; // Support single page mode
     onPageChange?: (page: number) => void;
-    searchParams?: string; // 查询参数
+    searchParams?: string; // Query parameters
 };
 
 const Pagination: React.FC<PaginationProps> = ({
@@ -25,7 +26,7 @@ const Pagination: React.FC<PaginationProps> = ({
 }) => {
     const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
 
-    // 构建URL的帮助函数
+    // Helper function to build URLs
     const buildUrl = (page: number) => {
         const url = `${baseURL}/${page}`;
         const queryParams = searchParams ? `?${searchParams}` : '';
@@ -36,6 +37,9 @@ const Pagination: React.FC<PaginationProps> = ({
     const [_page, setPage] = useState(currentPage);
 
     const handlePageChange = (page: number) => {
+        // GA跟踪分页点击
+        trackEvent.navClick('Pagination', `Page ${page} from ${currentPage}`);
+        
         if (onPageChange) {
             onPageChange(page);
         }

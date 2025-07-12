@@ -3,6 +3,36 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
   output: "standalone",
+  // Performance optimizations
+  compiler: {
+    removeConsole: process.env.NODE_ENV === "production",
+  },
+  experimental: {
+    optimizePackageImports: ['@heroicons/react', 'motion', 'react-photo-view'],
+  },
+  // Bundle analyzer and optimization
+  webpack: (config, { dev, isServer }) => {
+    // Optimize chunk splitting
+    if (!dev && !isServer) {
+      config.optimization.splitChunks = {
+        chunks: 'all',
+        cacheGroups: {
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            priority: 10,
+            reuseExistingChunk: true,
+          },
+          common: {
+            minChunks: 2,
+            priority: 5,
+            reuseExistingChunk: true,
+          },
+        },
+      };
+    }
+    return config;
+  },
   async redirects() {
     return [
       {
@@ -43,6 +73,13 @@ const nextConfig: NextConfig = {
     }
   },
   images: {
+    // Performance optimizations for images
+    formats: ['image/webp', 'image/avif'],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    minimumCacheTTL: 60,
+    dangerouslyAllowSVG: true,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     remotePatterns: [
       {
         protocol: "https",
