@@ -2,7 +2,6 @@
 import sha256 from 'crypto-js/sha256';
 // motion import removed as animations were disabled
 import Pagination from '@/components/Common/Pagination';
-import OptimizedImage from '@/components/util/OptimizedImage';
 import { usePerformance } from '@/hooks/usePerformance';
 import { trackEvent } from '@/lib/gtag';
 import { useEffect, useState, useRef, useMemo, memo, useCallback } from 'react';
@@ -72,6 +71,8 @@ export default function Comments(params: CommentsParams) {
     const [isLoading, setIsLoading] = useState(false)
     const [isPosting, setIsPosting] = useState(false)
     const [showSuccess, setShowSuccess] = useState(false)
+    // Remove animations entirely to prevent repeated animation issues
+    // Users will get immediate content without confusing double animations
 
     useEffect(() => {
         const email = localStorage.getItem('email') || ''
@@ -331,8 +332,8 @@ export default function Comments(params: CommentsParams) {
         }, [blog.translate_zh, blog.translate_en, blog.content, lang]);
         
         return (
-            <div className='mt-5 md:mt-10'>
-                <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-4 md:p-8 border border-white/20 shadow-xl hover:shadow-2xl relative overflow-hidden text-sm md:text-lg will-change-transform">
+            <div className='mt-5 md:mt-10 interactive-element'>
+                <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-4 md:p-8 border border-white/20 shadow-xl hover:shadow-2xl relative overflow-hidden text-sm md:text-lg will-change-transform focus-enhanced">
                     {/* Avatar background */}
                     {blog.email && blog.email !== '0000000000' ? (
                         <div 
@@ -359,89 +360,91 @@ export default function Comments(params: CommentsParams) {
                     <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none rounded-2xl"></div>
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-white/5 pointer-events-none rounded-2xl"></div>
                     
-                    {/* 头部：头像、姓名、时间 */}
-                    <div className='flex items-center justify-between mb-4 relative z-10'>
-                        <div className='flex items-center gap-3'>
-                            <OptimizedImage 
+                    {/* 主体内容：在电脑端使用左右布局 */}
+                    <div className='flex flex-col md:flex-row gap-4 md:gap-6 relative z-10'>
+                        {/* 左侧：头像区域 */}
+                        <div className='flex md:flex-col items-center md:items-start gap-3 md:gap-2'>
+                            <img 
                                 alt='avatar' 
-                                className="rounded-2xl shadow-xl ring-2 ring-white/20" 
-                                width={48} 
-                                height={48}
+                                className="rounded-2xl shadow-xl ring-2 ring-white/20 w-12 h-12 md:w-16 md:h-16 object-cover flex-shrink-0" 
                                 src={`https://assets-eu.mofei.life/gravatar/${blog.email || '0000000000'}?s=200`}
-                                quality={90}
-                                placeholder="blur"
+                                loading="lazy"
+                                style={{ transition: 'none' }}
                             />
-                            <div>
-                                <h2 className='font-bold text-base md:text-xl flex items-center gap-2'>
-                                    <span className="text-white drop-shadow-md">{blog.name}</span>
-                            {blog.blog ? (
-                                <a
-                                    href={blog.blog.startsWith('http://') || blog.blog.startsWith('https://') ? blog.blog : `https://${blog.blog}`}
-                                    target='_blank'
-                                    className="text-white/60 hover:text-white/80"
-                                >
-                                    <svg className='inline-block size-6' fill='currentColor' viewBox='0 0 20 20'>
-                                        <path fillRule='evenodd' d='M4.083 9h1.946c.089-1.546.383-2.97.837-4.118A6.004 6.004 0 004.083 9zM10 2a8 8 0 100 16 8 8 0 000-16zm0 2c-.076 0-.232.032-.465.262-.238.234-.497.623-.737 1.182-.389.907-.673 2.142-.766 3.556h3.936c-.093-1.414-.377-2.649-.766-3.556-.24-.56-.5-.948-.737-1.182C10.232 4.032 10.076 4 10 4zm3.971 5c-.089-1.546-.383-2.97-.837-4.118A6.004 6.004 0 0115.917 9h-1.946zm-2.003 2H8.032c.093 1.414.377 2.649.766 3.556.24.56.5.948.737 1.182.233.23.389.262.465.262.076 0 .232-.032.465-.262.238-.234.498-.623.737-1.182.389-.907.673-2.142.766-3.556zm1.166 4.118c.454-1.147.748-2.572.837-4.118h1.946a6.004 6.004 0 01-2.783 4.118zm-6.268 0C6.412 13.97 6.118 12.546 6.03 11H4.083a6.004 6.004 0 002.783 4.118z' clipRule='evenodd' />
-                                    </svg>
-                                    </a>
-                                ) : ''}
-                                </h2>
+                        </div>
+                        
+                        {/* 右侧：姓名、时间和内容区域 */}
+                        <div className="flex-1 min-w-0">
+                            {/* 姓名和时间 */}
+                            <div className='mb-3'>
+                                <div className='flex items-center gap-2 mb-1'>
+                                    <h2 className='font-bold text-base md:text-lg text-white drop-shadow-md'>
+                                        {blog.name}
+                                    </h2>
+                                    {blog.blog ? (
+                                        <a
+                                            href={blog.blog.startsWith('http://') || blog.blog.startsWith('https://') ? blog.blog : `https://${blog.blog}`}
+                                            target='_blank'
+                                            className="text-white/60 hover:text-white/80"
+                                        >
+                                            <svg className='inline-block size-4' fill='currentColor' viewBox='0 0 20 20'>
+                                                <path fillRule='evenodd' d='M4.083 9h1.946c.089-1.546.383-2.97.837-4.118A6.004 6.004 0 004.083 9zM10 2a8 8 0 100 16 8 8 0 000-16zm0 2c-.076 0-.232.032-.465.262-.238.234-.497.623-.737 1.182-.389.907-.673 2.142-.766 3.556h3.936c-.093-1.414-.377-2.649-.766-3.556-.24-.56-.5-.948-.737-1.182C10.232 4.032 10.076 4 10 4zm3.971 5c-.089-1.546-.383-2.97-.837-4.118A6.004 6.004 0 0115.917 9h-1.946zm-2.003 2H8.032c.093 1.414.377 2.649.766 3.556.24.56.5.948.737 1.182.233.23.389.262.465.262.076 0 .232-.032.465-.262.238-.234.498-.623.737-1.182.389-.907.673-2.142.766-3.556zm1.166 4.118c.454-1.147.748-2.572.837-4.118h1.946a6.004 6.004 0 01-2.783 4.118zm-6.268 0C6.412 13.97 6.118 12.546 6.03 11H4.083a6.004 6.004 0 002.783 4.118z' clipRule='evenodd' />
+                                            </svg>
+                                        </a>
+                                    ) : ''}
+                                </div>
+                                
+                                {/* 时间信息 - 具体时间和相对时间 */}
+                                <div className="flex items-center gap-2 text-xs text-white/60 font-medium">
+                                    <span title={new Date(blog.time).toLocaleDateString(
+                                        lang == 'zh' ? 'zh-CN' : 'en-US'
+                                        , {
+                                            weekday: "short",
+                                            year: "numeric",
+                                            month: "short",
+                                            day: "numeric",
+                                            hour: "numeric",
+                                            minute: "numeric",
+                                        })}>
+                                        {new Date(blog.time).toLocaleDateString(
+                                            lang == 'zh' ? 'zh-CN' : 'en-US'
+                                            , {
+                                                month: "short",
+                                                day: "numeric",
+                                                hour: "2-digit",
+                                                minute: "2-digit",
+                                            })}
+                                    </span>
+                                    <span className="text-white/40">•</span>
+                                    <span className="text-white/50">
+                                        {getRelativeTimeFunc(blog.time, lang == 'zh' ? 'zh-CN' : 'en-US')}
+                                    </span>
+                                </div>
                             </div>
-                        </div>
-                        
-                        {/* 时间信息 */}
-                        <div className="text-xs md:text-sm text-white/80 bg-white/10 backdrop-blur-lg rounded-2xl px-2 md:px-3 py-1 md:py-2 border border-white/20 shadow-xl relative overflow-hidden font-medium" title={new Date(blog.time).toLocaleDateString(
-                            lang == 'zh' ? 'zh-CN' : 'en-US'
-                            , {
-                                weekday: "short",
-                                year: "numeric",
-                                month: "short",
-                                day: "numeric",
-                                hour: "numeric",
-                                minute: "numeric",
-                            })}>
-                            {new Date(blog.time).toLocaleDateString(
-                                lang == 'zh' ? 'zh-CN' : 'en-US'
-                                , {
-                                    month: "short",
-                                    day: "numeric",
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                })}
-                        </div>
-                    </div>
-                    
-                    {/* 内容区域 */}
-                    <div className='text-sm md:text-base relative z-10'>
-                        <div className="text-gray-100 leading-relaxed prose prose-invert max-w-none text-sm md:text-lg">
-                            {/* 显示翻译内容（已缓存，不会重新渲染） */}
-                            {translatedContent}
                             
-                            {/* 显示原文按钮 */}
-                            {shouldShowOriginalButton && (
-                                <button
-                                    onClick={() => setShowOriginal(!showOriginal)}
-                                    className="mt-2 flex items-center gap-2 text-gray-400 hover:text-gray-300 text-sm"
-                                >
-                                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                                    </svg>
-                                    <span>{showOriginal ? (lang === 'zh' ? '隐藏原文' : 'Hide Original') : (lang === 'zh' ? '查看原文' : 'Show Original')}</span>
-                                </button>
-                            )}
-                            
-                            {/* 可展开的原文内容（已缓存，不会重新渲染） */}
-                            {showOriginal && shouldShowOriginalButton && originalContent}
-                        </div>
-                        
-                        {/* 相对时间显示 */}
-                        <div className='mt-4 flex items-center gap-2 text-gray-400'>
-                            <svg className="w-3 h-3 md:w-4 md:h-4 text-white/60" fill='currentColor' viewBox='0 0 20 20'>
-                                <path fillRule='evenodd' d='M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z' clipRule='evenodd' />
-                            </svg>
-                            <span className="text-gray-300 text-xs md:text-sm">
-                                {getRelativeTimeFunc(blog.time, lang == 'zh' ? 'zh-CN' : 'en-US')}
-                            </span>
+                            {/* 内容区域 */}
+                            <div className='text-sm md:text-base'>
+                                <div className="text-gray-100 leading-relaxed prose prose-invert max-w-none text-sm md:text-lg">
+                                    {/* 显示翻译内容（已缓存，不会重新渲染） */}
+                                    {translatedContent}
+                                    
+                                    {/* 显示原文按钮 */}
+                                    {shouldShowOriginalButton && (
+                                        <button
+                                            onClick={() => setShowOriginal(!showOriginal)}
+                                            className="mt-2 flex items-center gap-2 text-gray-400 hover:text-gray-300 text-sm"
+                                        >
+                                            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                                            </svg>
+                                            <span>{showOriginal ? (lang === 'zh' ? '隐藏原文' : 'Hide Original') : (lang === 'zh' ? '查看原文' : 'Show Original')}</span>
+                                        </button>
+                                    )}
+                                    
+                                    {/* 可展开的原文内容（已缓存，不会重新渲染） */}
+                                    {showOriginal && shouldShowOriginalButton && originalContent}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -457,21 +460,19 @@ export default function Comments(params: CommentsParams) {
             <div className='relative mb-8 md:mb-12'>
                 <div className='w-0 h-0 absolute -top-20 md:-top-32 left-0 overflow-hidden invisible' ref={messageArea}></div>
                 <div className='bg-white/10 backdrop-blur-lg rounded-2xl p-4 md:p-8 border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-500 relative group overflow-hidden break-all text-sm md:text-base'>
-                    <div className='bg-transparent rounded-2xl break-all text-sm md:text-xl flex flex-col sm:flex-row'>
-                        <div className='w-12 h-12 md:w-16 md:h-16 flex-shrink-0 mb-4 sm:mb-0 sm:mr-4 md:mr-6 mx-auto sm:mx-0'>
-                            <OptimizedImage 
+                    <div className='bg-transparent rounded-2xl break-all text-sm md:text-xl flex flex-col md:flex-row'>
+                        <div className='w-12 h-12 md:w-16 md:h-16 flex-shrink-0 mb-4 md:mb-0 md:mr-6 mx-auto md:mx-0'>
+                            <img 
                                 alt='avatar' 
-                                className='rounded-2xl shadow-xl ring-2 ring-white/20 hover:ring-[#f05a54]/40 transition-all duration-500 cursor-pointer hover:opacity-90 group-hover:shadow-2xl'
-                                width={48} 
-                                height={48}
+                                className='rounded-2xl shadow-xl ring-2 ring-white/20 hover:ring-[#f05a54]/40 cursor-pointer w-12 h-12 md:w-16 md:h-16 object-cover'
                                 onClick={() => setEdit(!edit)}
                                 src={`https://assets-eu.mofei.life/gravatar/${hashemail || '0000000000'}?s=200`}
-                                quality={90}
-                                placeholder="blur"
+                                loading="lazy"
+                                style={{ transition: 'none' }}
                             /></div>
 
                         <div className='flex-1 text-sm md:text-base'>
-                            <h2 className='font-bold text-lg md:text-2xl mb-4 cursor-pointer group hover:text-[#f05a54] transition-colors duration-300 text-center sm:text-left' onClick={() => setEdit(!edit)}>
+                            <h2 className='font-bold text-lg md:text-2xl mb-4 cursor-pointer group hover:text-[#f05a54] transition-colors duration-300 text-center md:text-left' onClick={() => setEdit(!edit)}>
                                 <span className='text-white group-hover:text-[#f05a54] transition-colors duration-300 drop-shadow-lg'>
                                     {username ? username : 'Mofei\'s Friend'} </span>
                                 <span className='text-gray-400 text-sm font-medium group-hover:text-gray-300 transition-colors duration-300 ml-2'> 
@@ -583,7 +584,7 @@ export default function Comments(params: CommentsParams) {
                             )}
                             <div className='flex justify-center sm:justify-end pt-2'>
                                 <button 
-                                    className='px-4 md:px-8 py-2 md:py-4 bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-500 relative group overflow-hidden text-white font-semibold text-sm md:text-base transform hover:opacity-90 active:opacity-70 disabled:opacity-60 disabled:cursor-not-allowed hover:bg-white/20 focus:ring-2 focus:ring-[#f05a54]/30 cursor-pointer w-full sm:w-auto'
+                                    className='px-4 md:px-8 py-2 md:py-4 bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-500 relative group overflow-hidden text-white font-semibold text-sm md:text-base transform hover:opacity-90 active:opacity-70 disabled:opacity-60 disabled:cursor-not-allowed hover:bg-white/20 focus:ring-2 focus:ring-[#f05a54]/30 cursor-pointer w-full sm:w-auto btn-glass glass-hover focus-ring'
                                     onClick={() => {
                                         handleSubmit()
                                     }}
@@ -597,8 +598,8 @@ export default function Comments(params: CommentsParams) {
                                     <div className="relative z-10 flex items-center justify-center gap-3">
                                         {isPosting ? (
                                             <>
-                                                <div className='w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin'></div>
-                                                <span>{lang == 'zh' ? '发送中...' : 'Sending...'}</span>
+                                                <div className='w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin'></div>
+                                                <span className="animate-pulse">{lang == 'zh' ? '发送中...' : 'Sending...'}</span>
                                             </>
                                         ) : (
                                             <>
@@ -629,28 +630,28 @@ export default function Comments(params: CommentsParams) {
                             <div className='bg-white/10 backdrop-blur-lg rounded-2xl p-4 md:p-8 border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-500 relative group overflow-hidden break-all
                                 text-sm
                                 md:text-xl
-                                animate-pulse
+                                loading-shimmer
                             '>
                                 {/* 头部骨架屏 */}
                                 <div className='flex items-center justify-between mb-4'>
                                     <div className='flex items-center gap-3'>
-                                        <div className='w-12 h-12 md:w-16 md:h-16 bg-white/10 rounded-2xl shadow-xl animate-pulse' />
-                                        <div className='bg-white/10 w-24 md:w-32 h-5 md:h-6 rounded-lg animate-pulse' />
+                                        <div className='w-12 h-12 md:w-16 md:h-16 bg-white/10 rounded-2xl shadow-xl loading-shimmer' />
+                                        <div className='bg-white/10 w-24 md:w-32 h-5 md:h-6 rounded-lg loading-shimmer' />
                                     </div>
-                                    <div className='bg-white/10 w-16 md:w-20 h-6 md:h-7 rounded-2xl animate-pulse' />
+                                    <div className='bg-white/10 w-16 md:w-20 h-6 md:h-7 rounded-2xl loading-shimmer' />
                                 </div>
                                 
                                 {/* 内容骨架屏 */}
                                 <div className='space-y-2 md:space-y-3'>
-                                    <div className='bg-white/10 w-full h-4 md:h-5 rounded-lg animate-pulse' />
-                                    <div className='bg-white/10 w-3/4 h-4 md:h-5 rounded-lg animate-pulse' />
-                                    <div className='bg-white/10 w-1/2 h-4 md:h-5 rounded-lg animate-pulse' />
+                                    <div className='bg-white/10 w-full h-4 md:h-5 rounded-lg loading-shimmer' />
+                                    <div className='bg-white/10 w-3/4 h-4 md:h-5 rounded-lg loading-shimmer' />
+                                    <div className='bg-white/10 w-1/2 h-4 md:h-5 rounded-lg loading-shimmer' />
                                 </div>
                                 
                                 {/* 时间骨架屏 */}
                                 <div className='mt-4 flex items-center gap-2'>
-                                    <div className='w-3 h-3 md:w-4 md:h-4 bg-white/10 rounded animate-pulse' />
-                                    <div className='bg-white/10 w-20 md:w-24 h-3 md:h-4 rounded-lg animate-pulse' />
+                                    <div className='w-3 h-3 md:w-4 md:h-4 bg-white/10 rounded loading-shimmer' />
+                                    <div className='bg-white/10 w-20 md:w-24 h-3 md:h-4 rounded-lg loading-shimmer' />
                                 </div>
                             </div>
                         </div>)
@@ -667,7 +668,7 @@ export default function Comments(params: CommentsParams) {
                         </div>
                     )}
 
-                    {
+                    {!isLoading &&
                         blogList.map((blog: { email: string; name: string; blog?: string; content: string; translate_zh?: string; translate_en?: string; time: string; }) => {
                             const itemKey = `${blog.email}_${blog.name}_${blog.time}`;
                             return (
@@ -695,7 +696,7 @@ export default function Comments(params: CommentsParams) {
                         history.pushState({}, '', `${finalBaseURL}${page}`)
                         setMessagePage(page)
                     }
-                    setFreshId(freshId + 1)
+                    // Remove duplicate freshId update - messagePage change already triggers useEffect
                     if (messageArea.current) {
                         messageArea.current.scrollIntoView({
                             behavior: 'smooth', // Smooth scrolling
