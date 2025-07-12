@@ -6,11 +6,33 @@ import BlogPagination from './BlogPagination';
 import BlogTagFilter from './BlogTagFilter';
 import MasonryLayout from './MasonryLayout';
 
+interface BlogItem {
+  _id: string;
+  title: string;
+  content: string;
+  date: string;
+  processedCover?: string;
+  fallbackCover?: string;
+  processedTitle?: { en?: string; zh?: string };
+  processedIntroduction?: { en?: string; zh?: string };
+  introduction?: string;
+  tags?: Array<{ id: number; name: string; color?: string }>;
+  pubtime: string;
+  isTechArticle?: boolean;
+}
+
+interface Tag {
+  id: number;
+  name: string;
+  name_en?: string;
+  count: number;
+}
+
 interface BlogContentProps {
-  blogList: any[];
+  blogList: BlogItem[];
   totalPages: number;
   lang: 'zh' | 'en';
-  tagList: any[];
+  tagList: Tag[];
   currentPage: number;
   tag?: string;
   isPageOutOfBounds: boolean;
@@ -180,6 +202,7 @@ export default function BlogContent({
         </>
       )}
 
+      
       {/* Pagination with enhanced loading state */}
       {!isPageOutOfBounds && (
         <BlogPagination 
