@@ -236,7 +236,8 @@ export default function FriendsPage({ params }: { params: Promise<{ lang: 'zh' |
               {links.map((link, index) => (
                 <div
                   key={index}
-
+                  className="animate-slide-up interactive-element"
+                  style={{ animationDelay: `${index * 0.1}s` }}
                 >
                   <Link
                     href={link.url}
@@ -246,7 +247,7 @@ export default function FriendsPage({ params }: { params: Promise<{ lang: 'zh' |
                     onClick={() => handleFriendLinkClick(link, category)}
                   >
                     <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 p-6 border border-white/20 hover:border-white/40 h-full flex flex-col relative overflow-hidden
-                      group hover:-translate-y-1">
+                      group hover:-translate-y-1 glass-hover btn-glass focus-ring focus-enhanced">
 
                       {/* Avatar/Icon cover background */}
                       <div

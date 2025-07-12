@@ -96,6 +96,90 @@
   .text-shadow-lg {
     text-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   }
+
+  /* Enhanced glass effect utilities */
+  .glass-effect {
+    background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%);
+    backdrop-filter: blur(15px) saturate(180%);
+    -webkit-backdrop-filter: blur(15px) saturate(180%);
+    border: 1px solid rgba(255,255,255,0.18);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.2);
+  }
+
+  .glass-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .glass-hover:hover {
+    background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.08) 100%);
+    border-color: rgba(255,255,255,0.25);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.3);
+    transform: translateY(-1px);
+  }
+
+  /* Sophisticated button effects */
+  .btn-glass {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .btn-glass::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
+  }
+
+  .btn-glass:hover::before {
+    transform: translateX(100%);
+  }
+
+  /* Enhanced focus states for accessibility */
+  .focus-ring {
+    transition: all 0.2s ease;
+  }
+
+  .focus-ring:focus-visible {
+    outline: 2px solid rgba(161, 196, 253, 0.8);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(161, 196, 253, 0.2);
+  }
+
+  /* Subtle pulse animation for interactive elements */
+  .pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% {
+      box-shadow: 0 0 5px rgba(161, 196, 253, 0.3);
+    }
+    50% {
+      box-shadow: 0 0 20px rgba(161, 196, 253, 0.6), 0 0 30px rgba(161, 196, 253, 0.4);
+    }
+  }
+
+  /* Refined loading states */
+  .loading-shimmer {
+    background: linear-gradient(90deg, 
+      rgba(255,255,255,0.0) 0%, 
+      rgba(255,255,255,0.1) 50%, 
+      rgba(255,255,255,0.0) 100%);
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
   
   /* Touch feedback utility classes */
   .touch-feedback {
@@ -454,4 +538,207 @@
 
 .animate-fade-in {
   animation: fade-in 0.4s ease-out;
+}
+
+/* Enhanced form animations with sophisticated floating labels */
+.floating-label {
+  position: relative;
+}
+
+.floating-label input {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+}
+
+.floating-label input:focus {
+  border-color: rgba(224, 75, 69, 0.6);
+  box-shadow: 0 0 0 3px rgba(224, 75, 69, 0.1);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.floating-label label {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  color: rgba(255, 255, 255, 0.6);
+  background: linear-gradient(135deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.1) 100%);
+  padding: 0 8px;
+  border-radius: 4px;
+  backdrop-filter: blur(5px);
+}
+
+.floating-label input:focus + label,
+.floating-label input:not(:placeholder-shown) + label {
+  transform: translateY(-24px) scale(0.85);
+  color: rgba(224, 75, 69, 0.9);
+  background: linear-gradient(135deg, rgba(224, 75, 69, 0.2) 0%, rgba(255, 123, 84, 0.1) 100%);
+}
+
+/* Smooth page transitions */
+.page-transition-enter {
+  opacity: 0;
+  transform: translateY(20px) scale(0.98);
+}
+
+.page-transition-enter-active {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition: all 400ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.page-transition-exit {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.page-transition-exit-active {
+  opacity: 0;
+  transform: translateY(-20px) scale(1.02);
+  transition: all 400ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Enhanced scroll indicators */
+.scroll-indicator {
+  background: linear-gradient(90deg, 
+    rgba(224, 75, 69, 0.8) 0%,
+    rgba(255, 123, 84, 0.9) 50%,
+    rgba(224, 75, 69, 0.8) 100%
+  );
+  box-shadow: 0 2px 8px rgba(224, 75, 69, 0.3);
+}
+
+/* Sophisticated hover states for interactive elements */
+.interactive-element {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.interactive-element::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  transition: left 0.6s ease;
+}
+
+.interactive-element:hover::before {
+  left: 100%;
+}
+
+/* Enhanced focus states for accessibility */
+.focus-enhanced:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(224, 75, 69, 0.3), 
+              inset 0 0 0 2px rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Scroll-triggered animations */
+@keyframes slide-up {
+  0% {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-left {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.animate-slide-left {
+  animation: slide-left 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Smooth emoji transition animation */
+@keyframes emoji-enter {
+  0% {
+    transform: scale(0.5) rotate(-15deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.15) rotate(5deg);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+.emoji-transition {
+  animation: emoji-enter 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Water drop shape for progress bubble - pointing up towards progress */
+.water-drop {
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  position: relative;
+  transform: rotate(180deg);
+}
+
+.water-drop::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 6px;
+  background: inherit;
+  border-radius: 50%;
+  opacity: 0.8;
+}
+
+/* Water drop animation */
+@keyframes water-ripple {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+.water-ripple {
+  animation: water-ripple 2s ease-in-out infinite;
 }

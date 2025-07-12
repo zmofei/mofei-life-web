@@ -5,6 +5,7 @@ import HtmlToReact from './HtmlToReact';
 import Link from "next/link";
 import Image from "next/image";
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
+import SimpleReadingProgress from '@/components/util/SimpleReadingProgress';
 
 interface BlogContent {
     title: string;
@@ -33,6 +34,12 @@ export default function PageContent({ params }: { params: { content: BlogContent
     };
 
     return <>
+        {/* Simple Reading Progress Bar - tracks .prose-stone element */}
+        <SimpleReadingProgress 
+          targetSelector=".prose-stone" 
+          showPercentage={true} 
+        />
+        
         <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
             <div className='
                       font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#a1c4fd] to-[#c2e9fb] 
@@ -245,7 +252,7 @@ export default function PageContent({ params }: { params: { content: BlogContent
             </div>
         </div>
 
-        {/* Navigation */}
+        {/* Navigation - outside of reading progress tracking */}
         {(blog.previousArticle?._id || blog.nextArticle?._id) && <div
             className="max-w-7xl mx-auto mt-8 mb-12 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 px-2 md:px-6 lg:px-8"
 

@@ -227,10 +227,11 @@ function Nav({ lang }: { lang: string }) {
                             key={index}
                             className={`px-3 py-1.5 rounded-full transition-all duration-300 flex items-center gap-2 
                                        active:scale-95 hover:scale-105 touch-manipulation select-none cursor-pointer
+                                       btn-glass focus-ring relative overflow-hidden focus-enhanced interactive-element
                                        ${item.external ? 'hover:bg-white/20 hover:text-white' :
                                 isActive(item.href)
                                     ? 'bg-white/25 text-white font-medium shadow-lg'
-                                    : 'hover:bg-white/15 hover:text-white'
+                                    : 'hover:bg-white/15 hover:text-white glass-hover'
                                 }`}
                             style={{
                                 background: isActive(item.href)
@@ -341,9 +342,9 @@ function Nav({ lang }: { lang: string }) {
                 transform: "translateX(100%)"
             }}>
                 <ul className="h-full text-right pl-12 
-                text-xl pt-18
-                sm:text-2xl sm:pt-14 sm:pl-14 sm:mt-3
-                md:text-4xl md:pt-20 md:pl-16 md:mt-4
+                text-xl 
+                sm:text-2xl sm:pt-14 sm:pl-14 
+                md:text-4xl md:pt-20 md:pl-16 
                 "
                     style={{
                         background: 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%)',

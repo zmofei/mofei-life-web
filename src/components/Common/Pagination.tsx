@@ -2,6 +2,7 @@ import React from "react";
 import Link from "next/link";
 import { useState } from 'react';
 import { trackEvent } from '@/lib/gtag';
+import LoadingSpinner from '@/components/util/LoadingSpinner';
 
 type PaginationProps = {
     lang: string;
@@ -11,6 +12,7 @@ type PaginationProps = {
     anchor?: string;
     singlePageMode?: boolean; // Support single page mode
     onPageChange?: (page: number) => void;
+    onPageClick?: () => void; // New callback for loading states
     searchParams?: string; // Query parameters
 };
 
@@ -22,6 +24,7 @@ const Pagination: React.FC<PaginationProps> = ({
     singlePageMode = false,
     anchor,
     onPageChange,
+    onPageClick,
     searchParams,
 }) => {
     const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
@@ -35,19 +38,45 @@ const Pagination: React.FC<PaginationProps> = ({
     };
 
     const [_page, setPage] = useState(currentPage);
+    const [isLoading, setIsLoading] = useState(false);
 
     const handlePageChange = (page: number) => {
         // GA跟踪分页点击
         trackEvent.navClick('Pagination', `Page ${page} from ${currentPage}`);
         
+        // Set loading state for navigation feedback
+        setIsLoading(true);
+        
+        // Call external loading handler if provided
+        if (onPageClick) {
+            onPageClick();
+        }
+        
         if (onPageChange) {
             onPageChange(page);
         }
         setPage(page);
+        
+        // Clear loading state after navigation
+        setTimeout(() => {
+            setIsLoading(false);
+        }, 600);
     };
 
     return (
-        <div className="flex justify-center px-6 py-8">
+        <div className="flex justify-center px-6 py-8 relative">
+            {/* Loading overlay */}
+            {isLoading && (
+                <div className="absolute inset-0 bg-black/20 backdrop-blur-sm rounded-lg flex items-center justify-center z-10">
+                    <div className="glass-effect px-4 py-2 rounded-xl">
+                        <LoadingSpinner 
+                            variant="glass" 
+                            size="sm" 
+                            text={lang === 'zh' ? '加载中...' : 'Loading...'} 
+                        />
+                    </div>
+                </div>
+            )}
             <div
                 className="flex items-center gap-3 text-white text-sm md:text-base px-4 py-2 rounded-full border border-white/20"
                 style={{

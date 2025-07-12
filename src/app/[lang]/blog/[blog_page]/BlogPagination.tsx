@@ -4,7 +4,17 @@ import Pagination from '@/components/Common/Pagination';
 import { useLanguage } from '@/components/Context/LanguageContext';
 import { useSearchParams } from 'next/navigation';
 
-export default function BlogPagination({ blog_page, totalPages, baseURL }: { blog_page: number, totalPages: number, baseURL: string }) {
+export default function BlogPagination({ 
+    blog_page, 
+    totalPages, 
+    baseURL, 
+    onPageClick 
+}: { 
+    blog_page: number, 
+    totalPages: number, 
+    baseURL: string,
+    onPageClick?: () => void 
+}) {
     const lang = useLanguage().lang
     const searchParams = useSearchParams();
     const tag = searchParams.get('tag');
@@ -18,6 +28,7 @@ export default function BlogPagination({ blog_page, totalPages, baseURL }: { blo
                 baseURL={baseURL} 
                 anchor='blogList'
                 searchParams={tag ? `tag=${tag}` : undefined}
+                onPageClick={onPageClick}
             />
         </div>
     </>)

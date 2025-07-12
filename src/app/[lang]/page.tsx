@@ -8,6 +8,7 @@ import Image from "next/image";
 import Lan from "@/components/util/Language";
 import { use, useMemo, Suspense, useState } from 'react';
 import Foot from '@/components/Common/Foot';
+import { StaggerContainer, StaggerItem } from '@/components/util/PageTransition';
 
 // Extract skills data outside component to avoid repeated creation
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -185,21 +186,24 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
 
       <div className="w-full relative z-10 min-h-screen">
 
-        <div className="h-svh w-full flex items-center justify-center relative">
+        <StaggerContainer className="h-svh w-full flex items-center justify-center relative">
           {/* First screen overlay - simplified for mobile */}
           <div className="absolute inset-0 bg-black/70 md:bg-black/80 md:backdrop-blur-[1px]"></div>
 
           <div className="w-full max-w-screen-xl z-10 mx-auto relative">
             {/* <div className='bg-yellow-400 py-10'> */}
-            <AnimatedTitle />
+            <StaggerItem>
+              <AnimatedTitle />
+            </StaggerItem>
             {/* </div> */}
 
-            <motion.div className="w-full max-w-screen-xl z-10 text-center 
-             px-4 text-xl pt-10 font-light text-gray-300 leading-relaxed
-             md:px-10 lg:px-16 md:text-3xl md:pt-20"
-              initial={{ opacity: 0, translateY: 0 }}
-              animate={{ opacity: 1, translateY: -60 }}
-              transition={{ duration: 0.5, delay: 2 }}>
+            <StaggerItem>
+              <motion.div className="w-full max-w-screen-xl z-10 text-center 
+               px-4 text-xl pt-10 font-light text-gray-300 leading-relaxed
+               md:px-10 lg:px-16 md:text-3xl md:pt-20"
+                initial={{ opacity: 0, translateY: 0 }}
+                animate={{ opacity: 1, translateY: -60 }}
+                transition={{ duration: 0.5, delay: 2 }}>
 
 
               <div className="block">
@@ -208,11 +212,13 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
                   "en": <span>Hei! <br />I am Mofei <br />would you like to join me<br />in exploring <br />the life of a software engineer in Finland?</span>,
                 }} />
               </div>
-            </motion.div>
+              </motion.div>
+            </StaggerItem>
 
           </div>
           {/* Simplified scroll hint for mobile */}
-          <motion.div
+          <StaggerItem>
+            <motion.div
             className="absolute left-0 right-0 bottom-10 md:bottom-20 flex justify-center opacity-60 md:opacity-80"
             initial={{ opacity: 0, y: -20 }}
             animate={{
@@ -237,8 +243,9 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
                 priority={false}
               />
             </div>
-          </motion.div>
-        </div>
+            </motion.div>
+          </StaggerItem>
+        </StaggerContainer>
 
         {/* Divider line */}
         <div className="w-full bg-black">
