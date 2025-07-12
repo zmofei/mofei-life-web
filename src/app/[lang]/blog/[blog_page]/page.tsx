@@ -1,6 +1,5 @@
 
 import Foot from '@/components/Common/Foot';
-import Link from 'next/link';
 
 import { fetchBlogList, fetchTagList } from '@/app/actions/blog-server';
 

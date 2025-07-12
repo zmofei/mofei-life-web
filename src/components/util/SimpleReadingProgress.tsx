@@ -1,28 +1,28 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useEffect, useRef } from "react"
 import { cn } from "@/lib/utils"
 
-// Fun progress indicators with emojis - with smoother transitions
-const getProgressEmoji = (percentage: number): string => {
-  if (percentage <= 15) return "🌱" // Just started
-  if (percentage <= 30) return "🚶‍♂️" // Walking
-  if (percentage <= 50) return "🏃‍♂️" // Running
-  if (percentage <= 70) return "💪" // Getting stronger
-  if (percentage <= 85) return "🔥" // On fire
-  if (percentage <= 97) return "🚀" // Almost there
-  return "🎉" // Completed!
-}
+// Progress indicators (currently unused but kept for future use)
+// const getProgressEmoji = (percentage: number): string => {
+//   if (percentage <= 15) return "🌱" // Just started
+//   if (percentage <= 30) return "🚶‍♂️" // Walking
+//   if (percentage <= 50) return "🏃‍♂️" // Running
+//   if (percentage <= 70) return "💪" // Getting stronger
+//   if (percentage <= 85) return "🔥" // On fire
+//   if (percentage <= 97) return "🚀" // Almost there
+//   return "🎉" // Completed!
+// }
 
-const getProgressText = (percentage: number): string => {
-  if (percentage <= 10) return "刚开始"
-  if (percentage <= 25) return "起步中"
-  if (percentage <= 40) return "渐入佳境"
-  if (percentage <= 60) return "专注阅读"
-  if (percentage <= 80) return "马不停蹄"
-  if (percentage <= 95) return "即将完成"
-  return "阅读完成!"
-}
+// const getProgressText = (percentage: number): string => {
+//   if (percentage <= 10) return "刚开始"
+//   if (percentage <= 25) return "起步中"
+//   if (percentage <= 40) return "渐入佳境"
+//   if (percentage <= 60) return "专注阅读"
+//   if (percentage <= 80) return "马不停蹄"
+//   if (percentage <= 95) return "即将完成"
+//   return "阅读完成!"
+// }
 
 interface SimpleReadingProgressProps {
   targetSelector?: string // CSS selector for the target element
@@ -32,11 +32,8 @@ interface SimpleReadingProgressProps {
 
 export default function SimpleReadingProgress({ 
   targetSelector = '.prose-stone', // Default to article content
-  className,
-  showPercentage = false 
+  className
 }: SimpleReadingProgressProps) {
-  const [progress, setProgress] = useState(0)
-  const [percentage, setPercentage] = useState(0)
   const progressBarRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -69,9 +66,6 @@ export default function SimpleReadingProgress({
 
       // Clamp between 0 and 1
       progressValue = Math.max(0, Math.min(1, progressValue))
-      
-      setProgress(progressValue)
-      setPercentage(Math.round(progressValue * 100))
 
       // Update CSS custom property for smooth animation
       if (progressBarRef.current) {
@@ -135,15 +129,11 @@ export default function SimpleReadingProgress({
 // Alternative version that tracks specific element by ref
 export function SimpleReadingProgressWithRef({ 
   targetRef, 
-  className,
-  showPercentage = false 
+  className
 }: {
   targetRef: React.RefObject<HTMLElement>
   className?: string
-  showPercentage?: boolean
 }) {
-  const [progress, setProgress] = useState(0)
-  const [percentage, setPercentage] = useState(0)
   const progressBarRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -170,9 +160,6 @@ export function SimpleReadingProgressWithRef({
       }
 
       progressValue = Math.max(0, Math.min(1, progressValue))
-      
-      setProgress(progressValue)
-      setPercentage(Math.round(progressValue * 100))
 
       if (progressBarRef.current) {
         progressBarRef.current.style.setProperty('--progress', `${progressValue * 100}%`)

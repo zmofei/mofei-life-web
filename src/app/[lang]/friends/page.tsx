@@ -107,6 +107,7 @@ export default function FriendsPage({ params }: { params: Promise<{ lang: 'zh' |
   };
 
   const [mounted, setMounted] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const groupedLinks = friendsData.reduce((acc, link) => {
     const category = link.category || 'other';
@@ -119,6 +120,7 @@ export default function FriendsPage({ params }: { params: Promise<{ lang: 'zh' |
 
   useEffect(() => {
     setMounted(true);
+    setIsLoading(false);
     
     // Track friends page visit
     trackEvent.pageView('Friends Page Load', `/friends`);
@@ -233,11 +235,26 @@ export default function FriendsPage({ params }: { params: Promise<{ lang: 'zh' |
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
-              {links.map((link, index) => (
+              {isLoading ? (
+                // 骨架屏加载效果
+                [...Array(6)].map((_, index) => (
+                  <div key={`skeleton-${index}`} className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 shadow-xl relative overflow-hidden h-32 loading-shimmer">
+                    <div className="flex items-start gap-4 mb-4">
+                      <div className="w-12 h-12 rounded-full bg-white/10 loading-shimmer flex-shrink-0"></div>
+                      <div className="flex-1 min-w-0">
+                        <div className="h-5 bg-white/10 rounded mb-2 loading-shimmer"></div>
+                        <div className="h-4 bg-white/10 rounded w-3/4 loading-shimmer"></div>
+                      </div>
+                    </div>
+                    <div className="h-4 bg-white/10 rounded mb-2 loading-shimmer"></div>
+                    <div className="h-4 bg-white/10 rounded w-2/3 loading-shimmer"></div>
+                  </div>
+                ))
+              ) : (
+                links.map((link, index) => (
                 <div
                   key={index}
-                  className="animate-slide-up interactive-element"
-                  style={{ animationDelay: `${index * 0.1}s` }}
+                  className="interactive-element"
                 >
                   <Link
                     href={link.url}
@@ -246,8 +263,8 @@ export default function FriendsPage({ params }: { params: Promise<{ lang: 'zh' |
                     className="block h-full cursor-pointer"
                     onClick={() => handleFriendLinkClick(link, category)}
                   >
-                    <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 p-6 border border-white/20 hover:border-white/40 h-full flex flex-col relative overflow-hidden
-                      group hover:-translate-y-1 glass-hover btn-glass focus-ring focus-enhanced">
+                    <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 p-6 border border-white/20 hover:border-white/40 h-full flex flex-col relative overflow-hidden
+                      group glass-hover btn-glass focus-ring focus-enhanced">
 
                       {/* Avatar/Icon cover background */}
                       <div
@@ -324,7 +341,8 @@ export default function FriendsPage({ params }: { params: Promise<{ lang: 'zh' |
                     </div>
                   </Link>
                 </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
         ))}

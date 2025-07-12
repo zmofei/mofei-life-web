@@ -91,17 +91,19 @@ export default function Comments(params: CommentsParams) {
         // Track comment view event
         trackEvent.commentView(message_id);
         
-        fetchMessageList(message_id, messagePage).then((res) => {
+        fetchMessageList(message_id, messagePage, 10, lang).then((res) => {
             setBlogList(res.list)
             const totalCount = res.count
             const pageSize = 10
-            setTotalPages(Math.ceil(totalCount / pageSize))
+            // 修复边界值问题：当没有数据时应该显示1页，有数据时正确计算页数
+            const calculatedPages = totalCount > 0 ? Math.ceil(totalCount / pageSize) : 1
+            setTotalPages(calculatedPages)
             setIsLoading(false)
         }).catch((error) => {
             console.error('Failed to fetch messages:', error)
             setIsLoading(false)
         })
-    }, [message_id, messagePage, freshId])
+    }, [message_id, messagePage, freshId, lang])
 
     useEffect(() => {
         // get token

@@ -12,12 +12,13 @@ export async function fetchSiteMap() {
 export async function fetchMessageList(
   id: string,
   page = 1,
-  itemsPerPage = 10
+  pageSize = 10,
+  lang = 'en'
 ) {
-  const URL = `${NEW_API_URL}/blog/comment/${id}/${page}?itemsPerPage=${itemsPerPage}&lang=en`;
+  const URL = `${NEW_API_URL}/blog/comment/${id}/${page}?pageSize=${pageSize}&lang=${lang}`;
   const res = await fetch(URL);
   if (!res.ok) {
-    throw new Error("Failed to fetch user");
+    throw new Error("Failed to fetch comments");
   }
   return res.json();
 }

@@ -27,7 +27,9 @@ const Pagination: React.FC<PaginationProps> = ({
     onPageClick,
     searchParams,
 }) => {
-    const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+    // 确保totalPages至少为1，避免边界值错误
+    const safeTotal = Math.max(totalPages, 1);
+    const pages = Array.from({ length: safeTotal }, (_, i) => i + 1);
 
     // Helper function to build URLs
     const buildUrl = (page: number) => {
@@ -41,8 +43,11 @@ const Pagination: React.FC<PaginationProps> = ({
     const [isLoading, setIsLoading] = useState(false);
 
     const handlePageChange = (page: number) => {
+        // 边界检查：确保页面在有效范围内
+        const safePage = Math.max(1, Math.min(page, safeTotal));
+        
         // GA跟踪分页点击
-        trackEvent.navClick('Pagination', `Page ${page} from ${currentPage}`);
+        trackEvent.navClick('Pagination', `Page ${safePage} from ${currentPage}`);
         
         // Set loading state for navigation feedback
         setIsLoading(true);
@@ -53,9 +58,9 @@ const Pagination: React.FC<PaginationProps> = ({
         }
         
         if (onPageChange) {
-            onPageChange(page);
+            onPageChange(safePage);
         }
-        setPage(page);
+        setPage(safePage);
         
         // Clear loading state after navigation
         setTimeout(() => {
@@ -167,7 +172,7 @@ const Pagination: React.FC<PaginationProps> = ({
                 <div className="md:hidden px-3 py-1.5 bg-white/20 rounded-full text-white/80 font-medium cursor-default">{_page}/{totalPages}</div>
 
                 {/* Next Button */}
-                {_page < totalPages && (
+                {_page < safeTotal && (
                     singlePageMode ? (
                         <button
 
