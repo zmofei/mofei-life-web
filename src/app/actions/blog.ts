@@ -89,23 +89,3 @@ export async function recordBlogVisit(blogId: string) {
   }
 }
 
-export async function getBlogVisitCount(blogId: string) {
-  const URL = `${NEW_API_URL}/blog/visit/${blogId}`;
-  try {
-    const res = await fetch(URL, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    if (!res.ok) {
-      console.warn(`Failed to get visit count for blog ${blogId}:`, res.status);
-      return 0;
-    }
-    const data = await res.json();
-    return data.count || 0;
-  } catch (error) {
-    console.warn(`Failed to get visit count for blog ${blogId}:`, error);
-    return 0;
-  }
-}

@@ -10,7 +10,6 @@ import { trackEvent } from '@/lib/gtag';
 import VoiceFeatureNotice from '@/components/VoiceFeatureNotice';
 import AudioManager from '@/utils/audioManager';
 import { useBlogVisitTracker } from '@/hooks/useBlogVisitTracker';
-import { getBlogVisitCount } from '@/app/actions/blog';
 
 interface BlogContent {
     title: string;
@@ -19,34 +18,20 @@ interface BlogContent {
     previousArticle?: { _id: string; title: string };
     nextArticle?: { _id: string; title: string };
     voice_commentary?: string;
+    visited?: number;
 }
 
 export default function PageContent({ params }: { params: { content: BlogContent, lang: 'zh' | 'en', blog_id: string } }) {
     const { content: blog, lang, blog_id } = params;
     const [showWeChatModal, setShowWeChatModal] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
-    const [visitCount, setVisitCount] = useState<number>(0);
-    const [loadingVisitCount, setLoadingVisitCount] = useState(true);
     const hasVoiceCommentary = blog.voice_commentary && blog.voice_commentary.trim().length > 0;
     
     // Track blog visit for analytics
     useBlogVisitTracker(blog_id);
 
-    // Get visit count
-    useEffect(() => {
-        const fetchVisitCount = async () => {
-            try {
-                const count = await getBlogVisitCount(blog_id);
-                setVisitCount(count);
-            } catch (error) {
-                console.warn('Failed to fetch visit count:', error);
-            } finally {
-                setLoadingVisitCount(false);
-            }
-        };
-
-        fetchVisitCount();
-    }, [blog_id]);
+    // Use visit count from blog content
+    const visitCount = blog.visited || 0;
 
     const handleWeChatClick = () => {
         trackEvent.navClick('WeChat Modal Open', 'Article WeChat Button');
@@ -152,15 +137,7 @@ export default function PageContent({ params }: { params: { content: BlogContent
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                     </svg>
                     <span className="text-xs font-medium">
-                        {loadingVisitCount ? (
-                            <span className="animate-pulse">
-                                {lang === 'zh' ? '加载中...' : 'Loading...'}
-                            </span>
-                        ) : (
-                            <>
-                                {visitCount.toLocaleString()} {lang === 'zh' ? '次浏览' : 'views'}
-                            </>
-                        )}
+                        {visitCount.toLocaleString()} {lang === 'zh' ? '次浏览' : 'views'}
                     </span>
                 </div>
             </div>
