@@ -1,11 +1,14 @@
 "use client"
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import HtmlToReact from './HtmlToReact';
-import Link from "next/link";
+import SPALink from '@/components/Common/SPALink';
 import Image from "next/image";
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
 import SimpleReadingProgress from '@/components/util/SimpleReadingProgress';
+import { trackEvent } from '@/lib/gtag';
+import VoiceFeatureNotice from '@/components/VoiceFeatureNotice';
+import AudioManager from '@/utils/audioManager';
 
 interface BlogContent {
     title: string;
@@ -13,10 +16,38 @@ interface BlogContent {
     pubtime?: string;
     previousArticle?: { _id: string; title: string };
     nextArticle?: { _id: string; title: string };
+    voice_commentary?: string;
 }
 
 export default function PageContent({ params }: { params: { content: BlogContent, lang: 'zh' | 'en', blog_id: string } }) {
     const { content: blog, lang } = params;
+    const [showWeChatModal, setShowWeChatModal] = useState(false);
+    const [isPlaying, setIsPlaying] = useState(false);
+    const hasVoiceCommentary = blog.voice_commentary && blog.voice_commentary.trim().length > 0;
+
+    const handleWeChatClick = () => {
+        trackEvent.navClick('WeChat Modal Open', 'Article WeChat Button');
+        setShowWeChatModal(true);
+    };
+
+    const closeModal = () => {
+        setShowWeChatModal(false);
+    };
+
+    // 播放语音评论
+    const playVoiceCommentary = () => {
+        if (hasVoiceCommentary) {
+            const audioManager = AudioManager.getInstance();
+            const audioSrc = `https://static.mofei.life/${blog.voice_commentary}`;
+            audioManager.toggle(audioSrc);
+            trackEvent.navClick('Voice Commentary Play', `Article: ${blog.title}`);
+        }
+    };
+
+    const stopVoiceCommentary = () => {
+        const audioManager = AudioManager.getInstance();
+        audioManager.stop();
+    };
 
     // Format publication date
     const formatDate = (dateString: string) => {
@@ -33,6 +64,22 @@ export default function PageContent({ params }: { params: { content: BlogContent
         );
     };
 
+    // 检查当前音频是否正在播放
+    useEffect(() => {
+        if (!hasVoiceCommentary) return;
+        
+        const checkPlayingStatus = () => {
+            const audioManager = AudioManager.getInstance();
+            const audioSrc = `https://static.mofei.life/${blog.voice_commentary}`;
+            setIsPlaying(audioManager.isPlaying(audioSrc));
+        };
+        
+        // 定期检查播放状态
+        const interval = setInterval(checkPlayingStatus, 200);
+        
+        return () => clearInterval(interval);
+    }, [hasVoiceCommentary, blog.voice_commentary]);
+
     return <>
         {/* Simple Reading Progress Bar - tracks .prose-stone element */}
         <SimpleReadingProgress 
@@ -40,7 +87,7 @@ export default function PageContent({ params }: { params: { content: BlogContent
           showPercentage={true} 
         />
         
-        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto overflow-visible">
             <div className='
                       font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#a1c4fd] to-[#c2e9fb] 
                       text-2xl 
@@ -53,13 +100,46 @@ export default function PageContent({ params }: { params: { content: BlogContent
                 {blog.title}
             </div>
 
-            {/* Publication date */}
-            {blog.pubtime && (
-                <div
-                    className="mb-6"
-
-                >
-                    <div className="inline-flex items-center bg-gray-800/30 backdrop-blur-sm rounded-full px-5 py-2 border border-gray-700/30 shadow-lg">
+            {/* Publication date and Voice Commentary */}
+            <div className="mb-6 flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center gap-3 overflow-visible">
+                {/* Voice Commentary Button - 移动端显示在上方 */}
+                {hasVoiceCommentary && (
+                    <div className="order-1 sm:order-2">
+                        <VoiceFeatureNotice lang={lang} hasVoiceCommentary={!!hasVoiceCommentary}>
+                            <button
+                                onClick={isPlaying ? stopVoiceCommentary : playVoiceCommentary}
+                                className="inline-flex items-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-medium rounded-full px-5 py-2 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl border border-green-500/20 backdrop-blur-sm min-w-0 flex-shrink-0"
+                                style={{
+                                    background: isPlaying 
+                                        ? 'linear-gradient(135deg, rgba(239,68,68,0.9) 0%, rgba(220,38,38,0.9) 100%)'
+                                        : 'linear-gradient(135deg, rgba(16,185,129,0.9) 0%, rgba(5,150,105,0.9) 100%)',
+                                    boxShadow: isPlaying 
+                                        ? '0 4px 12px rgba(239,68,68,0.3), 0 0 0 1px rgba(239,68,68,0.2)'
+                                        : '0 4px 12px rgba(16,185,129,0.3), 0 0 0 1px rgba(16,185,129,0.2)'
+                                }}
+                            >
+                                {isPlaying ? (
+                                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
+                                    </svg>
+                                ) : (
+                                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                                    </svg>
+                                )}
+                                <span className="text-xs md:text-sm">
+                                    {isPlaying 
+                                        ? (lang === 'zh' ? '停止播放' : 'Stop')
+                                        : (lang === 'zh' ? '🎧 听语音版' : '🎧 Listen')}
+                                </span>
+                            </button>
+                        </VoiceFeatureNotice>
+                    </div>
+                )}
+                
+                {/* Publication date - 移动端显示在下方 */}
+                {blog.pubtime && (
+                    <div className="order-2 sm:order-1 inline-flex items-center bg-gray-800/30 backdrop-blur-sm rounded-full px-5 py-2 border border-gray-700/30 shadow-lg">
                         <svg className="w-4 h-4 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
@@ -68,8 +148,8 @@ export default function PageContent({ params }: { params: { content: BlogContent
                             {formatDate(blog.pubtime)}
                         </span>
                     </div>
-                </div>
-            )}
+                )}
+            </div>
         </div>
         <div className='max-w-7xl mx-auto prose-stone prose-xl-invert overflow-y-auto break-words 
                   prose-base prose-gray-300
@@ -133,72 +213,25 @@ export default function PageContent({ params }: { params: { content: BlogContent
                     }
                 })()}
 
-                {/* WeChat Follow integrated into article content - Only for Chinese */}
+                {/* WeChat Follow button - Only for Chinese */}
                 {lang === 'zh' && (
-                    <div className="mt-12 pt-8 border-t border-gray-600/30">
-                        <div className="text-center mb-6">
+                    <div className="mt-12 pt-8 border-t border-gray-600/30 text-center">
+                        <div className="mb-6">
                             <h3 className="text-xl font-bold text-white mb-3">
-                                📱 喜欢这篇文章？关注我的公众号
+                                📱 喜欢这篇文章？
                             </h3>
-                            <p className="text-gray-400 text-sm">
+                            <p className="text-gray-400 text-sm mb-6">
                                 博客文章会第一时间发布，然后按类型同步到对应公众号
                             </p>
-                        </div>
-
-                        <div className="grid md:grid-cols-2 gap-6">
-                            {/* Life WeChat */}
-                            <div className="bg-gradient-to-br from-red-50/10 to-red-100/10 rounded-xl p-5 border border-red-300/20 hover:border-red-300/40 transition-all duration-300">
-                                <div className="text-center">
-                                    <div className="flex justify-center mb-3">
-                                        <div className="bg-red-500 text-white px-3 py-1.5 rounded-full text-sm font-bold shadow-lg flex items-center gap-2">
-                                            <span>👨‍👩‍👧‍👦</span>
-                                            <span>生活公众号</span>
-                                        </div>
-                                    </div>
-
-                                    <h4 className="text-lg font-bold text-red-400 mb-2">疯狂的超级奶爸在北欧</h4>
-                                    <p className="text-red-300 text-sm mb-4">家庭生活 • 育儿日常 • 北欧生活</p>
-
-                                    <div className="w-32 h-32 mx-auto mb-3 bg-white/10 border border-red-300/30 rounded-lg overflow-hidden">
-                                        <Image
-                                            src="/img/qrcode_life.jpg"
-                                            alt="生活公众号二维码"
-                                            width={128}
-                                            height={128}
-                                            className="w-full h-full object-contain not-prose"
-                                        />
-                                    </div>
-
-                                    <p className="text-gray-400 text-sm">🏠 芬兰生活分享</p>
-                                </div>
-                            </div>
-
-                            {/* Tech WeChat */}
-                            <div className="bg-gradient-to-br from-blue-50/10 to-blue-100/10 rounded-xl p-5 border border-blue-300/20 hover:border-blue-300/40 transition-all duration-300">
-                                <div className="text-center">
-                                    <div className="flex justify-center mb-3">
-                                        <div className="bg-blue-500 text-white px-3 py-1.5 rounded-full text-sm font-bold shadow-lg flex items-center gap-2">
-                                            <span>👨‍💻</span>
-                                            <span>技术公众号</span>
-                                        </div>
-                                    </div>
-
-                                    <h4 className="text-lg font-bold text-blue-400 mb-2">Mofie</h4>
-                                    <p className="text-blue-300 text-sm mb-4">前端开发 • AI技术 • 编程经验</p>
-
-                                    <div className="w-32 h-32 mx-auto mb-3 bg-white/10 border border-blue-300/30 rounded-lg overflow-hidden">
-                                        <Image
-                                            src="/img/qrcode_tech.jpg"
-                                            alt="技术公众号二维码"
-                                            width={128}
-                                            height={128}
-                                            className="w-full h-full object-contain not-prose"
-                                        />
-                                    </div>
-
-                                    <p className="text-gray-400 text-sm">🚀 技术灵感与实战</p>
-                                </div>
-                            </div>
+                            <button
+                                onClick={handleWeChatClick}
+                                className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-medium rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                            >
+                                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h4l4 4 4-4h4c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
+                                </svg>
+                                关注公众号
+                            </button>
                         </div>
                     </div>
                 )}
@@ -258,7 +291,7 @@ export default function PageContent({ params }: { params: { content: BlogContent
 
         >
             {blog.previousArticle?._id && (
-                <Link href={`/${lang}/blog/article/${blog.previousArticle._id}`}
+                <SPALink href={`/${lang}/blog/article/${blog.previousArticle._id}`}
                     className="group block p-4 rounded-xl bg-white/10 backdrop-blur-lg
                             md:hover:bg-white/15 transition-all duration-300 
                             border border-white/20 hover:border-white/30 hover:shadow-lg hover:opacity-90
@@ -286,11 +319,11 @@ export default function PageContent({ params }: { params: { content: BlogContent
                             </div>
                         </div>
                     </div>
-                </Link>
+                </SPALink>
             )}
             {/* nextArticle */}
             {blog.nextArticle?._id && (
-                <Link href={`/${lang}/blog/article/${blog.nextArticle._id}`}
+                <SPALink href={`/${lang}/blog/article/${blog.nextArticle._id}`}
                     className="group block p-4 rounded-xl bg-white/10 backdrop-blur-lg
                             md:hover:bg-white/15 transition-all duration-300 
                             border border-white/20 hover:border-white/30 hover:shadow-lg hover:opacity-90
@@ -318,8 +351,328 @@ export default function PageContent({ params }: { params: { content: BlogContent
                             </div>
                         </div>
                     </div>
-                </Link>
+                </SPALink>
             )}
         </div>}
+
+        {/* WeChat Modal */}
+        {showWeChatModal && (
+            <div 
+                className="fixed inset-0 bg-black/60 backdrop-blur-xl flex items-center justify-center p-3 md:p-6" 
+                onClick={closeModal}
+                style={{ 
+                    position: 'fixed', 
+                    top: 0, 
+                    left: 0, 
+                    right: 0, 
+                    bottom: 0, 
+                    width: '100vw', 
+                    height: '100vh',
+                    zIndex: 999999,
+                    margin: 0,
+                    transform: 'none'
+                }}>
+                <div
+                    className="relative w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-4xl xl:max-w-5xl max-h-[95vh] md:max-h-[90vh] overflow-y-auto rounded-2xl md:rounded-3xl p-3 sm:p-4 md:p-8 group"
+                    style={{
+                        background: 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.95) 100%)',
+                        backdropFilter: 'blur(20px) saturate(200%)',
+                        WebkitBackdropFilter: 'blur(20px) saturate(200%)',
+                        border: '1px solid rgba(255,255,255,0.3)',
+                        borderTop: '1px solid rgba(255,255,255,0.6)',
+                        borderLeft: '1px solid rgba(255,255,255,0.4)',
+                        boxShadow: '0 32px 64px rgba(0,0,0,0.2), 0 16px 32px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.8)'
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    {/* Glass effect overlays */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent pointer-events-none rounded-3xl"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/5 via-transparent to-white/20 pointer-events-none rounded-3xl"></div>
+
+                    {/* Top edge highlight */}
+                    <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/60 to-transparent rounded-t-3xl pointer-events-none"></div>
+
+                    {/* Left edge highlight */}
+                    <div className="absolute top-0 left-0 bottom-0 w-px bg-gradient-to-b from-white/30 via-white/20 to-transparent rounded-l-3xl pointer-events-none"></div>
+
+                    {/* Shimmer effect */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent 
+                        -translate-x-full group-hover:translate-x-full transition-transform duration-1500 ease-out
+                        skew-x-12 pointer-events-none rounded-3xl"></div>
+
+                    <div className="relative z-10">
+                        <div className="flex justify-between items-center mb-4 md:mb-6">
+                            <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-800 bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
+                                {lang === 'zh' ? '关注我的公众号' : 'Follow My WeChat Accounts'}
+                            </h2>
+                            <button
+                                onClick={closeModal}
+                                className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-gray-600 hover:text-gray-800 hover:bg-white/40 active:bg-white/50 active:scale-95 transition-all duration-200 text-lg md:text-xl shadow-lg hover:shadow-xl"
+                            >
+                                ×
+                            </button>
+                        </div>
+
+                        {/* Mobile: Single column, Desktop: Two columns */}
+                        <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 md:gap-6">
+                            {/* Life WeChat Account */}
+                            <div className="relative rounded-xl md:rounded-2xl p-3 sm:p-4 md:p-6 group overflow-hidden"
+                                style={{
+                                    background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.1) 100%)',
+                                    backdropFilter: 'blur(10px) saturate(150%)',
+                                    WebkitBackdropFilter: 'blur(10px) saturate(150%)',
+                                    border: '1px solid rgba(239, 68, 68, 0.2)',
+                                    borderTop: '1px solid rgba(239, 68, 68, 0.3)',
+                                    boxShadow: '0 8px 32px rgba(239, 68, 68, 0.1), inset 0 1px 0 rgba(255,255,255,0.3)'
+                                }}>
+                                {/* Glass effect overlays */}
+                                <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none rounded-xl md:rounded-2xl"></div>
+                                <div className="absolute inset-0 bg-gradient-to-t from-red-500/5 via-transparent to-white/10 pointer-events-none rounded-xl md:rounded-2xl"></div>
+
+                                <div className="relative z-10 text-center">
+                                    {/* Mobile: Simplified layout */}
+                                    <div className="md:hidden">
+                                        <div className="flex items-center justify-center gap-3 mb-3">
+                                            <div className="w-16 h-16 rounded-xl overflow-hidden shadow-lg flex-shrink-0"
+                                                style={{
+                                                    background: 'rgba(255,255,255,0.9)',
+                                                    border: '1px solid rgba(239, 68, 68, 0.2)'
+                                                }}>
+                                                <Image
+                                                    src="/img/qrcode_life.jpg"
+                                                    alt={lang === 'zh' ? '生活公众号二维码' : 'Life WeChat QR Code'}
+                                                    width={64}
+                                                    height={64}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            </div>
+                                            <div className="flex-1 text-left">
+                                                <div className="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1 mb-1">
+                                                    <span>👨‍👩‍👧‍👦</span>
+                                                    <span>{lang === 'zh' ? '生活' : 'LIFE'}</span>
+                                                </div>
+                                                <h3 className="text-sm font-bold text-red-700 leading-tight">
+                                                    {lang === 'zh' ? '疯狂的超级奶爸在北欧' : 'Nordic Super Dad'}
+                                                </h3>
+                                                <p className="text-xs text-red-600">
+                                                    {lang === 'zh' ? '芬兰生活分享' : 'Life in Finland'}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Desktop: Full layout */}
+                                    <div className="hidden md:block">
+                                        <div className="flex justify-center mb-3 md:mb-4">
+                                            <div className="bg-gradient-to-r from-red-500 to-red-600 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-bold shadow-lg flex items-center gap-2 backdrop-blur-sm border border-red-400/30">
+                                                <span>👨‍👩‍👧‍👦</span>
+                                                <span>{lang === 'zh' ? '生活公众号' : 'LIFE ACCOUNT'}</span>
+                                            </div>
+                                        </div>
+
+                                        <div className="mb-3 md:mb-4">
+                                            <h3 className="text-lg md:text-xl font-bold text-red-700 mb-1 leading-tight">
+                                                {lang === 'zh' ? '疯狂的超级奶爸在北欧' : 'Nordic Super Dad'}
+                                            </h3>
+                                            <p className="text-red-600 text-xs md:text-sm font-medium">
+                                                {lang === 'zh' ? '家庭生活 • 育儿日常 • 北欧生活' : 'Family Life • Parenting • Nordic Living'}
+                                            </p>
+                                        </div>
+
+                                        <div className="mb-3 md:mb-4">
+                                            <div className="w-24 h-24 sm:w-28 sm:h-28 md:w-40 md:h-40 lg:w-48 lg:h-48 mx-auto rounded-xl md:rounded-2xl overflow-hidden shadow-2xl relative"
+                                                style={{
+                                                    background: 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%)',
+                                                    backdropFilter: 'blur(10px)',
+                                                    border: '2px solid rgba(239, 68, 68, 0.2)',
+                                                    borderTop: '2px solid rgba(239, 68, 68, 0.3)'
+                                                }}>
+                                                <Image
+                                                    src="/img/qrcode_life.jpg"
+                                                    alt={lang === 'zh' ? '生活公众号二维码' : 'Life WeChat QR Code'}
+                                                    width={192}
+                                                    height={192}
+                                                    className="w-full h-full object-cover rounded-xl"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="rounded-xl p-2 md:p-3"
+                                            style={{
+                                                background: 'linear-gradient(135deg, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0.4) 100%)',
+                                                backdropFilter: 'blur(8px)',
+                                                border: '1px solid rgba(239, 68, 68, 0.1)'
+                                            }}>
+                                            <p className="text-red-700 font-medium text-xs md:text-sm mb-1 flex items-center justify-center gap-2">
+                                                <span>🏠</span>
+                                                {lang === 'zh' ? '芬兰生活分享' : 'Life in Finland'}
+                                            </p>
+                                            <p className="text-gray-600 text-xs leading-relaxed">
+                                                {lang === 'zh'
+                                                    ? '分享在芬兰的日常生活、育儿心得和教育体验，探索北欧独特魅力'
+                                                    : 'Daily life, parenting insights and educational experiences in the Nordic region'}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Tech WeChat Account */}
+                            <div className="relative rounded-xl md:rounded-2xl p-3 sm:p-4 md:p-6 group overflow-hidden"
+                                style={{
+                                    background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.1) 100%)',
+                                    backdropFilter: 'blur(10px) saturate(150%)',
+                                    WebkitBackdropFilter: 'blur(10px) saturate(150%)',
+                                    border: '1px solid rgba(59, 130, 246, 0.2)',
+                                    borderTop: '1px solid rgba(59, 130, 246, 0.3)',
+                                    boxShadow: '0 8px 32px rgba(59, 130, 246, 0.1), inset 0 1px 0 rgba(255,255,255,0.3)'
+                                }}>
+                                {/* Glass effect overlays */}
+                                <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none rounded-xl md:rounded-2xl"></div>
+                                <div className="absolute inset-0 bg-gradient-to-t from-blue-500/5 via-transparent to-white/10 pointer-events-none rounded-xl md:rounded-2xl"></div>
+
+                                <div className="relative z-10 text-center">
+                                    {/* Mobile: Simplified layout */}
+                                    <div className="md:hidden">
+                                        <div className="flex items-center justify-center gap-3 mb-3">
+                                            <div className="w-16 h-16 rounded-xl overflow-hidden shadow-lg flex-shrink-0"
+                                                style={{
+                                                    background: 'rgba(255,255,255,0.9)',
+                                                    border: '1px solid rgba(59, 130, 246, 0.2)'
+                                                }}>
+                                                <Image
+                                                    src="/img/qrcode_tech.jpg"
+                                                    alt={lang === 'zh' ? '技术公众号二维码' : 'Tech WeChat QR Code'}
+                                                    width={64}
+                                                    height={64}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            </div>
+                                            <div className="flex-1 text-left">
+                                                <div className="bg-blue-500 text-white px-2 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1 mb-1">
+                                                    <span>👨‍💻</span>
+                                                    <span>{lang === 'zh' ? '技术' : 'TECH'}</span>
+                                                </div>
+                                                <h3 className="text-sm font-bold text-blue-700 leading-tight">
+                                                    {lang === 'zh' ? 'Mofie' : 'Mofie Tech'}
+                                                </h3>
+                                                <p className="text-xs text-blue-600">
+                                                    {lang === 'zh' ? '技术灵感与实战' : 'Tech Insights'}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Desktop: Full layout */}
+                                    <div className="hidden md:block">
+                                        <div className="flex justify-center mb-3 md:mb-4">
+                                            <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-bold shadow-lg flex items-center gap-2 backdrop-blur-sm border border-blue-400/30">
+                                                <span>👨‍💻</span>
+                                                <span>{lang === 'zh' ? '技术公众号' : 'TECH ACCOUNT'}</span>
+                                            </div>
+                                        </div>
+
+                                        <div className="mb-3 md:mb-4">
+                                            <h3 className="text-lg md:text-xl font-bold text-blue-700 mb-1 leading-tight">
+                                                {lang === 'zh' ? 'Mofie' : 'Mofie Tech'}
+                                            </h3>
+                                            <p className="text-blue-600 text-xs md:text-sm font-medium">
+                                                {lang === 'zh' ? '前端开发 • AI技术 • 编程经验' : 'Frontend • AI • Dev Experience'}
+                                            </p>
+                                        </div>
+
+                                        <div className="mb-3 md:mb-4">
+                                            <div className="w-24 h-24 sm:w-28 sm:h-28 md:w-40 md:h-40 lg:w-48 lg:h-48 mx-auto rounded-xl md:rounded-2xl overflow-hidden shadow-2xl relative"
+                                                style={{
+                                                    background: 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%)',
+                                                    backdropFilter: 'blur(10px)',
+                                                    border: '2px solid rgba(59, 130, 246, 0.2)',
+                                                    borderTop: '2px solid rgba(59, 130, 246, 0.3)'
+                                                }}>
+                                                <Image
+                                                    src="/img/qrcode_tech.jpg"
+                                                    alt={lang === 'zh' ? '技术公众号二维码' : 'Tech WeChat QR Code'}
+                                                    width={192}
+                                                    height={192}
+                                                    className="w-full h-full object-cover rounded-xl"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="rounded-xl p-2 md:p-3"
+                                            style={{
+                                                background: 'linear-gradient(135deg, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0.4) 100%)',
+                                                backdropFilter: 'blur(8px)',
+                                                border: '1px solid rgba(59, 130, 246, 0.1)'
+                                            }}>
+                                            <p className="text-blue-700 font-medium text-xs md:text-sm mb-1 flex items-center justify-center gap-2">
+                                                <span>🚀</span>
+                                                {lang === 'zh' ? '技术灵感与实战' : 'Tech Insights & Practice'}
+                                            </p>
+                                            <p className="text-gray-600 text-xs leading-relaxed">
+                                                {lang === 'zh'
+                                                    ? '十几年互联网老兵，记录前端、后端、大数据、AI技术经验'
+                                                    : 'Veteran developer sharing frontend, backend, big data, and AI experiences'}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="mt-4 md:mt-6 space-y-3">
+                            <div className="rounded-xl p-3 md:p-4 relative overflow-hidden"
+                                style={{
+                                    background: 'linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.6) 100%)',
+                                    backdropFilter: 'blur(10px) saturate(150%)',
+                                    WebkitBackdropFilter: 'blur(10px) saturate(150%)',
+                                    border: '1px solid rgba(255,255,255,0.4)',
+                                    boxShadow: '0 8px 24px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.8)'
+                                }}>
+                                <div className="flex items-start gap-3 relative z-10">
+                                    <div className="w-5 h-5 md:w-6 md:h-6 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 shadow-lg">
+                                        <svg className="w-2.5 h-2.5 md:w-3 md:h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </div>
+                                    <div className="flex-1">
+                                        <p className="text-gray-700 text-sm md:text-base font-medium mb-1">
+                                            {lang === 'zh' ? '🚀 博客内容第一时间更新' : '🚀 Blog Content Updated First'}
+                                        </p>
+                                        <p className="text-gray-600 text-xs md:text-sm leading-relaxed">
+                                            {lang === 'zh'
+                                                ? '本博客的最新文章会第一时间发布，随后按照内容类型分别同步到对应的公众号：生活感悟类文章发布到生活公众号，技术开发类文章发布到技术公众号。'
+                                                : 'Latest blog articles are published here first, then distributed by content type: life insights go to the Life WeChat account, and technical development articles go to the Tech WeChat account.'}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="text-center space-y-2 relative z-10">
+                                <p className="text-gray-600 text-sm md:text-base font-medium">
+                                    {lang === 'zh'
+                                        ? '扫描二维码关注公众号，获取更多精彩内容'
+                                        : 'Scan QR code with WeChat to follow and get more content'}
+                                </p>
+                                {lang === 'en' && (
+                                    <div className="rounded-xl p-3 text-left"
+                                        style={{
+                                            background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%)',
+                                            backdropFilter: 'blur(8px)',
+                                            border: '1px solid rgba(59, 130, 246, 0.2)'
+                                        }}>
+                                        <p className="text-blue-700 font-medium text-xs mb-1">📱 New to WeChat?</p>
+                                        <p className="text-blue-600 text-xs leading-relaxed">
+                                            WeChat is China&apos;s most popular messaging app. Download it from your app store,
+                                            then use the scan feature to follow these accounts for exclusive content.
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )}
     </>
 }

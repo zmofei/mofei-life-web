@@ -4,6 +4,8 @@ import { useLanguage } from "@/components/Context/LanguageContext"
 import { replaceCDNDomain } from "@/components/util/util";
 import { useScrolling } from "@/components/util/useScrolling"
 import Image from 'next/image';
+import AudioManager from '@/utils/audioManager';
+import { useState, useEffect } from 'react';
 
 // 标签翻译和图标映射
 const getTagDisplay = (tag: { id: number; name: string; color?: string }, lang: 'zh' | 'en') => {
@@ -46,28 +48,19 @@ const getTagDisplay = (tag: { id: number; name: string; color?: string }, lang: 
   
   return { displayName, icon }
 }
-import { useState } from 'react';
-import React from 'react';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function MasonryCard({ blog, index }: { blog: any, index: number }) {
     const lang = useLanguage().lang
     const isScrolling = useScrolling(150)
-    const [imageLoaded, setImageLoaded] = useState(false);
-
     // Use preprocessed data from server
     const cover = blog.processedCover || blog.fallbackCover
     const title = (lang === 'en' ? blog.processedTitle?.en : blog.processedTitle?.zh) || blog.title
     const introduction = (lang === 'en' ? blog.processedIntroduction?.en : blog.processedIntroduction?.zh) || blog.introduction
     const isTechArticle = blog.isTechArticle
-    const isGradientBackground = cover.startsWith('linear-gradient')
-    
-    // For gradient backgrounds, mark as loaded immediately
-    React.useEffect(() => {
-        if (isGradientBackground) {
-            setImageLoaded(true);
-        }
-    }, [isGradientBackground]);
+    const isGradientBackground = cover && cover.startsWith('linear-gradient')
+    const hasValidCover = cover && (isGradientBackground || cover.trim().length > 0)
+    const hasVoiceCommentary = blog.voice_commentary && blog.voice_commentary.trim().length > 0
 
     // figure out if the blog is a life blog
     const tag = (blog.tags || []).length > 0 ? blog.tags[0] : null
@@ -81,41 +74,51 @@ export default function MasonryCard({ blog, index }: { blog: any, index: number 
             day: "numeric",
         })
 
-    // Calculate dynamic height based on content
-    const getTitleLines = () => {
-        const length = title.length;
-        if (lang === 'en') {
-            return Math.ceil(length / 40); // English roughly 40 chars per line
-        } else {
-            return Math.ceil(length / 20); // Chinese roughly 20 chars per line
-        }
-    };
+    // 音频播放状态
+    const [isPlaying, setIsPlaying] = useState(false)
+    const audioSrc = `https://static.mofei.life/${blog.voice_commentary}`
 
-    const getIntroLines = () => {
-        const length = introduction?.length || 0;
-        if (lang === 'en') {
-            return Math.min(Math.ceil(length / 50), 4); // Max 4 lines
-        } else {
-            return Math.min(Math.ceil(length / 25), 4); // Max 4 lines
+    // 检查当前音频是否正在播放
+    useEffect(() => {
+        const checkPlayingStatus = () => {
+            const audioManager = AudioManager.getInstance()
+            setIsPlaying(audioManager.isPlaying(audioSrc))
         }
-    };
+        
+        // 定期检查播放状态
+        const interval = setInterval(checkPlayingStatus, 200)
+        
+        return () => clearInterval(interval)
+    }, [audioSrc])
+
+    // 播放语音评论
+    const playVoiceCommentary = (e: React.MouseEvent) => {
+        e.preventDefault()
+        e.stopPropagation()
+        if (hasVoiceCommentary) {
+            const audioManager = AudioManager.getInstance()
+            audioManager.toggle(audioSrc)
+        }
+    }
+
 
     return (
-        <div className='relative w-full'>
-            <div className={`group relative w-full rounded-3xl overflow-hidden
-                shadow-xl transition-all duration-700 ease-out
+        <div className='relative w-full h-full'>
+            <div className={`group relative w-full h-full rounded-3xl overflow-hidden
+                shadow-xl transition-all duration-700 ease-out flex flex-col
                 bg-gradient-to-br from-black/60 via-black/40 to-black/70
                 border border-white/20
-                ${!isScrolling ? 'hover:shadow-2xl group-hover:from-black/70 group-hover:via-black/50 group-hover:to-black/80 group-hover:border-white/30' : ''}`}>
+                ${!isScrolling ? 'hover:shadow-2xl group-hover:from-black/70 group-hover:via-black/50 group-hover:to-black/80 group-hover:border-white/30' : ''}`}
+                style={{ height: '100%', minHeight: '100%', maxHeight: '100%' }}>
                 
-                {/* Dynamic height image/gradient container */}
-                <div className={`relative w-full transition-all duration-300 ${imageLoaded || isGradientBackground ? 'opacity-100' : 'opacity-0'}`}
-                     style={{ aspectRatio: '4/3' }}>
+                {/* Fixed height image/gradient container */}
+                <div className="relative w-full h-48 md:h-56 lg:h-64 xl:h-72 overflow-hidden rounded-t-3xl flex-shrink-0 cover-container">
                     
-                    {isGradientBackground ? (
+                    {hasValidCover ? (
+                        isGradientBackground ? (
                         // Gradient background for tech articles
                         <div 
-                            className="absolute inset-0 rounded-t-3xl"
+                            className="absolute inset-0"
                             style={{ background: cover }}
                         >
                             {/* Tech article icon overlay */}
@@ -148,47 +151,94 @@ export default function MasonryCard({ blog, index }: { blog: any, index: number 
                             className="object-cover"
                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                             priority={index < 6}
-                            onLoad={() => setImageLoaded(true)}
+                            style={{ objectFit: 'cover' }}
                         />
+                        )
+                    ) : (
+                        // Fallback background when no cover is available
+                        <div className="absolute inset-0 bg-gradient-to-br from-gray-600 via-gray-700 to-gray-800" />
                     )}
                     
                     {/* Image overlay */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent"></div>
                     
                     {/* Brand badge */}
-                    <div className="absolute top-3 left-3 text-white font-bold text-xs tracking-wide uppercase
-                        bg-gradient-to-r from-black/70 via-black/60 to-black/70 px-3 py-1 rounded-full border border-white/40
-                        shadow-lg transition-all duration-300 backdrop-blur-sm">
-                        {isTechArticle ? 'TECH' : 'MOFEI'}
+                    <div className="absolute top-3 left-3 md:top-4 md:left-4 p-1 transition-all duration-300">
+                        {isTechArticle ? (
+                            <span className="text-white font-bold text-xs tracking-wide uppercase">TECH</span>
+                        ) : (
+                            <Image
+                                src="/img/mofei-logo.svg"
+                                alt="Mofei Logo"
+                                width={75}
+                                height={17}
+                                className="opacity-90 hover:opacity-100 transition-opacity duration-300"
+                                style={{
+                                    filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.2)) drop-shadow(0 0 1px rgba(0,0,0,0.1))'
+                                }}
+                            />
+                        )}
                     </div>
+                    
                 </div>
 
-                {/* Content area with dynamic height */}
-                <div className="p-4 md:p-6" style={{ minHeight: `${4 + getTitleLines() * 1.5 + getIntroLines() * 1.2}rem` }}>
+                {/* Tag and Voice Commentary - positioned at top right */}
+                <div className="absolute top-4 right-4 md:top-5 md:right-5 z-20 flex items-center gap-2">
+                    {/* Voice Commentary Button */}
+                    {hasVoiceCommentary && (
+                        <button
+                            onClick={playVoiceCommentary}
+                            className="w-8 h-8 flex items-center justify-center rounded-full transition-all duration-300 
+                                backdrop-blur-sm hover:scale-110 active:scale-95 outline-none focus:outline-none border-0 overflow-hidden"
+                            style={{
+                                background: 'linear-gradient(135deg, rgba(16,185,129,0.8) 0%, rgba(5,150,105,0.9) 50%, rgba(4,120,87,0.8) 100%)',
+                                border: '1px solid rgba(16,185,129,0.6)',
+                                boxShadow: '0 3px 8px rgba(16,185,129,0.3), 0 0 0 1px rgba(16,185,129,0.2)',
+                                WebkitAppearance: 'none',
+                                WebkitTapHighlightColor: 'transparent'
+                            }}
+                            title={lang === 'zh' ? '播放语音版本' : 'Play Voice Version'}
+                        >
+{isPlaying ? (
+                                <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
+                                </svg>
+                            ) : (
+                                <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                                </svg>
+                            )}
+                        </button>
+                    )}
                     
                     {/* Tag */}
                     {tag?.name && (
-                        <div className="mb-3">
-                            <span className="text-white rounded-full px-3 py-1 font-medium text-xs flex items-center gap-1.5 inline-flex
-                                shadow-lg transition-all duration-300 border border-white/30"
-                                style={{
-                                    background: `linear-gradient(135deg, ${tag?.color || '#f05a54'}80, ${tag?.color || '#f05a54'}60)`,
-                                }}>
-                                {(() => {
-                                    const { displayName, icon } = getTagDisplay(tag, lang as 'zh' | 'en')
-                                    return (
-                                        <>
-                                            {icon}
-                                            {displayName}
-                                        </>
-                                    )
-                                })()}
-                            </span>
-                        </div>
+                        <span className="text-white font-bold text-xs tracking-wide uppercase
+                            px-3 py-1 rounded-full transition-all duration-300 flex items-center gap-1.5
+                            backdrop-blur-sm"
+                            style={{
+                                background: 'linear-gradient(135deg, rgba(255,183,77,0.6) 0%, rgba(255,154,77,0.7) 50%, rgba(255,120,77,0.6) 100%)',
+                                border: '1px solid rgba(255,183,77,0.4)',
+                                textShadow: '0 1px 2px rgba(0,0,0,0.6), 0 0 3px rgba(0,0,0,0.3)',
+                                boxShadow: '0 3px 8px rgba(255,154,77,0.3), 0 0 0 1px rgba(255,183,77,0.2)'
+                            }}>
+                            {(() => {
+                                const { displayName, icon } = getTagDisplay(tag, lang as 'zh' | 'en')
+                                return (
+                                    <>
+                                        {icon}
+                                        {displayName}
+                                    </>
+                                )
+                            })()}
+                        </span>
                     )}
-                    
+                </div>
+                
+                {/* Content area with padding for absolute positioned bottom */}
+                <div className="p-6 md:p-8 pb-24 md:pb-28 flex-1 relative">
                     {/* Title with dynamic sizing */}
-                    <h2 className={`font-bold leading-tight mb-3 text-white transition-all duration-300
+                    <h2 className={`font-bold leading-tight mb-4 text-white transition-all duration-300
                         ${lang === 'en' ? 'text-lg md:text-xl' : 'text-xl md:text-2xl'}
                         ${!isScrolling ? 'group-hover:text-gray-50' : ''}`}
                         style={{
@@ -198,28 +248,35 @@ export default function MasonryCard({ blog, index }: { blog: any, index: number 
                         {title}
                     </h2>
                     
-                    {/* Introduction with clamping */}
-                    <p className={`leading-relaxed text-gray-100 mb-4 transition-all duration-300
+                    {/* Introduction without height restriction */}
+                    <p className={`leading-relaxed text-gray-100 transition-all duration-300
                         ${!isScrolling ? 'group-hover:text-white' : ''}
                         ${lang === 'en' ? 'text-sm md:text-base' : 'text-base md:text-lg'}`}
                         style={{
-                            textShadow: '0 1px 2px rgba(0,0,0,0.4)',
-                            display: '-webkit-box',
-                            WebkitLineClamp: 4,
-                            WebkitBoxOrient: 'vertical',
-                            overflow: 'hidden'
+                            textShadow: '0 1px 2px rgba(0,0,0,0.4)'
                         }}>
                         {introduction}
                     </p>
-                    
-                    {/* Time */}
-                    <div className="flex justify-between items-center">
-                        <span className="text-gray-300 text-sm font-medium transition-all duration-300">
+                </div>
+                
+                {/* Bottom section with time - minimal top border only */}
+                <div className="absolute bottom-5 left-5 right-5 md:bottom-7 md:left-7 md:right-7 flex justify-between items-center
+                    border-t border-white/10 pt-3 transition-all duration-300">
+                    <div className="flex items-center gap-2">
+                        <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span className="text-gray-300 text-xs font-normal transition-all duration-300 opacity-80">
                             {time}
                         </span>
-                        <div className={`w-8 h-8 rounded-full bg-white/10 flex items-center justify-center transition-all duration-300
-                            ${!isScrolling ? 'group-hover:bg-white/20' : ''}`}>
-                            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <span className="text-gray-400 text-xs font-normal opacity-70">
+                            {lang === 'zh' ? '阅读全文' : 'Read More'}
+                        </span>
+                        <div className={`w-6 h-6 rounded-full bg-white/10 flex items-center justify-center transition-all duration-300
+                            ${!isScrolling ? 'group-hover:bg-white/15' : ''}`}>
+                            <svg className="w-3 h-3 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                             </svg>
                         </div>

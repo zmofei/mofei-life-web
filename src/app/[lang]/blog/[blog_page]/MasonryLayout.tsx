@@ -1,8 +1,8 @@
 "use client"
 
-import Link from 'next/link';
 import { useState } from 'react';
 import { trackEvent } from '@/lib/gtag';
+import SPALink from '@/components/Common/SPALink';
 import MasonryCard from './MasonryCard';
 import TechCard from './TechCard';
 
@@ -19,6 +19,7 @@ interface BlogItem {
   tags?: Array<{ id: number; name: string; color?: string }>;
   pubtime: string;
   isTechArticle?: boolean;
+  voice_commentary?: string;
 }
 
 interface MasonryLayoutProps {
@@ -42,19 +43,18 @@ export default function MasonryLayout({ blogList, lang }: MasonryLayoutProps) {
 
   return (
     <div className="mt-8 md:mt-16 container max-w-[2000px] m-auto px-5 md:px-10">
-      {/* 瀑布流布局 */}
-      <div className="columns-1 md:columns-2 lg:columns-3 xl:columns-4 gap-6 md:gap-8">
+      {/* 网格布局 - 自适应高度 */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8 auto-rows-fr">
         {blogList.map((blog, index) => {
           const isClicked = clickedCard === blog._id;
           
           return (
-            <div key={blog._id} className="break-inside-avoid mb-6 md:mb-8">
-              <Link 
+            <div key={blog._id} className="h-full">
+              <SPALink 
                 href={`/${lang}/blog/article/${blog._id}`} 
-                className={`block group cursor-pointer transition-opacity duration-150 ${
+                className={`block group cursor-pointer transition-opacity duration-150 h-full ${
                   isClicked ? 'opacity-70' : 'hover:opacity-90'
                 }`}
-                prefetch={true}
                 onClick={() => handleCardClick(blog)}
               >
                 {blog.isTechArticle ? (
@@ -62,7 +62,7 @@ export default function MasonryLayout({ blogList, lang }: MasonryLayoutProps) {
                 ) : (
                   <MasonryCard blog={blog} index={index} />
                 )}
-              </Link>
+              </SPALink>
             </div>
           );
         })}
@@ -70,18 +70,11 @@ export default function MasonryLayout({ blogList, lang }: MasonryLayoutProps) {
       
       {/* 样式优化 */}
       <style jsx>{`
-        /* 确保瀑布流在移动端正常工作 */
+        /* 确保网格布局在移动端正常工作 */
         @media (max-width: 768px) {
-          .columns-1 {
-            column-count: 1;
+          .grid-cols-1 {
+            grid-template-columns: repeat(1, minmax(0, 1fr));
           }
-        }
-        
-        /* 防止卡片被截断 */
-        .break-inside-avoid {
-          break-inside: avoid;
-          page-break-inside: avoid;
-          -webkit-column-break-inside: avoid;
         }
       `}</style>
     </div>

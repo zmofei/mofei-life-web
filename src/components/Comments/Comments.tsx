@@ -6,7 +6,7 @@ import { usePerformance } from '@/hooks/usePerformance';
 import { trackEvent } from '@/lib/gtag';
 import { useEffect, useState, useRef, useMemo, memo, useCallback } from 'react';
 
-import { fetchMessageList, getToken, postMessage } from '@/app/actions/blog'
+import { fetchMessageList, getToken, postMessage, likeComment } from '@/app/actions/blog'
 
 // import { HomeIcon } from '@heroicons/react/24/outline'
 
@@ -264,11 +264,85 @@ export default function Comments(params: CommentsParams) {
 
     // Independent comment item component
     const CommentItem = memo(({ blog, lang, getRelativeTimeFunc }: { 
-        blog: { email: string; name: string; blog?: string; content: string; translate_zh?: string; translate_en?: string; time: string; };
+        blog: { 
+            id?: string; 
+            _id?: string; 
+            email: string; 
+            name: string; 
+            blog?: string; 
+            content: string; 
+            translate_zh?: string; 
+            translate_en?: string; 
+            time: string; 
+            like?: string | number; // API返回的点赞数
+            likes?: number; 
+            isLiked?: boolean; 
+        };
         lang: string;
         getRelativeTimeFunc: (timestamp: string, lang?: string) => string;
     }) => {
         const [showOriginal, setShowOriginal] = useState(false);
+        // 使用API返回的like字段，转换为数字
+        const initialLikes = blog.like ? parseInt(String(blog.like), 10) : (blog.likes || 0);
+        const [likesCount, setLikesCount] = useState(initialLikes);
+        
+        // 从localStorage获取用户点赞状态
+        const commentId = blog.id || blog._id || '';
+        const likedKey = `comment_liked_${commentId}`;
+        const [isLiked, setIsLiked] = useState(() => {
+            if (typeof window !== 'undefined' && commentId) {
+                return localStorage.getItem(likedKey) === 'true';
+            }
+            return blog.isLiked || false;
+        });
+        const [isLiking, setIsLiking] = useState(false);
+        
+        // Handle like action
+        const handleLike = useCallback(async () => {
+            if (isLiking || !commentId) return; // Prevent double clicks
+            
+            setIsLiking(true);
+            const previousLiked = isLiked;
+            const previousCount = likesCount;
+            
+            try {
+                // 不允许取消点赞，只能增加点赞
+                if (isLiked) {
+                    // 已经点赞过了，不做任何操作
+                    return;
+                } else {
+                    // 点赞
+                    setLikesCount(prev => prev + 1);
+                    setIsLiked(true);
+                    localStorage.setItem(likedKey, 'true');
+                    
+                    // Call API
+                    const result = await likeComment(commentId);
+                    
+                    // Update with server response if available
+                    if (result && typeof result.likes !== 'undefined') {
+                        setLikesCount(parseInt(String(result.likes), 10) || 0);
+                    }
+                    
+                    // Track like event
+                    trackEvent.navClick('Comment Like', `Like - ${commentId}`);
+                }
+            } catch (error) {
+                console.error('Failed to like comment:', error);
+                // Rollback on error
+                setIsLiked(previousLiked);
+                setLikesCount(previousCount);
+                localStorage.setItem(likedKey, String(previousLiked));
+            } finally {
+                setIsLiking(false);
+            }
+        }, [isLiking, isLiked, likesCount, commentId, likedKey]);
+        
+        // Update likes count when blog data changes
+        useEffect(() => {
+            const newLikes = blog.like ? parseInt(String(blog.like), 10) : (blog.likes || 0);
+            setLikesCount(newLikes);
+        }, [blog.like, blog.likes]);
         
         // Use useMemo to cache translated content, avoid re-rendering
         const translatedContent = useMemo(() => {
@@ -362,13 +436,13 @@ export default function Comments(params: CommentsParams) {
                     <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none rounded-2xl"></div>
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-white/5 pointer-events-none rounded-2xl"></div>
                     
-                    {/* 主体内容：在电脑端使用左右布局 */}
-                    <div className='flex flex-col md:flex-row gap-4 md:gap-6 relative z-10'>
+                    {/* 主体内容：手机端水平布局，电脑端左右布局 */}
+                    <div className='flex gap-3 md:gap-6 relative z-10'>
                         {/* 左侧：头像区域 */}
-                        <div className='flex md:flex-col items-center md:items-start gap-3 md:gap-2'>
+                        <div className='flex-shrink-0'>
                             <img 
                                 alt='avatar' 
-                                className="rounded-2xl shadow-xl ring-2 ring-white/20 w-12 h-12 md:w-16 md:h-16 object-cover flex-shrink-0" 
+                                className="rounded-2xl shadow-xl ring-2 ring-white/20 w-12 h-12 md:w-16 md:h-16 object-cover" 
                                 src={`https://assets-eu.mofei.life/gravatar/${blog.email || '0000000000'}?s=200`}
                                 loading="lazy"
                                 style={{ transition: 'none' }}
@@ -377,9 +451,10 @@ export default function Comments(params: CommentsParams) {
                         
                         {/* 右侧：姓名、时间和内容区域 */}
                         <div className="flex-1 min-w-0">
-                            {/* 姓名和时间 */}
+                            {/* 姓名和时间 - 手机端在一行 */}
                             <div className='mb-3'>
-                                <div className='flex items-center gap-2 mb-1'>
+                                {/* 姓名、网站链接和时间信息 */}
+                                <div className='flex items-center gap-2 mb-1 flex-wrap'>
                                     <h2 className='font-bold text-base md:text-lg text-white drop-shadow-md'>
                                         {blog.name}
                                     </h2>
@@ -387,7 +462,7 @@ export default function Comments(params: CommentsParams) {
                                         <a
                                             href={blog.blog.startsWith('http://') || blog.blog.startsWith('https://') ? blog.blog : `https://${blog.blog}`}
                                             target='_blank'
-                                            className="text-white/60 hover:text-white/80"
+                                            className="text-white/60 hover:text-white/80 flex-shrink-0"
                                         >
                                             <svg className='inline-block size-4' fill='currentColor' viewBox='0 0 20 20'>
                                                 <path fillRule='evenodd' d='M4.083 9h1.946c.089-1.546.383-2.97.837-4.118A6.004 6.004 0 004.083 9zM10 2a8 8 0 100 16 8 8 0 000-16zm0 2c-.076 0-.232.032-.465.262-.238.234-.497.623-.737 1.182-.389.907-.673 2.142-.766 3.556h3.936c-.093-1.414-.377-2.649-.766-3.556-.24-.56-.5-.948-.737-1.182C10.232 4.032 10.076 4 10 4zm3.971 5c-.089-1.546-.383-2.97-.837-4.118A6.004 6.004 0 0115.917 9h-1.946zm-2.003 2H8.032c.093 1.414.377 2.649.766 3.556.24.56.5.948.737 1.182.233.23.389.262.465.262.076 0 .232-.032.465-.262.238-.234.498-.623.737-1.182.389-.907.673-2.142.766-3.556zm1.166 4.118c.454-1.147.748-2.572.837-4.118h1.946a6.004 6.004 0 01-2.783 4.118zm-6.268 0C6.412 13.97 6.118 12.546 6.03 11H4.083a6.004 6.004 0 002.783 4.118z' clipRule='evenodd' />
@@ -396,7 +471,7 @@ export default function Comments(params: CommentsParams) {
                                     ) : ''}
                                 </div>
                                 
-                                {/* 时间信息 - 具体时间和相对时间 */}
+                                {/* 时间信息 */}
                                 <div className="flex items-center gap-2 text-xs text-white/60 font-medium">
                                     <span title={new Date(blog.time).toLocaleDateString(
                                         lang == 'zh' ? 'zh-CN' : 'en-US'
@@ -445,6 +520,38 @@ export default function Comments(params: CommentsParams) {
                                     
                                     {/* 可展开的原文内容（已缓存，不会重新渲染） */}
                                     {showOriginal && shouldShowOriginalButton && originalContent}
+                                    
+                                    {/* 点赞按钮 - 单独一行右对齐 */}
+                                    <div className="flex items-center justify-end mt-3">
+                                        <button
+                                            onClick={handleLike}
+                                            disabled={isLiking}
+                                            className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium transition-all duration-300 
+                                                ${isLiked 
+                                                    ? 'text-red-400 bg-red-400/10 border border-red-400/20 hover:bg-red-400/20' 
+                                                    : 'text-white/60 bg-white/5 border border-white/10 hover:text-white/80 hover:bg-white/10'
+                                                } 
+                                                ${isLiking ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105'}
+                                                backdrop-blur-sm flex-shrink-0`}
+                                        >
+                                            <svg 
+                                                className={`w-3.5 h-3.5 transition-all duration-300 ${isLiked ? 'scale-110' : ''} ${isLiking ? 'animate-pulse' : ''}`} 
+                                                fill={isLiked ? "currentColor" : "none"} 
+                                                stroke="currentColor" 
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path 
+                                                    strokeLinecap="round" 
+                                                    strokeLinejoin="round" 
+                                                    strokeWidth={2} 
+                                                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" 
+                                                />
+                                            </svg>
+                                            <span className="tabular-nums">
+                                                {likesCount > 0 ? likesCount : (lang === 'zh' ? '赞' : 'Like')}
+                                            </span>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>

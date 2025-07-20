@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { trackEvent } from '@/lib/gtag';
+import SPALink from '@/components/Common/SPALink';
 
 // Global state to track if nav animations have been played
 let navAnimationsPlayed = false;
@@ -223,8 +224,10 @@ function Nav({ lang }: { lang: string }) {
                 >
                     {/* 桌面端也使用数据驱动 */}
                     {navItems.map((item, index) => (
-                        <a
+                        <SPALink
                             key={index}
+                            href={item.href}
+                            external={item.external}
                             className={`px-3 py-1.5 rounded-full transition-all duration-300 flex items-center gap-2 
                                        active:scale-95 hover:scale-105 touch-manipulation select-none cursor-pointer
                                        btn-glass focus-ring relative overflow-hidden focus-enhanced interactive-element
@@ -246,13 +249,7 @@ function Nav({ lang }: { lang: string }) {
                                     trackEvent.navClick(item.label[lang as 'zh' | 'en'], item.href);
                                 }
                             }}
-                            href={item.href}
-                            {...(item.external && {
-                                target: "_blank",
-                                rel: "noopener noreferrer",
-                                title: lang === 'zh' ? '在新窗口打开' : 'Open in new window'
-                            })}
-                            aria-label={`${item.label[lang as 'zh' | 'en']}${item.external ? (lang === 'zh' ? '（外部链接）' : ' (external link)') : ''}`}
+                            title={item.external ? (lang === 'zh' ? '在新窗口打开' : 'Open in new window') : undefined}
                         >
                             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                 <path d={item.icon} />
@@ -265,7 +262,7 @@ function Nav({ lang }: { lang: string }) {
                                     </svg>
                                 )}
                             </span>
-                        </a>
+                        </SPALink>
                     ))}
 
                     {/* 分隔线 */}
@@ -354,7 +351,7 @@ function Nav({ lang }: { lang: string }) {
                         border: '1px solid rgba(255,255,255,0.18)'
                     }}>
                     {/* 语言切换按钮移到顶部 */}
-                    <li className="py-2 sm:py-3 md:py-4 mb-2 sm:mb-4 pr-6 md:pr-10" style={{ "transformOrigin": "top right" }}>
+                    <li className="py-2 sm:py-3 md:py-4 mb-2 sm:mb-4 pr-6 md:pr-10 mt-20 sm:mt-0" style={{ "transformOrigin": "top right" }}>
                         <button
                             className="inline-flex items-center justify-center gap-2 h-8 w-16 sm:h-10 sm:w-18 md:h-12 md:w-20 rounded-xl sm:rounded-2xl cursor-pointer ml-auto 
                                        transition-all duration-300 active:scale-95 hover:scale-105 
@@ -399,7 +396,9 @@ function Nav({ lang }: { lang: string }) {
                     {/* 使用数据驱动的方式渲染导航项 */}
                     {navItems.map((item, index) => (
                         <li key={index} className="py-2 sm:py-3 md:py-4 pr-6 md:pr-10 pl-3 sm:pl-4" style={{ "transformOrigin": "top right" }}>
-                            <a
+                            <SPALink
+                                href={item.href}
+                                external={item.external}
                                 className={`${mobileNavItemClass} ${item.external ? 'text-white/90' :
                                     isActive(item.href)
                                         ? 'font-bold text-white drop-shadow-lg'
@@ -419,20 +418,13 @@ function Nav({ lang }: { lang: string }) {
                                         : '0 4px 16px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.1)',
                                     border: '1px solid rgba(255,255,255,0.15)'
                                 }}
-
-                                href={item.href}
-                                {...(item.external && {
-                                    target: "_blank",
-                                    rel: "noopener noreferrer",
-                                    title: lang === 'zh' ? '在新窗口打开' : 'Open in new window'
-                                })}
+                                title={item.external ? (lang === 'zh' ? '在新窗口打开' : 'Open in new window') : undefined}
                                 onClick={() => {
                                     // Close menu when navigation item is clicked
                                     if (!item.external) {
                                         setShow(false);
                                     }
                                 }}
-                                aria-label={`${item.label[lang as 'zh' | 'en']}${item.external ? (lang === 'zh' ? '（外部链接）' : ' (external link)') : ''}`}
                             >
                                 <span className={item.external ? "flex items-center gap-1" : ""}>
                                     {item.label[lang as 'zh' | 'en']}
@@ -441,7 +433,7 @@ function Nav({ lang }: { lang: string }) {
                                 <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
                                     <path d={item.icon} />
                                 </svg>
-                            </a>
+                            </SPALink>
                         </li>
                     ))}
                 </ul>

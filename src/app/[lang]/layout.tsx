@@ -2,17 +2,19 @@ import { use } from "react"
 import "../globals.css";
 import Nav from '@/components/Common/Nav'
 import { LanguageProvider } from "@/components/Context/LanguageContext";
+import { RouterProvider } from "@/components/Context/RouterContext";
 import WebVitalsProvider from '@/components/util/WebVitalsProvider';
 import WebVitalsDashboard from '@/components/util/WebVitalsDashboard';
 import GoogleAnalytics from '@/components/Analytics/GoogleAnalytics';
 import PageTracker from '@/components/Analytics/PageTracker';
+import SPATransition from '@/components/util/SPATransition';
 import type { Metadata } from 'next'
 
 
 interface GenerateMetadataParams {
-  params: {
+  params: Promise<{
     lang: string;
-  };
+  }>;
 }
 
 export async function generateMetadata(params: GenerateMetadataParams): Promise<Metadata> {
@@ -104,10 +106,14 @@ export default function RootLayout(params: Readonly<{
         <GoogleAnalytics />
         <WebVitalsProvider>
           <LanguageProvider defaultLang={lang}>
-            <PageTracker />
-            <Nav lang={lang} />
-            {children}
-            <WebVitalsDashboard />
+            <RouterProvider>
+              <PageTracker />
+              <Nav lang={lang} />
+              <SPATransition>
+                {children}
+              </SPATransition>
+              <WebVitalsDashboard />
+            </RouterProvider>
           </LanguageProvider>
         </WebVitalsProvider>
       </body>

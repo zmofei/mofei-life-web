@@ -1,5 +1,5 @@
 import React from "react";
-import Link from "next/link";
+import SPALink from '@/components/Common/SPALink';
 import { useState } from 'react';
 import { trackEvent } from '@/lib/gtag';
 import LoadingSpinner from '@/components/util/LoadingSpinner';
@@ -107,7 +107,7 @@ const Pagination: React.FC<PaginationProps> = ({
                             </div>
                         </button>
                     ) : (
-                        <Link href={buildUrl(_page - 1)} prefetch={true}>
+                        <SPALink href={buildUrl(_page - 1)}>
                             <button
                                 className="px-3 py-1.5 rounded-full bg-white/20 hover:bg-white/30 text-white font-medium transition-all duration-300 cursor-pointer"
                             >
@@ -118,7 +118,7 @@ const Pagination: React.FC<PaginationProps> = ({
                                     {lang == 'zh' ? '上一页' : 'Previous'}
                                 </div>
                             </button>
-                        </Link>
+                        </SPALink>
                     )
                 )}
 
@@ -146,7 +146,7 @@ const Pagination: React.FC<PaginationProps> = ({
                                     {page}
                                 </button>
                             ) : (
-                                <Link href={buildUrl(page)} key={`${page}_${_page}`} prefetch={true}>
+                                <SPALink href={buildUrl(page)} key={`${page}_${_page}`}>
                                     <button
 
                                         className={`px-3 py-1.5 rounded-full font-medium transition-all duration-300 cursor-pointer relative overflow-hidden
@@ -163,7 +163,7 @@ const Pagination: React.FC<PaginationProps> = ({
                                     >
                                         {page}
                                     </button>
-                                </Link>
+                                </SPALink>
                             )
                         ))}
                     </>
@@ -187,7 +187,7 @@ const Pagination: React.FC<PaginationProps> = ({
                             </div>
                         </button>
                     ) : (
-                        <Link href={buildUrl(_page + 1)} prefetch={true}>
+                        <SPALink href={buildUrl(_page + 1)}>
                             <button
 
                                 className="px-3 py-1.5 rounded-full bg-white/20 hover:bg-white/30 text-white font-medium transition-all duration-300 cursor-pointer"
@@ -199,7 +199,7 @@ const Pagination: React.FC<PaginationProps> = ({
                                     </svg>
                                 </div>
                             </button>
-                        </Link>
+                        </SPALink>
                     )
                 )}
             </div>

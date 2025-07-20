@@ -19,6 +19,7 @@ interface BlogItem {
   tags?: Array<{ id: number; name: string; color?: string }>;
   pubtime: string;
   isTechArticle?: boolean;
+  voice_commentary?: string;
 }
 
 interface Tag {
@@ -73,44 +74,46 @@ export default function BlogContent({
     setIsLoading(false);
   }, [blogList, currentPage]);
 
-  // Skeleton loader component matching masonry layout
+
+  // Skeleton loader component matching grid layout
   const BlogSkeleton = () => (
     <div className="container max-w-[2000px] m-auto px-5 md:px-10 mb-12">
-      <div className="columns-1 md:columns-2 lg:columns-3 xl:columns-4 gap-6 md:gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8 auto-rows-fr">
         {[...Array(12)].map((_, index) => {
-          // Randomize heights for natural masonry look
-          const heights = ['h-64', 'h-80', 'h-72', 'h-96', 'h-60'];
-          const randomHeight = heights[index % heights.length];
-          
           return (
-            <div key={`skeleton-${index}`} className="break-inside-avoid mb-6 md:mb-8">
-              <div className={`bg-white/10 backdrop-blur-lg rounded-2xl p-4 md:p-6 border border-white/20 shadow-xl relative overflow-hidden loading-shimmer ${randomHeight}`}>
+            <div key={`skeleton-${index}`} className="min-h-[400px]">
+              <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-4 md:p-6 border border-white/20 shadow-xl relative overflow-hidden loading-shimmer h-full flex flex-col">
                 {/* Animated glass effect overlays */}
                 <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none rounded-2xl"></div>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-white/5 pointer-events-none rounded-2xl"></div>
                 
                 {/* Content skeleton */}
                 <div className="relative z-10 h-full flex flex-col">
-                  {/* Image skeleton */}
-                  <div className="w-full h-32 md:h-40 bg-white/10 rounded-xl mb-4 loading-shimmer" />
+                  {/* Image skeleton - fixed height */}
+                  <div className="w-full h-48 md:h-56 lg:h-64 xl:h-72 bg-white/10 rounded-xl mb-4 loading-shimmer" />
                   
-                  {/* Title skeleton */}
-                  <div className="space-y-2 mb-4">
-                    <div className="h-5 md:h-6 bg-white/10 rounded-lg w-full loading-shimmer" />
-                    <div className="h-5 md:h-6 bg-white/10 rounded-lg w-3/4 loading-shimmer" />
-                  </div>
-                  
-                  {/* Content skeleton */}
-                  <div className="space-y-2 mb-4 flex-1">
-                    <div className="h-3 md:h-4 bg-white/10 rounded w-full loading-shimmer" />
-                    <div className="h-3 md:h-4 bg-white/10 rounded w-5/6 loading-shimmer" />
-                    <div className="h-3 md:h-4 bg-white/10 rounded w-4/5 loading-shimmer" />
-                  </div>
-                  
-                  {/* Footer skeleton */}
-                  <div className="flex items-center justify-between mt-auto">
-                    <div className="h-3 md:h-4 bg-white/10 rounded w-16 md:w-20 loading-shimmer" />
-                    <div className="h-3 md:h-4 bg-white/10 rounded w-20 md:w-24 loading-shimmer" />
+                  {/* Content area skeleton - flex-1 to fill remaining space */}
+                  <div className="flex-1 flex flex-col justify-between">
+                    <div className="flex-1">
+                      {/* Title skeleton */}
+                      <div className="space-y-2 mb-4">
+                        <div className="h-5 md:h-6 bg-white/10 rounded-lg w-full loading-shimmer" />
+                        <div className="h-5 md:h-6 bg-white/10 rounded-lg w-3/4 loading-shimmer" />
+                      </div>
+                      
+                      {/* Content skeleton */}
+                      <div className="space-y-2">
+                        <div className="h-3 md:h-4 bg-white/10 rounded w-full loading-shimmer" />
+                        <div className="h-3 md:h-4 bg-white/10 rounded w-5/6 loading-shimmer" />
+                        <div className="h-3 md:h-4 bg-white/10 rounded w-4/5 loading-shimmer" />
+                      </div>
+                    </div>
+                    
+                    {/* Footer skeleton */}
+                    <div className="flex items-center justify-between mt-4">
+                      <div className="h-3 md:h-4 bg-white/10 rounded w-16 md:w-20 loading-shimmer" />
+                      <div className="h-3 md:h-4 bg-white/10 rounded w-20 md:w-24 loading-shimmer" />
+                    </div>
                   </div>
                 </div>
               </div>

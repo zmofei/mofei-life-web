@@ -53,3 +53,18 @@ export async function postMessage(id: string, data: PostMessageData) {
   }
   return res.json();
 }
+
+export async function likeComment(commentId: string) {
+  const URL = `${NEW_API_URL}/blog/comment/like/${commentId}`;
+  const res = await fetch(URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+  });
+  if (!res.ok) {
+    throw new Error("Failed to like comment");
+  }
+  return res.json();
+}

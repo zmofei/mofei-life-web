@@ -57,6 +57,10 @@ export default function BlogItemBlock({ blog, index }: { blog: any, index: numbe
     const title = (lang === 'en' ? blog.processedTitle?.en : blog.processedTitle?.zh) || blog.title
     const introduction = (lang === 'en' ? blog.processedIntroduction?.en : blog.processedIntroduction?.zh) || blog.introduction
 
+    // Check for gradient background and validate cover URL
+    const isGradientBackground = cover && cover.startsWith('linear-gradient')
+    const hasValidCover = cover && (isGradientBackground || cover.trim().length > 0)
+
     // figure out if the blog is a life blog
     const tag = (blog.tags || []).length > 0 ? blog.tags[0] : null
 
@@ -76,15 +80,31 @@ export default function BlogItemBlock({ blog, index }: { blog: any, index: numbe
             shadow-xl transition-all duration-700 ease-out flex flex-col md:min-h-[350px] overflow-hidden
             ${!isScrolling ? 'hover:shadow-2xl' : ''}`}>
             
-            {/* Optimized background image */}
-            <Image
-                src={replaceCDNDomain(cover)}
-                alt={title}
-                fill
-                className="object-cover rounded-3xl"
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                priority={index < 3}
-            />
+            {/* Background image or gradient */}
+            {hasValidCover ? (
+                isGradientBackground ? (
+                    // Gradient background for tech articles
+                    <div 
+                        className="absolute inset-0 rounded-3xl"
+                        style={{
+                            background: cover
+                        }}
+                    />
+                ) : (
+                    // Regular image
+                    <Image
+                        src={replaceCDNDomain(cover)}
+                        alt={title}
+                        fill
+                        className="object-cover rounded-3xl"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        priority={index < 3}
+                    />
+                )
+            ) : (
+                // Fallback background when no cover is available
+                <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-gray-600 via-gray-700 to-gray-800" />
+            )}
             
             {/* Glass-like overlay layers */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-white/10 z-[1] pointer-events-none rounded-3xl"></div>
