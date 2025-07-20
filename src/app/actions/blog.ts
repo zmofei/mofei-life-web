@@ -68,3 +68,23 @@ export async function likeComment(commentId: string) {
   }
   return res.json();
 }
+
+export async function recordBlogVisit(blogId: string) {
+  const URL = `${NEW_API_URL}/blog/visit/${blogId}`;
+  try {
+    const res = await fetch(URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    });
+    if (!res.ok) {
+      console.warn(`Failed to record visit for blog ${blogId}:`, res.status);
+    }
+    return res.ok;
+  } catch (error) {
+    console.warn(`Failed to record visit for blog ${blogId}:`, error);
+    return false;
+  }
+}

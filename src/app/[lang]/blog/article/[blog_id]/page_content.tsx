@@ -9,6 +9,7 @@ import SimpleReadingProgress from '@/components/util/SimpleReadingProgress';
 import { trackEvent } from '@/lib/gtag';
 import VoiceFeatureNotice from '@/components/VoiceFeatureNotice';
 import AudioManager from '@/utils/audioManager';
+import { useBlogVisitTracker } from '@/hooks/useBlogVisitTracker';
 
 interface BlogContent {
     title: string;
@@ -20,10 +21,13 @@ interface BlogContent {
 }
 
 export default function PageContent({ params }: { params: { content: BlogContent, lang: 'zh' | 'en', blog_id: string } }) {
-    const { content: blog, lang } = params;
+    const { content: blog, lang, blog_id } = params;
     const [showWeChatModal, setShowWeChatModal] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
     const hasVoiceCommentary = blog.voice_commentary && blog.voice_commentary.trim().length > 0;
+    
+    // Track blog visit for analytics
+    useBlogVisitTracker(blog_id);
 
     const handleWeChatClick = () => {
         trackEvent.navClick('WeChat Modal Open', 'Article WeChat Button');
