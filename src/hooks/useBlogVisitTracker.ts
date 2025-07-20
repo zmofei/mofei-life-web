@@ -5,7 +5,7 @@ import { recordBlogVisit } from '@/app/actions/blog';
 
 /**
  * Hook to track blog visits with deduplication
- * Prevents multiple visits from being recorded for the same blog in a single session
+ * Prevents multiple visits from being recorded for the same blog within 1 minute
  */
 export function useBlogVisitTracker(blogId: string) {
   const hasRecorded = useRef(false);
@@ -15,9 +15,6 @@ export function useBlogVisitTracker(blogId: string) {
     // Avoid recording multiple times for the same blog in the same component lifecycle
     if (hasRecorded.current) return;
     
-    // Check if this blog was already visited in current session
-    const isVisitedInSession = sessionStorage.getItem(sessionKey);
-    if (isVisitedInSession) return;
 
     // Record the visit
     const recordVisit = async () => {

@@ -3,11 +3,13 @@ import "../globals.css";
 import Nav from '@/components/Common/Nav'
 import { LanguageProvider } from "@/components/Context/LanguageContext";
 import { RouterProvider } from "@/components/Context/RouterContext";
+import { PlaylistProvider } from "@/components/Context/PlaylistContext";
 import WebVitalsProvider from '@/components/util/WebVitalsProvider';
 import WebVitalsDashboard from '@/components/util/WebVitalsDashboard';
 import GoogleAnalytics from '@/components/Analytics/GoogleAnalytics';
 import PageTracker from '@/components/Analytics/PageTracker';
 import SPATransition from '@/components/util/SPATransition';
+import GlobalPlaylist from '@/components/Player/GlobalPlaylist';
 import type { Metadata } from 'next'
 
 
@@ -106,14 +108,17 @@ export default function RootLayout(params: Readonly<{
         <GoogleAnalytics />
         <WebVitalsProvider>
           <LanguageProvider defaultLang={lang}>
-            <RouterProvider>
-              <PageTracker />
-              <Nav lang={lang} />
-              <SPATransition>
-                {children}
-              </SPATransition>
-              <WebVitalsDashboard />
-            </RouterProvider>
+            <PlaylistProvider>
+              <RouterProvider>
+                <PageTracker />
+                <Nav lang={lang} />
+                <SPATransition>
+                  {children}
+                </SPATransition>
+                <WebVitalsDashboard />
+                <GlobalPlaylist />
+              </RouterProvider>
+            </PlaylistProvider>
           </LanguageProvider>
         </WebVitalsProvider>
       </body>

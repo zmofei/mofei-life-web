@@ -214,11 +214,28 @@ export default function Comments(params: CommentsParams) {
         "I heard leaving a comment here is pretty cool."
     ];
 
-    const getRelativeTime = useCallback((timestamp: string, lang = 'en') => {
-        const now = Date.now();
-        const diff = now - new Date(timestamp).getTime();
-        const rtf = new Intl.RelativeTimeFormat(lang, { numeric: 'auto' });
+    const [currentTime, setCurrentTime] = useState<number | null>(null);
+    
+    // Initialize current time on client side only
+    useEffect(() => {
+        setCurrentTime(Date.now());
+        
+        // Update time every minute for relative time accuracy
+        const interval = setInterval(() => {
+            setCurrentTime(Date.now());
+        }, 60000);
+        
+        return () => clearInterval(interval);
+    }, []);
 
+    const getRelativeTime = useCallback((timestamp: string, lang = 'en') => {
+        // Return static fallback during SSR
+        if (currentTime === null) {
+            return new Date(timestamp).toLocaleDateString(lang === 'zh' ? 'zh-CN' : 'en-US');
+        }
+        
+        const diff = currentTime - new Date(timestamp).getTime();
+        const rtf = new Intl.RelativeTimeFormat(lang, { numeric: 'auto' });
 
         const seconds = Math.floor(diff / 1000);
         if (seconds < 60) return rtf.format(-seconds, 'second');
@@ -237,10 +254,16 @@ export default function Comments(params: CommentsParams) {
 
         const years = Math.floor(months / 12);
         return rtf.format(-years, 'year');
-    }, []);
+    }, [currentTime]);
 
-    const chineseMessagesIndex = useMemo(() => Math.floor(Math.random() * chineseMessages.length), [chineseMessages.length]);
-    const englishMessagesIndex = useMemo(() => Math.floor(Math.random() * englishMessages.length), [englishMessages.length]);
+    const [chineseMessagesIndex, setChineseMessagesIndex] = useState(0);
+    const [englishMessagesIndex, setEnglishMessagesIndex] = useState(0);
+    
+    // Initialize random indices on client side only
+    useEffect(() => {
+        setChineseMessagesIndex(Math.floor(Math.random() * chineseMessages.length));
+        setEnglishMessagesIndex(Math.floor(Math.random() * englishMessages.length));
+    }, [chineseMessages.length, englishMessages.length]);
 
     // Function to generate random offset for default avatars
     const getAvatarStyle = useCallback((email: string, name: string) => {
@@ -289,12 +312,15 @@ export default function Comments(params: CommentsParams) {
         // 从localStorage获取用户点赞状态
         const commentId = blog.id || blog._id || '';
         const likedKey = `comment_liked_${commentId}`;
-        const [isLiked, setIsLiked] = useState(() => {
-            if (typeof window !== 'undefined' && commentId) {
-                return localStorage.getItem(likedKey) === 'true';
+        const [isLiked, setIsLiked] = useState(blog.isLiked || false);
+        
+        // Initialize liked state from localStorage on client side
+        useEffect(() => {
+            if (commentId) {
+                const storedLiked = localStorage.getItem(likedKey) === 'true';
+                setIsLiked(storedLiked || blog.isLiked || false);
             }
-            return blog.isLiked || false;
-        });
+        }, [commentId, likedKey, blog.isLiked]);
         const [isLiking, setIsLiking] = useState(false);
         
         // Handle like action

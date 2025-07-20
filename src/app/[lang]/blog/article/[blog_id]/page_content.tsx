@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import HtmlToReact from './HtmlToReact';
 import SPALink from '@/components/Common/SPALink';
 import Image from "next/image";
@@ -10,6 +10,8 @@ import { trackEvent } from '@/lib/gtag';
 import VoiceFeatureNotice from '@/components/VoiceFeatureNotice';
 import AudioManager from '@/utils/audioManager';
 import { useBlogVisitTracker } from '@/hooks/useBlogVisitTracker';
+import { getBlogVisits } from '@/app/actions/blog';
+import { usePlaylist } from '@/components/Context/PlaylistContext';
 
 interface BlogContent {
     title: string;
@@ -25,13 +27,39 @@ export default function PageContent({ params }: { params: { content: BlogContent
     const { content: blog, lang, blog_id } = params;
     const [showWeChatModal, setShowWeChatModal] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
+    const [visitCount, setVisitCount] = useState<number>(blog.visited || 0);
+    const [loadingVisitCount, setLoadingVisitCount] = useState(true);
     const hasVoiceCommentary = blog.voice_commentary && blog.voice_commentary.trim().length > 0;
+    
+    // Playlist context for global audio control
+    const { playTrack, showPlaylist } = usePlaylist();
+    
+    // Create a stable fallback pubtime to prevent new Date() from being called repeatedly
+    const fallbackPubtime = useMemo(() => new Date().toISOString(), []);
     
     // Track blog visit for analytics
     useBlogVisitTracker(blog_id);
 
-    // Use visit count from blog content
-    const visitCount = blog.visited || 0;
+    // Get latest visit count from dedicated API
+    useEffect(() => {
+        const fetchLatestVisitCount = async () => {
+            setLoadingVisitCount(true);
+            try {
+                const latestCount = await getBlogVisits(blog_id);
+                console.log('Latest visit count:', latestCount, 'for blog:', blog_id);
+                setVisitCount(latestCount);
+            } catch (error) {
+                console.warn('Failed to fetch latest visit count:', error);
+                // Keep using the initial count from blog content
+                setVisitCount(blog.visited || 0);
+            } finally {
+                setLoadingVisitCount(false);
+            }
+        };
+
+        // Fetch latest count after component mounts
+        fetchLatestVisitCount();
+    }, [blog_id, blog.visited]);
 
     const handleWeChatClick = () => {
         trackEvent.navClick('WeChat Modal Open', 'Article WeChat Button');
@@ -42,15 +70,24 @@ export default function PageContent({ params }: { params: { content: BlogContent
         setShowWeChatModal(false);
     };
 
-    // 播放语音评论
-    const playVoiceCommentary = () => {
+    // 播放语音评论 - 使用全局播放列表
+    const playVoiceCommentary = useCallback(() => {
         if (hasVoiceCommentary) {
-            const audioManager = AudioManager.getInstance();
-            const audioSrc = `https://static.mofei.life/${blog.voice_commentary}`;
-            audioManager.toggle(audioSrc);
+            // Create a VoiceBlog object from current blog data
+            const voiceBlog = {
+                _id: blog_id,
+                title: blog.title,
+                voice_commentary: blog.voice_commentary!,
+                pubtime: blog.pubtime || fallbackPubtime,
+                introduction: ''
+            };
+            
+            // Play this track and show the playlist
+            playTrack(voiceBlog);
+            showPlaylist();
             trackEvent.navClick('Voice Commentary Play', `Article: ${blog.title}`);
         }
-    };
+    }, [hasVoiceCommentary, blog_id, blog.title, blog.voice_commentary, blog.pubtime, fallbackPubtime, playTrack, showPlaylist]);
 
     const stopVoiceCommentary = () => {
         const audioManager = AudioManager.getInstance();
@@ -93,18 +130,26 @@ export default function PageContent({ params }: { params: { content: BlogContent
         );
     };
 
-    // 检查当前音频是否正在播放
+    // 检查当前音频是否正在播放 - 优化检查频率
     useEffect(() => {
         if (!hasVoiceCommentary) return;
         
         const checkPlayingStatus = () => {
             const audioManager = AudioManager.getInstance();
             const audioSrc = `https://static.mofei.life/${blog.voice_commentary}`;
-            setIsPlaying(audioManager.isPlaying(audioSrc));
+            const newIsPlaying = audioManager.isPlaying(audioSrc);
+            
+            // 只在状态真正改变时才更新
+            setIsPlaying(prevIsPlaying => {
+                if (prevIsPlaying !== newIsPlaying) {
+                    return newIsPlaying;
+                }
+                return prevIsPlaying;
+            });
         };
         
-        // 定期检查播放状态
-        const interval = setInterval(checkPlayingStatus, 200);
+        // 减少检查频率，从200ms改为1000ms
+        const interval = setInterval(checkPlayingStatus, 1000);
         
         return () => clearInterval(interval);
     }, [hasVoiceCommentary, blog.voice_commentary]);
@@ -117,27 +162,35 @@ export default function PageContent({ params }: { params: { content: BlogContent
         />
         
         <div className="max-w-7xl mx-auto overflow-visible">
-            {/* Back Button and Visit Count */}
-            <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            {/* Back Button and Visit Count - 一行布局 */}
+            <div className="mb-4 md:mb-6 flex items-center justify-between gap-3">
                 {/* Back Button */}
                 <button
                     onClick={handleGoBack}
-                    className="inline-flex items-center gap-2 text-white/80 hover:text-white px-4 py-2 rounded-full bg-white/10 hover:bg-white/15 backdrop-blur-sm border border-white/20 transition-all duration-300 shadow-lg hover:shadow-xl w-fit"
+                    className="inline-flex items-center gap-2 text-white/80 hover:text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-white/10 hover:bg-white/15 backdrop-blur-sm border border-white/20 transition-all duration-300 shadow-lg hover:shadow-xl"
                 >
-                    <ChevronLeftIcon className="w-4 h-4" />
-                    <span className="text-sm font-medium">
+                    <ChevronLeftIcon className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span className="text-xs sm:text-sm font-medium">
                         {lang === 'zh' ? '返回' : 'Back'}
                     </span>
                 </button>
 
                 {/* Visit Count */}
-                <div className="inline-flex items-center gap-2 text-white/70 px-4 py-2 rounded-full bg-white/5 backdrop-blur-sm border border-white/10 shadow-lg w-fit">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="inline-flex items-center gap-1.5 sm:gap-2 text-white/70 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-white/5 backdrop-blur-sm border border-white/10 shadow-lg">
+                    <svg className={`w-3 h-3 sm:w-4 sm:h-4 ${loadingVisitCount ? 'animate-pulse' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                     </svg>
                     <span className="text-xs font-medium">
-                        {visitCount.toLocaleString()} {lang === 'zh' ? '次浏览' : 'views'}
+                        {loadingVisitCount ? (
+                            <span className="animate-pulse">
+                                {lang === 'zh' ? '更新中...' : 'Updating...'}
+                            </span>
+                        ) : (
+                            <>
+                                {visitCount.toLocaleString()} <span className="hidden xs:inline">{lang === 'zh' ? '次浏览' : 'views'}</span>
+                            </>
+                        )}
                     </span>
                 </div>
             </div>
@@ -154,56 +207,56 @@ export default function PageContent({ params }: { params: { content: BlogContent
                 {blog.title}
             </div>
 
-            {/* Publication date and Voice Commentary */}
-            <div className="mb-6 flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center gap-3 overflow-visible">
-                {/* Voice Commentary Button - 移动端显示在上方 */}
-                {hasVoiceCommentary && (
-                    <div className="order-1 sm:order-2">
+            {/* Publication date with inline Voice Commentary Button */}
+            {blog.pubtime && (
+                <div className="mb-4 md:mb-6">
+                    <div className="inline-flex items-center bg-gray-800/30 backdrop-blur-sm rounded-full px-3 py-1.5 sm:px-5 sm:py-2 border border-gray-700/30 shadow-lg">
+                        <svg className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 mr-1.5 sm:mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <span className="text-gray-400 text-xs sm:text-sm font-medium">
+                            <span className="hidden xs:inline">{lang === 'zh' ? '发布于 ' : 'Published '}</span>
+                            {formatDate(blog.pubtime)}
+                        </span>
+                    </div>
+                    
+                    {/* Voice Commentary Button - inline after publication date */}
+                    {hasVoiceCommentary && (
                         <VoiceFeatureNotice lang={lang} hasVoiceCommentary={!!hasVoiceCommentary}>
                             <button
                                 onClick={isPlaying ? stopVoiceCommentary : playVoiceCommentary}
-                                className="inline-flex items-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-medium rounded-full px-5 py-2 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl border border-green-500/20 backdrop-blur-sm min-w-0 flex-shrink-0"
+                                className="inline-flex items-center gap-1 sm:gap-1.5 text-white font-medium rounded-full px-2 py-1 sm:px-3 sm:py-1.5 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl border backdrop-blur-sm ml-2 sm:ml-3 align-middle text-xs sm:text-sm"
                                 style={{
                                     background: isPlaying 
                                         ? 'linear-gradient(135deg, rgba(239,68,68,0.9) 0%, rgba(220,38,38,0.9) 100%)'
                                         : 'linear-gradient(135deg, rgba(16,185,129,0.9) 0%, rgba(5,150,105,0.9) 100%)',
                                     boxShadow: isPlaying 
-                                        ? '0 4px 12px rgba(239,68,68,0.3), 0 0 0 1px rgba(239,68,68,0.2)'
-                                        : '0 4px 12px rgba(16,185,129,0.3), 0 0 0 1px rgba(16,185,129,0.2)'
+                                        ? '0 2px 8px rgba(239,68,68,0.3), 0 0 0 1px rgba(239,68,68,0.2)'
+                                        : '0 2px 8px rgba(16,185,129,0.3), 0 0 0 1px rgba(16,185,129,0.2)',
+                                    borderColor: isPlaying 
+                                        ? 'rgba(239,68,68,0.3)'
+                                        : 'rgba(16,185,129,0.3)'
                                 }}
                             >
                                 {isPlaying ? (
-                                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                    <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5" fill="currentColor" viewBox="0 0 24 24">
                                         <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
                                     </svg>
                                 ) : (
-                                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                    <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5" fill="currentColor" viewBox="0 0 24 24">
                                         <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
                                     </svg>
                                 )}
-                                <span className="text-xs md:text-sm">
+                                <span className="font-medium">
                                     {isPlaying 
-                                        ? (lang === 'zh' ? '停止播放' : 'Stop')
-                                        : (lang === 'zh' ? '🎧 听语音版' : '🎧 Listen')}
+                                        ? (lang === 'zh' ? '停止' : 'Stop')
+                                        : (lang === 'zh' ? '🎙️ 听解读' : '🎙️ Commentary')}
                                 </span>
                             </button>
                         </VoiceFeatureNotice>
-                    </div>
-                )}
-                
-                {/* Publication date - 移动端显示在下方 */}
-                {blog.pubtime && (
-                    <div className="order-2 sm:order-1 inline-flex items-center bg-gray-800/30 backdrop-blur-sm rounded-full px-5 py-2 border border-gray-700/30 shadow-lg">
-                        <svg className="w-4 h-4 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                        <span className="text-gray-400 text-xs md:text-sm font-medium">
-                            {lang === 'zh' ? '发布于 ' : 'Published '}
-                            {formatDate(blog.pubtime)}
-                        </span>
-                    </div>
-                )}
-            </div>
+                    )}
+                </div>
+            )}
         </div>
         <div className='max-w-7xl mx-auto prose-stone prose-xl-invert overflow-y-auto break-words 
                   prose-base prose-gray-300
@@ -258,12 +311,12 @@ export default function PageContent({ params }: { params: { content: BlogContent
             <div className="relative z-10">
                 {(() => {
                     try {
-                        // 使用 HtmlToReact 进行渲染
-                        return <HtmlToReact htmlString={blog.html} />;
+                        // 使用 HtmlToReact 进行渲染，添加稳定的key防止重复渲染
+                        return <HtmlToReact key={blog_id} htmlString={blog.html} />;
                     } catch (error) {
                         console.error("HtmlToReact failed:", error);
                         // HtmlToReact 渲染失败时回退到 dangerouslySetInnerHTML
-                        return <div dangerouslySetInnerHTML={{ __html: blog.html }} />;
+                        return <div key={blog_id} dangerouslySetInnerHTML={{ __html: blog.html }} />;
                     }
                 })()}
 

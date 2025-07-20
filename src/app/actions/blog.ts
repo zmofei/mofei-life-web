@@ -89,3 +89,51 @@ export async function recordBlogVisit(blogId: string) {
   }
 }
 
+export async function getBlogVisits(blogId: string) {
+  const URL = `${NEW_API_URL}/blog/visits/${blogId}`;
+  try {
+    const res = await fetch(URL, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      cache: "no-store", // 不使用缓存，获取最新数据
+    });
+    if (!res.ok) {
+      console.warn(`Failed to get visits for blog ${blogId}:`, res.status);
+      return 0;
+    }
+    const data = await res.json();
+    return data.visited || 0;
+  } catch (error) {
+    console.warn(`Failed to get visits for blog ${blogId}:`, error);
+    return 0;
+  }
+}
+
+export async function fetchVoiceBlogList(page = 1, lang = "en") {
+  const URL = `${NEW_API_URL}/blog/voice/list/${page}?lang=${lang}`;
+  try {
+    const res = await fetch(URL, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      cache: "no-store", // 获取最新的语音文章列表
+    });
+    if (!res.ok) {
+      console.warn(`Failed to fetch voice blog list page ${page}:`, res.status);
+      return { list: [], total: 0, totalPages: 0 };
+    }
+    const data = await res.json();
+    return {
+      list: data.list || [],
+      total: data.total || 0,
+      totalPages: data.totalPages || 0
+    };
+  } catch (error) {
+    console.warn(`Failed to fetch voice blog list:`, error);
+    return { list: [], total: 0, totalPages: 0 };
+  }
+}
+

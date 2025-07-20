@@ -101,6 +101,7 @@ function processCoverInfo(coverInfo: string | null | { cover?: string; title?: s
 
 export async function fetchBlogContent(blog_id = "", lang = "en") {
   const URL = `${API_URL}/blog/article/${blog_id}?lang=${lang}`;
+  console.log(URL)
   const response = await fetch(URL, {
     next: { revalidate: 10 },
   });

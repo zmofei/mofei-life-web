@@ -3,8 +3,8 @@
 import { useLanguage } from "@/components/Context/LanguageContext"
 import { useScrolling } from "@/components/util/useScrolling"
 import Image from 'next/image'
-import AudioManager from '@/utils/audioManager'
-import { useState, useEffect } from 'react'
+import { usePlaylist } from '@/components/Context/PlaylistContext'
+import { useMemo } from 'react'
 
 // 标签翻译和图标映射
 const getTagDisplay = (tag: { id: number; name: string; color?: string }, lang: 'zh' | 'en') => {
@@ -52,6 +52,7 @@ const getTagDisplay = (tag: { id: number; name: string; color?: string }, lang: 
 export default function TechCard({ blog }: { blog: any; index: number }) {
     const lang = useLanguage().lang
     const isScrolling = useScrolling(150)
+    const { playTrack, showPlaylist, togglePlay, currentTrack, isPlaying: globalIsPlaying } = usePlaylist()
 
     // Use preprocessed data from server
     const title = (lang === 'en' ? blog.processedTitle?.en : blog.processedTitle?.zh) || blog.title
@@ -70,30 +71,31 @@ export default function TechCard({ blog }: { blog: any; index: number }) {
             day: "numeric",
         })
 
-    // 音频播放状态
-    const [isPlaying, setIsPlaying] = useState(false)
-    const audioSrc = `https://static.mofei.life/${blog.voice_commentary}`
+    // Create VoiceBlog object for playlist
+    const voiceBlog = useMemo(() => ({
+        _id: blog._id,
+        title: blog.title,
+        voice_commentary: blog.voice_commentary,
+        pubtime: blog.pubtime,
+        introduction: blog.introduction || ''
+    }), [blog._id, blog.title, blog.voice_commentary, blog.pubtime, blog.introduction])
 
-    // 检查当前音频是否正在播放
-    useEffect(() => {
-        const checkPlayingStatus = () => {
-            const audioManager = AudioManager.getInstance()
-            setIsPlaying(audioManager.isPlaying(audioSrc))
-        }
-        
-        // 定期检查播放状态
-        const interval = setInterval(checkPlayingStatus, 200)
-        
-        return () => clearInterval(interval)
-    }, [audioSrc])
+    // Check if this blog is currently playing
+    const isCurrentlyPlaying = currentTrack?._id === blog._id && globalIsPlaying
 
-    // 播放语音评论
+    // 播放语音评论 - 使用全局播放器，支持暂停
     const playVoiceCommentary = (e: React.MouseEvent) => {
         e.preventDefault()
         e.stopPropagation()
         if (hasVoiceCommentary) {
-            const audioManager = AudioManager.getInstance()
-            audioManager.toggle(audioSrc)
+            // 如果当前正在播放这个音频，则暂停/恢复
+            if (isCurrentlyPlaying) {
+                togglePlay()
+            } else {
+                // 否则播放这个音频
+                playTrack(voiceBlog)
+                showPlaylist()
+            }
         }
     }
 
@@ -163,9 +165,12 @@ export default function TechCard({ blog }: { blog: any; index: number }) {
                                 WebkitAppearance: 'none',
                                 WebkitTapHighlightColor: 'transparent'
                             }}
-                            title={lang === 'zh' ? '播放语音版本' : 'Play Voice Version'}
+                            title={isCurrentlyPlaying 
+                                ? (lang === 'zh' ? '暂停播放' : 'Pause')
+                                : (lang === 'zh' ? '听语音解读' : 'Audio Commentary')
+                            }
                         >
-{isPlaying ? (
+{isCurrentlyPlaying ? (
                                 <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
                                 </svg>
