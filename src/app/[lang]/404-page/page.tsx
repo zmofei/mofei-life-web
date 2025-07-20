@@ -1,7 +1,6 @@
 "use client"
 
 import { motion, useAnimation } from "motion/react";
-import Image from "next/image";
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 
