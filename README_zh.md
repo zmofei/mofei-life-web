@@ -23,6 +23,8 @@
 
 - **多语言支持**: 完整的中英文双语支持
 - **现代化UI**: 美观的响应式设计，流畅的动画效果
+- **语音评论**: 博客文章音频旁白，带有喇叭图标
+- **SPA导航**: 单页应用体验，同时保留SSR优势
 - **交互式评论**: 实时评论系统，支持用户头像
 - **微信集成**: 微信公众号二维码分享
 - **博客系统**: 动态博客文章，支持丰富内容
@@ -103,10 +105,13 @@ src/
 │   └── actions/           # 服务器操作
 ├── components/            # 可复用组件
 │   ├── Comments/          # 评论系统
-│   ├── Common/            # 共享组件
+│   ├── Common/            # 共享组件 (SPALink, Pagination)
+│   ├── Context/           # React 上下文 (Router, Language)
 │   ├── Home/              # 首页组件
+│   ├── util/              # 工具组件 (SPATransition, VoiceFeatureNotice)
 │   └── ui/                # UI 组件
 ├── lib/                   # 工具函数
+├── utils/                 # 音频管理和工具类
 └── styles/               # 全局样式
 ```
 
@@ -114,6 +119,7 @@ src/
 
 项目集成了自定义 API 用于：
 - 博客内容管理
+- 语音评论音频文件（通过 static.mofei.life 提供）
 - 评论系统
 - 用户认证
 - RSS 订阅生成
