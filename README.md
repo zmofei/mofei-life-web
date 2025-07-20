@@ -22,6 +22,8 @@ This evolution showcases how developers can effectively integrate AI tools while
 
 - **Multilingual Support**: Full support for both Chinese and English
 - **Modern UI**: Beautiful, responsive design with smooth animations
+- **Voice Commentary**: Audio narration for blog posts with speaker icons
+- **SPA Navigation**: Single Page Application experience while preserving SSR benefits
 - **Interactive Comments**: Real-time comment system with user avatars
 - **WeChat Integration**: QR code sharing for WeChat public accounts
 - **Blog System**: Dynamic blog posts with rich content support
@@ -102,10 +104,13 @@ src/
 │   └── actions/           # Server actions
 ├── components/            # Reusable components
 │   ├── Comments/          # Comment system
-│   ├── Common/            # Shared components
+│   ├── Common/            # Shared components (SPALink, Pagination)
+│   ├── Context/           # React contexts (Router, Language)
 │   ├── Home/              # Homepage components
+│   ├── util/              # Utility components (SPATransition, VoiceFeatureNotice)
 │   └── ui/                # UI components
 ├── lib/                   # Utility functions
+├── utils/                 # Audio management and utilities
 └── styles/               # Global styles
 ```
 
@@ -113,6 +118,7 @@ src/
 
 The project integrates with a custom API for:
 - Blog content management
+- Voice commentary audio files (served from static.mofei.life)
 - Comment system
 - User authentication
 - RSS feed generation
