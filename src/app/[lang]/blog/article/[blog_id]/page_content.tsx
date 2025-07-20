@@ -10,6 +10,7 @@ import { trackEvent } from '@/lib/gtag';
 import VoiceFeatureNotice from '@/components/VoiceFeatureNotice';
 import AudioManager from '@/utils/audioManager';
 import { useBlogVisitTracker } from '@/hooks/useBlogVisitTracker';
+import { getBlogVisitCount } from '@/app/actions/blog';
 
 interface BlogContent {
     title: string;
@@ -24,10 +25,28 @@ export default function PageContent({ params }: { params: { content: BlogContent
     const { content: blog, lang, blog_id } = params;
     const [showWeChatModal, setShowWeChatModal] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
+    const [visitCount, setVisitCount] = useState<number>(0);
+    const [loadingVisitCount, setLoadingVisitCount] = useState(true);
     const hasVoiceCommentary = blog.voice_commentary && blog.voice_commentary.trim().length > 0;
     
     // Track blog visit for analytics
     useBlogVisitTracker(blog_id);
+
+    // Get visit count
+    useEffect(() => {
+        const fetchVisitCount = async () => {
+            try {
+                const count = await getBlogVisitCount(blog_id);
+                setVisitCount(count);
+            } catch (error) {
+                console.warn('Failed to fetch visit count:', error);
+            } finally {
+                setLoadingVisitCount(false);
+            }
+        };
+
+        fetchVisitCount();
+    }, [blog_id]);
 
     const handleWeChatClick = () => {
         trackEvent.navClick('WeChat Modal Open', 'Article WeChat Button');
@@ -51,6 +70,27 @@ export default function PageContent({ params }: { params: { content: BlogContent
     const stopVoiceCommentary = () => {
         const audioManager = AudioManager.getInstance();
         audioManager.stop();
+    };
+
+    // Handle back navigation
+    const handleGoBack = () => {
+        // Check if user came from within the site
+        if (typeof window !== 'undefined' && window.history.length > 1) {
+            // Try to go back in browser history
+            const referrer = document.referrer;
+            if (referrer && referrer.includes(window.location.hostname)) {
+                window.history.back();
+                trackEvent.navClick('Back Button', 'Article Back - History');
+            } else {
+                // Fallback to blog list
+                window.location.href = `/${lang}/blog/1`;
+                trackEvent.navClick('Back Button', 'Article Back - Blog List');
+            }
+        } else {
+            // Fallback to blog list
+            window.location.href = `/${lang}/blog/1`;
+            trackEvent.navClick('Back Button', 'Article Back - Blog List Fallback');
+        }
     };
 
     // Format publication date
@@ -92,6 +132,39 @@ export default function PageContent({ params }: { params: { content: BlogContent
         />
         
         <div className="max-w-7xl mx-auto overflow-visible">
+            {/* Back Button and Visit Count */}
+            <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                {/* Back Button */}
+                <button
+                    onClick={handleGoBack}
+                    className="inline-flex items-center gap-2 text-white/80 hover:text-white px-4 py-2 rounded-full bg-white/10 hover:bg-white/15 backdrop-blur-sm border border-white/20 transition-all duration-300 shadow-lg hover:shadow-xl w-fit"
+                >
+                    <ChevronLeftIcon className="w-4 h-4" />
+                    <span className="text-sm font-medium">
+                        {lang === 'zh' ? '返回' : 'Back'}
+                    </span>
+                </button>
+
+                {/* Visit Count */}
+                <div className="inline-flex items-center gap-2 text-white/70 px-4 py-2 rounded-full bg-white/5 backdrop-blur-sm border border-white/10 shadow-lg w-fit">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    <span className="text-xs font-medium">
+                        {loadingVisitCount ? (
+                            <span className="animate-pulse">
+                                {lang === 'zh' ? '加载中...' : 'Loading...'}
+                            </span>
+                        ) : (
+                            <>
+                                {visitCount.toLocaleString()} {lang === 'zh' ? '次浏览' : 'views'}
+                            </>
+                        )}
+                    </span>
+                </div>
+            </div>
+
             <div className='
                       font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#a1c4fd] to-[#c2e9fb] 
                       text-2xl 
