@@ -6,8 +6,8 @@ const VALID_LANGUAGES = ['en', 'zh'];
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Skip processing for 404 page to avoid infinite loops
-  if (pathname === "/en/404-page") {
+  // Skip processing for not-found page to avoid infinite loops
+  if (pathname === "/not-found") {
     return NextResponse.next();
   }
 
@@ -36,15 +36,11 @@ export function middleware(request: NextRequest) {
   // Check if this looks like a language code (2-3 characters) but is invalid
   if (lang.length <= 3 && /^[a-z-]+$/i.test(lang)) {
     // Looks like a language code but invalid, rewrite to 404
-    const url = request.nextUrl.clone();
-    url.pathname = '/en/404-page';
-    return NextResponse.rewrite(url);
+    return NextResponse.rewrite(new URL('/not-found', request.url));
   }
 
-  // Doesn't look like a language code, redirect to default language
-  const url = request.nextUrl.clone();
-  url.pathname = `/en${pathname}`;
-  return NextResponse.redirect(url, 307);
+  // For any other unknown path that's not a valid language, show 404
+  return NextResponse.rewrite(new URL('/not-found', request.url));
 }
 
 export const config = {

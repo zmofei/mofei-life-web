@@ -39,12 +39,12 @@ function Foot(params: { lang: string; isHomePage?: boolean }) {
             </div>
 
             <div className="w-full relative z-10">
-                <div className="max-w-[2000px] mx-auto flex flex-col md:flex-row justify-between items-start md:items-start
+                <div className="max-w-[2000px] mx-auto flex flex-col xl:flex-row justify-between items-start xl:items-start
                     text-2xl px-5 md:px-10 lg:px-16  py-10 ">
 
                     {/* 左侧：版权信息 */}
                     <div
-                        className="rounded-2xl px-4 py-3 border border-white/20 mb-6 md:mb-0"
+                        className="rounded-2xl px-4 py-3 border border-white/20 mb-6 xl:mb-0 xl:mr-8"
                         style={{
                             background: 'rgba(255,255,255,0.1)',
                             backdropFilter: 'blur(8px)',
@@ -57,10 +57,10 @@ function Foot(params: { lang: string; isHomePage?: boolean }) {
                     </div>
 
                     {/* 右侧：两行链接 */}
-                    <div className="flex flex-col gap-8 items-start md:items-end w-full md:w-auto">
+                    <div className="flex flex-col gap-8 items-start xl:items-end w-full xl:w-auto">
                         {/* 第一行：导航链接 */}
                         <div
-                            className="grid grid-cols-2 sm:grid-cols-3 md:flex md:flex-row gap-3 p-3 rounded-2xl border border-white/20 w-full md:w-auto"
+                            className="grid grid-cols-2 sm:grid-cols-3 xl:flex xl:flex-row gap-3 p-3 rounded-2xl border border-white/20 w-full xl:w-auto"
                             style={{
                                 background: 'rgba(255,255,255,0.08)',
                                 backdropFilter: 'blur(8px)',
@@ -117,7 +117,7 @@ function Foot(params: { lang: string; isHomePage?: boolean }) {
 
                         {/* 第二行：社交媒体链接 */}
                         <div
-                            className="grid grid-cols-2 sm:grid-cols-3 md:flex md:flex-row gap-3 p-3 rounded-2xl border border-white/20 w-full md:w-auto"
+                            className="grid grid-cols-2 sm:grid-cols-3 xl:flex xl:flex-row gap-3 p-3 rounded-2xl border border-white/20 w-full xl:w-auto"
                             style={{
                                 background: 'rgba(255,255,255,0.08)',
                                 backdropFilter: 'blur(8px)',

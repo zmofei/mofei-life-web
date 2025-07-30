@@ -5,6 +5,7 @@ import Pagination from '@/components/Common/Pagination';
 import { usePerformance } from '@/hooks/usePerformance';
 import { trackEvent } from '@/lib/gtag';
 import { useEffect, useState, useRef, useMemo, memo, useCallback } from 'react';
+import Image from 'next/image';
 
 import { fetchMessageList, getToken, postMessage, likeComment } from '@/app/actions/blog'
 
@@ -111,6 +112,15 @@ export default function Comments(params: CommentsParams) {
     }, [])
 
 
+    const handleInput = useCallback(() => {
+        if (!editableDivRef.current) return;
+        
+        // Get plain text content with line breaks preserved
+        const textContent = editableDivRef.current.innerText || '';
+        
+        setMessageInput(textContent);
+    }, []);
+
     const handlePaste = useCallback((event: { preventDefault: () => void; clipboardData: DataTransfer; }) => {
         event.preventDefault();
         const text = (event.clipboardData || window.Clipboard).getData("text");
@@ -135,12 +145,12 @@ export default function Comments(params: CommentsParams) {
         // Clear old selection and set new cursor position
         selection.removeAllRanges();
         selection.addRange(range);
-    }, []);
-
-    const handleInput = useCallback(() => {
-        const updatedContent = editableDivRef.current ? editableDivRef.current.innerText : ''; // Get plain text content
-        setMessageInput(updatedContent);
-    }, []);
+        
+        // Manually trigger handleInput to update messageInput state
+        setTimeout(() => {
+            handleInput();
+        }, 0);
+    }, [handleInput]);
 
     const handleEmail = useCallback((email: string) => {
         setHashemail(sha256(email).toString())
@@ -151,7 +161,6 @@ export default function Comments(params: CommentsParams) {
             return
         }
         setIsPosting(true)
-
 
         postMessage(message_id, {
             content: messageInput,
@@ -466,10 +475,12 @@ export default function Comments(params: CommentsParams) {
                     <div className='flex gap-3 md:gap-6 relative z-10'>
                         {/* 左侧：头像区域 */}
                         <div className='flex-shrink-0'>
-                            <img 
+                            <Image 
                                 alt='avatar' 
                                 className="rounded-2xl shadow-xl ring-2 ring-white/20 w-12 h-12 md:w-16 md:h-16 object-cover" 
                                 src={`https://assets-eu.mofei.life/gravatar/${blog.email || '0000000000'}?s=200`}
+                                width={64}
+                                height={64}
                                 loading="lazy"
                                 style={{ transition: 'none' }}
                             />
@@ -526,8 +537,8 @@ export default function Comments(params: CommentsParams) {
                             </div>
                             
                             {/* 内容区域 */}
-                            <div className='text-sm md:text-base'>
-                                <div className="text-gray-100 leading-relaxed prose prose-invert max-w-none text-sm md:text-lg">
+                            <div className='text-sm md:text-base [&_p]:my-2 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0 [&_ul]:my-2 [&_ul:first-child]:mt-0 [&_ul:last-child]:mb-0 [&_li]:my-1 [&_ul]:marker:text-white/60 [&_ol]:marker:text-white/60'>
+                                <div className="text-gray-100 leading-relaxed prose prose-invert max-w-none text-sm md:text-base [&>p]:my-2 [&>p:first-child]:mt-0 [&>p:last-child]:mb-0">
                                     {/* 显示翻译内容（已缓存，不会重新渲染） */}
                                     {translatedContent}
                                     
@@ -548,7 +559,7 @@ export default function Comments(params: CommentsParams) {
                                     {showOriginal && shouldShowOriginalButton && originalContent}
                                     
                                     {/* 点赞按钮 - 单独一行右对齐 */}
-                                    <div className="flex items-center justify-end mt-3">
+                                    <div className="flex items-center justify-start mt-3">
                                         <button
                                             onClick={handleLike}
                                             disabled={isLiking}
@@ -597,18 +608,20 @@ export default function Comments(params: CommentsParams) {
                 <div className='bg-white/10 backdrop-blur-lg rounded-2xl p-4 md:p-8 border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-500 relative group overflow-hidden break-all text-sm md:text-base'>
                     <div className='bg-transparent rounded-2xl break-all text-sm md:text-xl flex flex-col md:flex-row'>
                         <div className='w-12 h-12 md:w-16 md:h-16 flex-shrink-0 mb-4 md:mb-0 md:mr-6 mx-auto md:mx-0'>
-                            <img 
+                            <Image 
                                 alt='avatar' 
                                 className='rounded-2xl shadow-xl ring-2 ring-white/20 hover:ring-[#f05a54]/40 cursor-pointer w-12 h-12 md:w-16 md:h-16 object-cover'
                                 onClick={() => setEdit(!edit)}
                                 src={`https://assets-eu.mofei.life/gravatar/${hashemail || '0000000000'}?s=200`}
+                                width={64}
+                                height={64}
                                 loading="lazy"
                                 style={{ transition: 'none' }}
                             /></div>
 
                         <div className='flex-1 text-sm md:text-base'>
-                            <h2 className='font-bold text-lg md:text-2xl mb-4 cursor-pointer group hover:text-[#f05a54] transition-colors duration-300 text-center md:text-left' onClick={() => setEdit(!edit)}>
-                                <span className='text-white group-hover:text-[#f05a54] transition-colors duration-300 drop-shadow-lg'>
+                            <h2 className='font-bold text-lg md:text-2xl mb-4 cursor-pointer group hover:text-white/80 transition-colors duration-300 text-center md:text-left' onClick={() => setEdit(!edit)}>
+                                <span className='text-white group-hover:text-white/80 transition-colors duration-300 drop-shadow-lg'>
                                     {username ? username : 'Mofei\'s Friend'} </span>
                                 <span className='text-gray-400 text-sm font-medium group-hover:text-gray-300 transition-colors duration-300 ml-2'> 
                                     ({lang == 'zh' ? '点击编辑' : 'Click to edit'})
@@ -698,10 +711,17 @@ export default function Comments(params: CommentsParams) {
                                 <div 
                                     contentEditable 
                                     translate='no' 
-                                    className='outline-none min-h-[60px] md:min-h-[100px] bg-white/10 backdrop-blur-lg rounded-2xl p-2 md:p-4 border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-500 relative group overflow-hidden focus:border-[#f05a54]/50 focus:ring-2 focus:ring-[#f05a54]/20 text-white text-sm md:text-base' 
+                                    className='outline-none min-h-[60px] md:min-h-[100px] max-h-[300px] md:max-h-[400px] overflow-y-auto bg-white/10 backdrop-blur-lg rounded-2xl p-2 md:p-4 border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-500 relative group focus:border-[#f05a54]/50 focus:ring-2 focus:ring-[#f05a54]/20 text-white text-sm md:text-base whitespace-pre-wrap' 
                                     ref={editableDivRef} 
                                     onPaste={handlePaste} 
-                                    onInput={handleInput} 
+                                    onInput={handleInput}
+                                    onKeyDown={(e) => {
+                                        // Allow Enter key for line breaks
+                                        if (e.key === 'Enter' && !e.shiftKey) {
+                                            // Don't submit on Enter, just create line break
+                                            // User can use Ctrl+Enter or Cmd+Enter to submit if needed later
+                                        }
+                                    }}
                                 />
                                 <div className='absolute top-2 md:top-4 left-2 md:left-4 py-0 pointer-events-none text-gray-400 truncate w-[calc(100%-1rem)] md:w-full text-xs md:text-base'>{(
                                     messageInput !== '' && messageInput !== '\n'

@@ -9,6 +9,7 @@ import Lan from "@/components/util/Language";
 import { use, useMemo, Suspense, useState } from 'react';
 import Foot from '@/components/Common/Foot';
 import { StaggerContainer, StaggerItem } from '@/components/util/PageTransition';
+import { notFound } from 'next/navigation';
 
 // Extract skills data outside component to avoid repeated creation
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -84,6 +85,12 @@ const SKILLS_DATA = [
 export default function Home({ params }: { params: Promise<{ lang: string }> }) {
 
   const { lang } = use(params);
+  
+  // Validate language parameter
+  const VALID_LANGUAGES = ['en', 'zh'];
+  if (!VALID_LANGUAGES.includes(lang)) {
+    notFound();
+  }
   const [expandedSkills, setExpandedSkills] = useState<Set<number>>(new Set());
 
   const toggleAllSkills = () => {
