@@ -35,6 +35,7 @@ export async function getToken() {
 
 interface PostMessageData {
   content: string;
+  replyId?: string; // Add support for reply functionality
   [key: string]: string | number | boolean | null | undefined; // Optional for additional fields
 }
 
