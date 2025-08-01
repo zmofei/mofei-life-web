@@ -69,13 +69,6 @@ export default function Comments(params: CommentsParams) {
     // Initialize current time on client side only
     useEffect(() => {
         setCurrentTime(Date.now());
-        
-        // Update time every minute for relative time accuracy
-        const interval = setInterval(() => {
-            setCurrentTime(Date.now());
-        }, 60000);
-        
-        return () => clearInterval(interval);
     }, []);
 
     const getRelativeTime = useCallback((timestamp: string, lang = 'en') => {
