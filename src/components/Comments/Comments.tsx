@@ -117,6 +117,7 @@ export default function Comments(params: CommentsParams) {
                 name: username,
                 website,
                 replyId: commentId,
+                lang: lang as 'zh' | 'en',
             })
             
             // Track comment submission event
@@ -200,6 +201,7 @@ export default function Comments(params: CommentsParams) {
                             email,
                             name,
                             website,
+                            lang: lang as 'zh' | 'en',
                         }).then(() => {
                             // Track comment submission event
                             trackEvent.commentSubmit(message_id);
