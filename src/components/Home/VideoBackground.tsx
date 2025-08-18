@@ -24,13 +24,13 @@ const VideoBackground = ({ isFullPage = false }: { isFullPage?: boolean }) => {
                         loop
                         muted
                         playsInline
-                        poster="//cdn.zhuwenlong.com/image/index/cover-820e030cca.jpg"
+                        poster="//static.mofei.life/image/index/cover-820e030cca.jpg"
                         onLoadedData={() => setVideoLoaded(true)}
                         preload="metadata"
                     >
-                        <source src="//cdn.zhuwenlong.com/video/bgvideo-0c73e2c57a.mp4" type="video/mp4" />
-                        <source src="//cdn.zhuwenlong.com/video/bgvideo-513397179e.webm" type="video/webm" />
-                        <source src="//cdn.zhuwenlong.com/video/bgvideo-5428b1617d.ogv" type="video/ogg" />
+                        <source src="//static.mofei.life/video/bgvideo-0c73e2c57a.mp4" type="video/mp4" />
+                        <source src="//static.mofei.life/video/bgvideo-513397179e.webm" type="video/webm" />
+                        <source src="//static.mofei.life/video/bgvideo-5428b1617d.ogv" type="video/ogg" />
                     </video>
                 )}
                 
@@ -39,7 +39,7 @@ const VideoBackground = ({ isFullPage = false }: { isFullPage?: boolean }) => {
                     <div 
                         className="fixed top-0 left-0 w-full h-full bg-cover bg-center z-[-10]"
                         style={{
-                            backgroundImage: 'url(//cdn.zhuwenlong.com/image/index/cover-820e030cca.jpg)'
+                            backgroundImage: 'url(//static.mofei.life/image/index/cover-820e030cca.jpg)'
                         }}
                     />
                 )}
@@ -68,13 +68,13 @@ const VideoBackground = ({ isFullPage = false }: { isFullPage?: boolean }) => {
                     loop
                     muted
                     playsInline
-                    poster="//cdn.zhuwenlong.com/image/index/cover-820e030cca.jpg"
+                    poster="//static.mofei.life/image/index/cover-820e030cca.jpg"
                     onLoadedData={() => setVideoLoaded(true)}
                     preload="metadata"
                 >
-                    <source src="//cdn.zhuwenlong.com/video/bgvideo-0c73e2c57a.mp4" type="video/mp4" />
-                    <source src="//cdn.zhuwenlong.com/video/bgvideo-513397179e.webm" type="video/webm" />
-                    <source src="//cdn.zhuwenlong.com/video/bgvideo-5428b1617d.ogv" type="video/ogg" />
+                    <source src="//static.mofei.life/video/bgvideo-0c73e2c57a.mp4" type="video/mp4" />
+                    <source src="//static.mofei.life/video/bgvideo-513397179e.webm" type="video/webm" />
+                    <source src="//static.mofei.life/video/bgvideo-5428b1617d.ogv" type="video/ogg" />
                 </video>
             )}
             
@@ -83,7 +83,7 @@ const VideoBackground = ({ isFullPage = false }: { isFullPage?: boolean }) => {
                 <div 
                     className="absolute top-0 left-0 w-full h-full bg-cover bg-center -z-10"
                     style={{
-                        backgroundImage: 'url(//cdn.zhuwenlong.com/image/index/cover-820e030cca.jpg)'
+                        backgroundImage: 'url(//static.mofei.life/image/index/cover-820e030cca.jpg)'
                     }}
                 />
             )}

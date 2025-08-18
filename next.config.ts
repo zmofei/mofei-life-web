@@ -8,18 +8,18 @@ const nextConfig: NextConfig = {
     removeConsole: process.env.NODE_ENV === "production",
   },
   experimental: {
-    optimizePackageImports: ['@heroicons/react', 'motion', 'react-photo-view'],
+    optimizePackageImports: ["@heroicons/react", "motion", "react-photo-view"],
   },
   // Bundle analyzer and optimization
   webpack: (config, { dev, isServer }) => {
     // Optimize chunk splitting
     if (!dev && !isServer) {
       config.optimization.splitChunks = {
-        chunks: 'all',
+        chunks: "all",
         cacheGroups: {
           vendor: {
             test: /[\\/]node_modules[\\/]/,
-            name: 'vendors',
+            name: "vendors",
             priority: 10,
             reuseExistingChunk: true,
           },
@@ -74,18 +74,13 @@ const nextConfig: NextConfig = {
   },
   images: {
     // Performance optimizations for images
-    formats: ['image/webp', 'image/avif'],
+    formats: ["image/webp", "image/avif"],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     minimumCacheTTL: 60,
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "cdn.zhuwenlong.com",
-        pathname: "**",
-      },
       {
         protocol: "https",
         hostname: "www.zhuwenlong.com",
