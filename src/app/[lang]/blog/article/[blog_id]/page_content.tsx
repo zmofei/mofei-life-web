@@ -260,7 +260,7 @@ export default function PageContent({ params }: { params: { content: BlogContent
         </div>
         <div className='max-w-7xl mx-auto prose-stone prose-xl-invert overflow-y-auto break-words 
                   prose-base prose-gray-300
-                  md:prose-xl lg:prose-2xl
+                  md:prose-xl lg:prose-xl
                   custom-paragraph leading-relaxed
                   bg-white/10 backdrop-blur-lg rounded-xl md:rounded-2xl 
                   p-3 py-4 md:p-8 md:py-6 lg:p-8
