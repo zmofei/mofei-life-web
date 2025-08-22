@@ -10,16 +10,13 @@ function stringToNumberHash(str: string): number {
 }
 
 function processCoverInfo(
-  coverInfo:
-    | string
-    | null
-    | {
-        cover?: string;
-        title?: string;
-        title_en?: string;
-        description?: string;
-        description_en?: string;
-      },
+  blog: {
+    cover?: string;
+    title?: string;
+    title_en?: string;
+    introduction?: string;
+    introduction_en?: string;
+  },
   blogId: string,
   tags?: Array<{ id: number; name: string; color?: string }>
 ) {
@@ -78,25 +75,14 @@ function processCoverInfo(
     fallbackCover = candidateCovers[candidateIndex];
   }
 
-  let parsedCoverInfo = null;
-  if (coverInfo) {
-    if (typeof coverInfo === "object") {
-      // If coverInfo is already an object, use it directly
-      parsedCoverInfo = coverInfo;
-    } else {
-      try {
-        // Try to fix common JSON format issues
-        let jsonString = coverInfo;
-        // Replace single quotes with double quotes
-        jsonString = jsonString.replace(/\n/g, "");
-        jsonString = jsonString.replace(/,(\s)*}$/, "}");
-        parsedCoverInfo = JSON.parse(jsonString);
-      } catch (error) {
-        console.error("Error parsing cover_info JSON:", error);
-        parsedCoverInfo = null;
-      }
-    }
-  }
+  // Now data comes directly from table fields
+  const parsedCoverInfo = {
+    cover: blog.cover,
+    title: blog.title,
+    title_en: blog.title_en,
+    description: blog.introduction,
+    description_en: blog.introduction_en,
+  };
 
   return {
     processedCover: parsedCoverInfo?.cover || fallbackCover,
@@ -150,21 +136,15 @@ export async function fetchBlogList(page = 1, lang = "en", tag?: string) {
       (blog: {
         _id: string;
         title: string;
-        cover_info?:
-          | string
-          | {
-              cover?: string;
-              title?: string;
-              title_en?: string;
-              description?: string;
-              description_en?: string;
-            };
+        title_en?: string;
+        cover?: string;
         introduction?: string;
+        introduction_en?: string;
         tags?: Array<{ id: number; name: string; color?: string }>;
         pubtime: string;
       }) => {
         const processedData = processCoverInfo(
-          blog.cover_info || null,
+          blog,
           blog._id,
           blog.tags
         );
