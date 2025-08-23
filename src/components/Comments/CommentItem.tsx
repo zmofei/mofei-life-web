@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { likeComment } from '@/app/actions/blog';
 import { trackEvent } from '@/lib/gtag';
 import ReplyInput from './ReplyInput';
+import { timeUtils } from '@/utils/timeUtils';
 
 // Cache processed HTML content
 const linkCache = new Map<string, string>();
@@ -47,7 +48,12 @@ interface CommentItemProps {
         time: string; 
         like?: string | number; // API返回的点赞数
         likes?: number; 
-        isLiked?: boolean; 
+        isLiked?: boolean;
+        // Geolocation fields from TIME_HANDLING.md
+        country?: string;
+        region?: string;
+        city?: string;
+        timezone?: string;
         parent_comment?: {
             id: number;
             content: string;
@@ -59,7 +65,6 @@ interface CommentItemProps {
         };
     };
     lang: string;
-    getRelativeTimeFunc: (timestamp: string, lang?: string) => string;
     onSubmitReply: (commentId: string, content: string) => void;
     isPosting: boolean;
 }
@@ -84,7 +89,7 @@ const getAvatarStyle = (email: string, name: string) => {
     };
 };
 
-const CommentItem = memo(({ blog, lang, getRelativeTimeFunc, onSubmitReply, isPosting }: CommentItemProps) => {
+const CommentItem = memo(({ blog, lang, onSubmitReply, isPosting }: CommentItemProps) => {
     const [showOriginal, setShowOriginal] = useState(false);
     const [replyActive, setReplyActive] = useState(false);
     // 使用API返回的like字段，转换为数字
@@ -284,29 +289,25 @@ const CommentItem = memo(({ blog, lang, getRelativeTimeFunc, onSubmitReply, isPo
                             
                             {/* 时间信息 */}
                             <div className="flex items-center gap-2 text-xs text-white/60 font-medium">
-                                <span title={new Date(blog.time).toLocaleDateString(
-                                    lang == 'zh' ? 'zh-CN' : 'en-US'
-                                    , {
-                                        weekday: "short",
-                                        year: "numeric",
-                                        month: "short",
-                                        day: "numeric",
-                                        hour: "numeric",
-                                        minute: "numeric",
-                                    })}>
-                                    {new Date(blog.time).toLocaleDateString(
-                                        lang == 'zh' ? 'zh-CN' : 'en-US'
-                                        , {
-                                            month: "short",
-                                            day: "numeric",
-                                            hour: "2-digit",
-                                            minute: "2-digit",
-                                        })}
+                                <span title={timeUtils.toLocaleDateString(blog.time, lang as 'zh' | 'en', {
+                                    weekday: "short",
+                                    year: "numeric",
+                                    month: "short",
+                                    day: "numeric",
+                                    hour: "numeric",
+                                    minute: "numeric",
+                                })}>
+                                    {timeUtils.fromNow(blog.time, lang as 'zh' | 'en')}
                                 </span>
-                                <span className="text-white/40">•</span>
-                                <span className="text-white/50">
-                                    {getRelativeTimeFunc(blog.time, lang == 'zh' ? 'zh-CN' : 'en-US')}
-                                </span>
+                                {/* Show timezone info if available */}
+                                {blog.timezone && (
+                                    <>
+                                        <span className="text-white/40">•</span>
+                                        <span className="text-white/40 text-xs">
+                                            {blog.city && blog.country ? `${blog.city}, ${blog.country}` : blog.timezone}
+                                        </span>
+                                    </>
+                                )}
                             </div>
                         </div>
                         
@@ -451,7 +452,6 @@ const CommentItem = memo(({ blog, lang, getRelativeTimeFunc, onSubmitReply, isPo
     
     // 函数引用比较（这些函数应该是稳定的）
     if (prevProps.onSubmitReply !== nextProps.onSubmitReply) return false;
-    if (prevProps.getRelativeTimeFunc !== nextProps.getRelativeTimeFunc) return false;
     
     // 其他属性相同则不重新渲染
     return true;

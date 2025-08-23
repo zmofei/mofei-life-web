@@ -3,6 +3,7 @@
 import { useLanguage } from "@/components/Context/LanguageContext"
 import { replaceCDNDomain } from "@/components/util/util";
 import { useScrolling } from "@/components/util/useScrolling"
+import { timeUtils } from "@/utils/timeUtils";
 import Image from 'next/image';
 
 // 标签翻译和图标映射
@@ -66,14 +67,12 @@ export default function BlogItemBlock({ blog, index }: { blog: any, index: numbe
 
 
 
-    const time = new Date(blog.pubtime).toLocaleDateString(
-        lang == 'zh' ? 'zh-CN' : 'en-US'
-        , {
-            weekday: "short",
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-        })
+    const time = timeUtils.toLocaleDateString(blog.pubtime, lang as 'zh' | 'en', {
+        weekday: "short",
+        year: "numeric", 
+        month: "short",
+        day: "numeric",
+    })
 
     return (<div className='relative h-full'>
         <div className={`group relative w-full h-full rounded-3xl 

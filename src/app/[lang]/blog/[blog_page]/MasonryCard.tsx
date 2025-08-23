@@ -3,6 +3,7 @@
 import { useLanguage } from "@/components/Context/LanguageContext"
 import { replaceCDNDomain } from "@/components/util/util";
 import { useScrolling } from "@/components/util/useScrolling"
+import { timeUtils } from "@/utils/timeUtils";
 import Image from 'next/image';
 import { usePlaylist } from '@/components/Context/PlaylistContext';
 import { useMemo } from 'react';
@@ -67,14 +68,12 @@ export default function MasonryCard({ blog, index }: { blog: any, index: number 
     // figure out if the blog is a life blog
     const tag = (blog.tags || []).length > 0 ? blog.tags[0] : null
 
-    const time = new Date(blog.pubtime).toLocaleDateString(
-        lang == 'zh' ? 'zh-CN' : 'en-US'
-        , {
-            weekday: "short",
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-        })
+    const time = timeUtils.toLocaleDateString(blog.pubtime, lang as 'zh' | 'en', {
+        weekday: "short",
+        year: "numeric",
+        month: "short", 
+        day: "numeric",
+    })
 
     // Create VoiceBlog object for playlist
     const voiceBlog = useMemo(() => ({
