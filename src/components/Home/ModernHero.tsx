@@ -131,7 +131,10 @@ const ModernHero = ({ lang }: ModernHeroProps) => {
         style={{
           transform: useTransform(
             [mouseXSpring, mouseYSpring],
-            ([x, y]: [number, number]) => `perspective(1000px) rotateY(${x * 10}deg) rotateX(${-y * 10}deg)`
+            (values: number[]) => {
+              const [x, y] = values;
+              return `perspective(1000px) rotateY(${x * 10}deg) rotateX(${-y * 10}deg)`;
+            }
           ),
           transformStyle: "preserve-3d",
         }}
