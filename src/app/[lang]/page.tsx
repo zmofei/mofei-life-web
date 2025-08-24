@@ -1,31 +1,40 @@
-"use client";
+"use client"
 
-import InteractiveHero from "@/components/Home/InteractiveHero";
+import AnimatedTitle from "@/components/Home/AnimatedTitle";
+import VideoBackground from "@/components/Home/VideoBackground";
 import { motion } from "motion/react";
+import Image from "next/image";
+
 import Lan from "@/components/util/Language";
 import { use, useMemo, Suspense, useState } from 'react';
 import Foot from '@/components/Common/Foot';
+import { StaggerContainer, StaggerItem } from '@/components/util/PageTransition';
 import { notFound } from 'next/navigation';
 
+
 export default function Home({ params }: { params: Promise<{ lang: string }> }) {
+
   const { lang } = use(params);
   
+  // Validate language parameter
   const VALID_LANGUAGES = ['en', 'zh'];
   if (!VALID_LANGUAGES.includes(lang)) {
     notFound();
   }
-  
   const [expandedSkills, setExpandedSkills] = useState<Set<number>>(new Set());
 
   const toggleAllSkills = () => {
-    const skillsCount = 6;
+    const skillsCount = 6; // Total number of skill cards
     if (expandedSkills.size === skillsCount) {
+      // If all expanded, collapse all
       setExpandedSkills(new Set());
     } else {
+      // Otherwise expand all
       setExpandedSkills(new Set([0, 1, 2, 3, 4, 5]));
     }
   };
 
+  // Calculate work years (from 2010) - use useMemo to cache calculation result
   const yearsOfExperience = useMemo(() => {
     const startYear = 2010;
     const currentYear = new Date().getFullYear();
@@ -50,7 +59,7 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
         "name": "Baidu"
       },
       {
-        "@type": "Organization", 
+        "@type": "Organization",
         "name": "Yiban"
       }
     ],
@@ -99,6 +108,7 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
 
   return (
     <>
+      {/* Structured Data */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
@@ -108,139 +118,130 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
         dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
       />
 
-      {/* Fixed hero background including particles */}
-      <div className="fixed inset-0 z-0">
-        <InteractiveHero lang={lang} />
-      </div>
+      {/* Full page video background - optimized performance */}
+      <VideoBackground isFullPage={true} />
 
-      {/* Spacer for fixed hero */}
-      <div className="h-screen"></div>
+      <div className="w-full relative z-10 min-h-screen">
 
-      <div className="w-full relative z-10 min-h-screen bg-black/30 backdrop-blur-sm">
-        <div className="fixed inset-0 pointer-events-none z-0">
-          {[...Array(10)].map((_, i) => (
+        <StaggerContainer className="h-svh w-full flex items-center justify-center relative">
+          {/* First screen overlay - simplified for mobile */}
+          <div className="absolute inset-0 bg-black/70 md:bg-black/80 md:backdrop-blur-[1px]"></div>
+
+          <div className="w-full max-w-screen-xl z-10 mx-auto relative">
+            {/* <div className='bg-yellow-400 py-10'> */}
+            <StaggerItem>
+              <AnimatedTitle />
+            </StaggerItem>
+            {/* </div> */}
+
+            <StaggerItem>
+              <motion.div className="w-full max-w-screen-xl z-10 text-center 
+               px-4 text-xl pt-10 font-light text-gray-300 leading-relaxed
+               md:px-10 lg:px-16 md:text-3xl md:pt-20"
+                initial={{ opacity: 0, translateY: 0 }}
+                animate={{ opacity: 1, translateY: -60 }}
+                transition={{ duration: 0.5, delay: 2 }}>
+
+
+              <div className="block">
+                <Lan lang={lang} candidate={{
+                  "zh": <span>Hei! <br />我是Mofei <br />你想和我一起探索<br />芬兰的软件工程师的生活与经历么？</span>,
+                  "en": <span>Hei! <br />I am Mofei <br />would you like to join me<br />in exploring <br />the life of a software engineer in Finland?</span>,
+                }} />
+              </div>
+              </motion.div>
+            </StaggerItem>
+
+          </div>
+          {/* Simplified scroll hint for mobile */}
+          <StaggerItem>
             <motion.div
-              key={`global-particle-${i}`}
-              className="absolute w-0.5 h-0.5 bg-purple-400 rounded-full"
-              initial={{
-                x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1000),
-                y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 1000),
-              }}
-              animate={{
-                x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1000),
-                y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 1000),
-              }}
-              transition={{
-                duration: Math.random() * 30 + 30,
-                repeat: Infinity,
-                ease: "linear",
-              }}
-              style={{
-                opacity: Math.random() * 0.3 + 0.1,
-              }}
-            />
-          ))}
-        </div>
+            className="absolute left-0 right-0 bottom-10 md:bottom-20 flex justify-center opacity-60 md:opacity-80"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{
+              opacity: [0.6, 1, 0.6],
+              y: [0, 10, 0]
+            }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 2
+            }}
+          >
+            <div>
+              <Image
+                src="/img/down-arrow-svgrepo-com.svg"
+                alt="Scroll down arrow"
+                width={16}
+                height={16}
+                className="h-4 w-4 md:h-10 md:w-10"
+                sizes="(max-width: 768px) 16px, 40px"
+                priority={false}
+              />
+            </div>
+            </motion.div>
+          </StaggerItem>
+        </StaggerContainer>
 
-        <div className="w-full bg-black/10 backdrop-blur-sm">
+        {/* Divider line */}
+        <div className="w-full bg-black">
           <div className="container max-w-[2000px] mx-auto px-5 md:px-10 lg:px-16">
-            <motion.div 
-              className="h-px bg-gradient-to-r from-transparent via-purple-500/50 to-transparent"
-              initial={{ scaleX: 0 }}
-              whileInView={{ scaleX: 1 }}
-              transition={{ duration: 1 }}
-              viewport={{ once: true }}
-            />
+            <div className="h-px bg-gradient-to-r from-transparent via-gray-700 to-transparent"></div>
           </div>
         </div>
 
-        <Suspense fallback={<div className="min-h-svh flex items-center justify-center text-white">Loading...</div>}>
-          <div className="min-h-svh w-full relative overflow-hidden bg-black/20 backdrop-blur-sm">
-            <div className="absolute inset-0 opacity-30">
-              {[...Array(15)].map((_, i) => (
-                <motion.div
+        {/* About me - stunning design */}
+        <Suspense fallback={<div className="min-h-svh bg-black/80 flex items-center justify-center text-white">Loading...</div>}>
+          <div className="min-h-svh w-full relative bg-black/85 overflow-hidden">
+            {/* Static background particles - optimized performance */}
+            <div className="absolute inset-0 opacity-20 hidden md:block">
+              {[...Array(6)].map((_, i) => (
+                <div
                   key={i}
-                  className="absolute w-1 h-1 bg-cyan-400 rounded-full"
-                  initial={{
-                    x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1000),
-                    y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 1000),
-                  }}
-                  animate={{
-                    x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1000),
-                    y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 1000),
-                  }}
-                  transition={{
-                    duration: Math.random() * 20 + 20,
-                    repeat: Infinity,
-                    ease: "linear",
-                  }}
+                  className="absolute w-1 h-1 bg-white rounded-full opacity-20"
                   style={{
-                    opacity: Math.random() * 0.5 + 0.2,
+                    left: `${Math.random() * 100}%`,
+                    top: `${Math.random() * 100}%`,
                   }}
                 />
               ))}
             </div>
 
-            <div className="absolute inset-0">
-              <motion.div
-                className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500 rounded-full filter blur-[128px] opacity-20"
-                animate={{
-                  x: [0, 100, 0],
-                  y: [0, -100, 0],
-                }}
-                transition={{
-                  duration: 20,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
+            {/* Background light effects - optimized performance */}
+            <div className="absolute inset-0 hidden md:block">
+              <div
+                className="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-500/5 rounded-full blur-2xl opacity-5"
               />
-              <motion.div
-                className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500 rounded-full filter blur-[128px] opacity-20"
-                animate={{
-                  x: [0, -100, 0],
-                  y: [0, 100, 0],
-                }}
-                transition={{
-                  duration: 15,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
+              <div
+                className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-purple-500/5 rounded-full blur-2xl opacity-5"
               />
             </div>
 
             <div className='container max-w-[2000px] m-auto relative z-10'>
               <div className='px-5 md:px-10 lg:px-16 py-16 md:py-24 lg:py-32'>
-                <div>
-                  <motion.div 
-                    className="text-center mb-16 relative"
-                    initial={{ opacity: 0, y: 50 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8 }}
-                    viewport={{ once: true }}
-                  >
-                    <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 mb-8 tracking-wider">
+                <div
+                >
+                  {/* Stunning title */}
+                  <div className="text-center mb-16 relative">
+                    <h1 className="text-4xl md:text-6xl lg:text-7xl font-light text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-200 to-white mb-8 tracking-wider relative">
                       <Lan lang={lang} candidate={{
                         "zh": "关于我",
                         "en": "About Me"
                       }} />
-                    </h1>
-                    <motion.div
-                      className="h-1 bg-gradient-to-r from-transparent via-purple-500 to-transparent mx-auto"
-                      initial={{ width: 0 }}
-                      whileInView={{ width: 200 }}
-                      transition={{ duration: 1, delay: 0.3 }}
-                      viewport={{ once: true }}
-                    />
-                  </motion.div>
 
+                      {/* Title decoration line */}
+                      <div
+                        className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 h-1 bg-gradient-to-r from-transparent via-white to-transparent"
+                        style={{ width: "200px", opacity: 0.6 }}
+                      />
+                    </h1>
+
+                  </div>
+
+                  {/* Core introduction - advanced animations */}
                   <div className="mb-16 md:mb-20 w-full">
-                    <motion.div 
-                      className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8"
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.6, ease: "easeOut" }}
-                      viewport={{ once: true }}
-                    >
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
                       {[
                         {
                           zh: `我是朱文龙（Mofei），一名全栈软件工程师。${yearsOfExperience}年的开发经历让我相信，技术不仅是解决问题的工具，更是探索世界的方式。`,
@@ -257,35 +258,40 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
                       ].map((item, index) => (
                         <div
                           key={index}
-                          className={`relative overflow-hidden p-6 md:p-8 rounded-2xl backdrop-blur-md transition-all duration-300 hover:scale-[1.01] hover:translate-y-[-2px] group ${index === 0 ? 'lg:col-span-2' : ''}`}
+                          className={`relative overflow-hidden p-6 md:p-8 rounded-2xl hover:opacity-90 transition-all duration-300 ${index === 0 ? 'lg:col-span-2' : ''
+                            }`}
                           style={{
-                            background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(59, 130, 246, 0.05) 50%, rgba(147, 51, 234, 0.1) 100%)',
-                            border: '1px solid rgba(139, 92, 246, 0.3)',
+                            background: 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0.1) 100%)',
+                            boxShadow: '0 8px 32px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(255,255,255,0.1)',
+                            border: '1px solid rgba(255,255,255,0.18)',
                           }}
                         >
-                          <p className="relative z-10 text-lg md:text-xl lg:text-2xl font-light leading-relaxed text-gray-300">
+                          <p
+                            className="relative z-10 text-lg md:text-xl lg:text-2xl font-light leading-relaxed text-gray-300"
+                          >
                             {item[lang as 'zh' | 'en']}
                           </p>
+
+                          {/* Hover light effect */}
                           <div
-                            className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-300 pointer-events-none"
-                            style={{
-                              background: 'radial-gradient(600px circle at 50% 50%, rgba(139, 92, 246, 0.3), transparent 40%)'
-                            }}
+                            className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-blue-500/10 opacity-0"
+                            style={{ opacity: 0.3 }}
+                          />
+
+                          {/* Decoration dots */}
+                          <div
+                            className="absolute top-4 right-4 w-2 h-2 bg-white/30 rounded-full"
+                            style={{ opacity: 0.3 }}
                           />
                         </div>
                       ))}
-                    </motion.div>
+                    </div>
                   </div>
 
+                  {/* Skills & expertise - cool cards */}
                   <div className="mb-16 md:mb-20">
-                    <motion.div 
-                      className="flex items-center justify-between mb-12"
-                      initial={{ opacity: 0 }}
-                      whileInView={{ opacity: 1 }}
-                      transition={{ duration: 0.8 }}
-                      viewport={{ once: true }}
-                    >
-                      <h2 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-cyan-400 to-purple-600 bg-clip-text text-transparent tracking-wide">
+                    <div className="flex items-center justify-between mb-12">
+                      <h2 className="text-2xl md:text-3xl font-light text-white tracking-wide">
                         <Lan lang={lang} candidate={{
                           "zh": "专业领域",
                           "en": "Expertise"
@@ -294,13 +300,15 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
 
                       <button
                         onClick={toggleAllSkills}
-                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm md:text-base text-white/70 hover:text-white transition-all duration-300 hover:scale-105 backdrop-blur-md"
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm md:text-base text-white/70 hover:text-white transition-all duration-300 hover:opacity-90"
                         style={{
-                          background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(59, 130, 246, 0.1) 100%)',
-                          border: '1px solid rgba(139, 92, 246, 0.3)',
+                          background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
+                          border: '1px solid rgba(255,255,255,0.15)',
                         }}
                       >
-                        <div style={{ transform: `rotate(${expandedSkills.size === 6 ? 180 : 0}deg)` }}>
+                        <div
+                          style={{ transform: `rotate(${expandedSkills.size === 6 ? 180 : 0}deg)` }}
+                        >
                           {expandedSkills.size === 6 ? '📤' : '📥'}
                         </div>
                         <span>
@@ -310,15 +318,9 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
                           }} />
                         </span>
                       </button>
-                    </motion.div>
+                    </div>
 
-                    <motion.div 
-                      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.6, ease: "easeOut" }}
-                      viewport={{ once: true }}
-                    >
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                       {[
                         {
                           title: { zh: "AI & 机器学习", en: "AI & Machine Learning" },
@@ -389,23 +391,15 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
                       ].map((section, sectionIndex) => (
                         <div
                           key={sectionIndex}
-                          className="relative p-4 md:p-6 rounded-2xl md:rounded-3xl overflow-hidden backdrop-blur-md transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px] cursor-pointer group"
-                          onClick={() => {
-                            setExpandedSkills(prev => {
-                              const newSet = new Set(prev);
-                              if (newSet.has(sectionIndex)) {
-                                newSet.delete(sectionIndex);
-                              } else {
-                                newSet.add(sectionIndex);
-                              }
-                              return newSet;
-                            });
-                          }}
+                          className="relative p-4 md:p-6 rounded-2xl md:rounded-3xl overflow-hidden hover:opacity-90 transition-all duration-300"
                           style={{
-                            background: `linear-gradient(135deg, ${section.color.replace('/20', '/10')})`,
-                            border: '1px solid rgba(139, 92, 246, 0.2)',
+                            background: 'linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.04) 50%, rgba(255,255,255,0.08) 100%)',
+                            boxShadow: '0 8px 32px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.25), inset 0 -1px 0 rgba(255,255,255,0.1)',
+                            border: '1px solid rgba(255,255,255,0.2)',
                           }}
                         >
+
+                          {/* 标题区域 */}
                           <div className={`flex items-center gap-2 md:gap-3 relative z-10 ${expandedSkills.has(sectionIndex) ? 'mb-4 md:mb-6' : 'mb-0'}`}>
                             <span className="text-xl md:text-2xl">
                               {section.icon}
@@ -415,6 +409,7 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
                             </h3>
                           </div>
 
+                          {/* 技能列表 */}
                           <div
                             className={`relative z-10 overflow-hidden ${expandedSkills.has(sectionIndex) ? 'space-y-2 md:space-y-3' : ''}`}
                             style={{
@@ -426,9 +421,9 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
                             {section.skills.map((skill, skillIndex) => (
                               <div
                                 key={skillIndex}
-                                className="flex items-center gap-2 md:gap-3 p-2 md:p-3 rounded-lg md:rounded-xl bg-gradient-to-r from-purple-500/5 to-cyan-500/5 border border-purple-400/20 hover:border-cyan-400/30 hover:bg-gradient-to-r hover:from-purple-500/10 hover:to-cyan-500/10 transition-all duration-200"
+                                className="flex items-center gap-2 md:gap-3 p-2 md:p-3 rounded-lg md:rounded-xl bg-white/5 border border-white/10 hover:bg-white/8 transition-colors duration-200"
                               >
-                                <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-gradient-to-r from-cyan-400 to-purple-500 rounded-full flex-shrink-0" />
+                                <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-white/60 rounded-full flex-shrink-0" />
                                 <p className="text-gray-300 text-xs md:text-sm lg:text-base">
                                   {typeof skill === 'string' ? skill : skill[lang as 'zh' | 'en']}
                                 </p>
@@ -436,36 +431,26 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
                             ))}
                           </div>
 
-                          <div className="absolute top-4 right-4 md:top-6 md:right-6 w-12 h-12 md:w-20 md:h-20 opacity-20">
-                            <div className="w-full h-full border border-purple-400/30 rounded-full"></div>
-                            <div className="absolute top-1 left-1 md:top-2 md:left-2 w-10 h-10 md:w-16 md:h-16 border border-cyan-400/20 rounded-full"></div>
+                          {/* 装饰性元素 - 手机版隐藏 */}
+                          <div className="absolute top-4 right-4 md:top-6 md:right-6 w-12 h-12 md:w-20 md:h-20 opacity-10 hidden md:block">
+                            <div className="w-full h-full border border-white/30 rounded-full"></div>
+                            <div className="absolute top-1 left-1 md:top-2 md:left-2 w-10 h-10 md:w-16 md:h-16 border border-white/20 rounded-full"></div>
                           </div>
                         </div>
                       ))}
-                    </motion.div>
+                    </div>
                   </div>
 
-                  <div className="border-t border-purple-500/30 pt-16 relative">
-                    <motion.h2 
-                      className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-cyan-400 to-purple-600 bg-clip-text text-transparent mb-12 tracking-wide text-center"
-                      initial={{ opacity: 0, y: 30 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.8 }}
-                      viewport={{ once: true }}
-                    >
+                  {/* 联系方式 - 未来感设计 */}
+                  <div className="border-t border-white/20 pt-16 relative">
+                    <h2 className="text-2xl md:text-3xl font-light text-white mb-12 tracking-wide text-center">
                       <Lan lang={lang} candidate={{
                         "zh": "联系我",
                         "en": "Connect"
                       }} />
-                    </motion.h2>
+                    </h2>
 
-                    <motion.div 
-                      className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 lg:gap-8"
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.6, ease: "easeOut" }}
-                      viewport={{ once: true }}
-                    >
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
                       {[
                         {
                           label: "Email",
@@ -492,44 +477,53 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
                         return (
                           <div
                             key={index}
-                            className="relative p-4 md:p-6 rounded-xl md:rounded-2xl overflow-hidden cursor-pointer group backdrop-blur-md transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]"
+                            className="relative p-4 md:p-6 rounded-xl md:rounded-2xl overflow-hidden cursor-pointer group hover:scale-105 transition-all duration-300"
                             style={{
-                              background: `linear-gradient(135deg, ${contact.color.replace('/20', '/15')})`,
-                              border: '1px solid rgba(139, 92, 246, 0.3)',
+                              background: 'linear-gradient(135deg, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.1) 100%)',
+                              boxShadow: '0 8px 32px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.3), inset 0 -1px 0 rgba(255,255,255,0.1)',
+                              border: '1px solid rgba(255,255,255,0.22)',
                             }}
                             {...(contact.href && {
                               onClick: () => window.open(contact.href, contact.href.startsWith('http') ? '_blank' : '_self')
                             })}
                           >
+                            {/* 背景渐变 */}
                             <div
-                              className={`absolute inset-0 bg-gradient-to-br ${contact.color.replace('/20', '/30')} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}
+                              className={`absolute inset-0 bg-gradient-to-br ${contact.color} opacity-0`}
+                              style={{ opacity: 0.4 }}
                             />
 
+                            {/* 图标 */}
                             <div className="text-2xl md:text-3xl mb-3 md:mb-4 relative z-10">
                               {contact.icon}
                             </div>
 
+                            {/* 标签 */}
                             <span className="text-gray-400 text-xs md:text-sm uppercase tracking-wider block mb-2 relative z-10">
                               {contact.label}
                             </span>
 
+                            {/* 值 */}
                             <p className="text-white text-base md:text-lg font-medium relative z-10 break-words">
                               {contact.value}
                             </p>
 
+                            {/* 悬停指示器 */}
                             {contact.href && (
                               <div
-                                className="absolute top-4 right-4 w-2 h-2 bg-gradient-to-r from-cyan-400 to-purple-500 rounded-full opacity-0 group-hover:opacity-100"
+                                className="absolute top-4 right-4 w-2 h-2 bg-white/60 rounded-full opacity-0 group-hover:opacity-100"
                               />
                             )}
 
+                            {/* 装饰线条 */}
                             <div
-                              className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-purple-500 to-cyan-400 w-0 group-hover:w-full transition-all duration-300"
+                              className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-white/30 to-transparent"
+                              style={{ width: "100%" }}
                             />
                           </div>
                         );
                       })}
-                    </motion.div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -537,298 +531,164 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
           </div>
         </Suspense>
 
-        {/* Animated Divider */}
-        <div className="w-full bg-black/10 backdrop-blur-sm">
+        {/* Divider line */}
+        <div className="w-full bg-black">
           <div className="container max-w-[2000px] mx-auto px-5 md:px-10 lg:px-16">
-            <motion.div 
-              className="h-px bg-gradient-to-r from-transparent via-purple-500/50 to-transparent"
-              initial={{ scaleX: 0 }}
-              whileInView={{ scaleX: 1 }}
-              transition={{ duration: 1 }}
-              viewport={{ once: true }}
-            />
+            <div className="h-px bg-gradient-to-r from-transparent via-gray-700 to-transparent"></div>
           </div>
         </div>
 
-        {/* Journey Section - Interactive Design */}
-        <Suspense fallback={<div className="min-h-svh flex items-center justify-center text-white">Loading...</div>}>
-          <div className="min-h-svh w-full relative overflow-hidden bg-black/20 backdrop-blur-sm">
-            {/* Animated gradient orbs */}
-            <div className="absolute inset-0">
-              <motion.div
-                className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500 rounded-full filter blur-[128px] opacity-20"
-                animate={{
-                  x: [0, 100, 0],
-                  y: [0, -100, 0],
-                }}
-                transition={{
-                  duration: 20,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-              />
-              <motion.div
-                className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500 rounded-full filter blur-[128px] opacity-20"
-                animate={{
-                  x: [0, -100, 0],
-                  y: [0, 100, 0],
-                }}
-                transition={{
-                  duration: 15,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-              />
-            </div>
-
+        {/* 探索之路 - 优化后的高性能版本 */}
+        <Suspense fallback={<div className="min-h-svh bg-black/80 flex items-center justify-center text-white">Loading...</div>}>
+          <div className="min-h-svh w-full relative bg-black/85 overflow-hidden">
             <div className='container max-w-[2000px] m-auto relative z-10'>
               <div className='px-5 md:px-10 lg:px-16 py-16 md:py-24 lg:py-32'>
-                <div>
-                  {/* Interactive Section Title */}
-                  <motion.h1 
-                    className="text-4xl md:text-6xl lg:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 mb-8 tracking-wider"
-                    initial={{ opacity: 0, y: 50 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8 }}
-                    viewport={{ once: true }}
-                  >
+                <div
+                >
+                  {/* 简洁的标题 */}
+                  <h1 className="text-4xl md:text-6xl lg:text-7xl font-light text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-200 to-white mb-8 tracking-wider">
                     <Lan lang={lang} candidate={{
                       "zh": "探索之路",
                       "en": "The Journey"
                     }} />
-                  </motion.h1>
+                  </h1>
 
-                  {/* Animated subtitle */}
-                  <motion.p 
-                    className="text-xl md:text-2xl text-gray-300 mb-16 md:mb-20 max-w-3xl font-light leading-relaxed"
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 0.2 }}
-                    viewport={{ once: true }}
-                  >
+                  {/* 副标题 */}
+                  <p className="text-xl md:text-2xl text-gray-400 mb-16 md:mb-20 max-w-3xl font-light leading-relaxed">
                     <Lan lang={lang} candidate={{
                       "zh": `从淮南到赫尔辛基，${yearsOfExperience}年的技术与人生轨迹。每一次迁移，都是对可能性的重新定义。`,
                       "en": `From Huainan to Helsinki, ${yearsOfExperience} years of technology and life trajectory. Every move redefines the realm of possibilities.`
                     }} />
-                  </motion.p>
+                  </p>
 
-                  {/* Interactive Timeline */}
+                  {/* 时间线 - 优化版本 */}
                   <div className="relative space-y-6 md:space-y-8 lg:space-y-12 mb-16 md:mb-20">
+                    {/* 流动动画连接线 */}
+                    <div className="absolute left-4 md:left-6 top-0 bottom-0 w-px overflow-hidden">
+                      <div className="relative w-full h-full bg-gradient-to-b from-transparent via-white/20 to-transparent">
+                      </div>
+                    </div>
 
                     {[
                       {
                         period: lang === 'zh' ? '🌱 至2008' : '🌱 -2008',
                         location: lang === 'zh' ? '淮南' : 'Huainan',
                         role: lang === 'zh' ? '起点 · 淮南' : 'Starting Point · Huainan',
-                        description: lang === 'zh' ? '从小城市出发，对世界和技术充满好奇，为未来打下基础。' : 'Starting from a small city, full of curiosity about the world and technology, laying the foundation for the future.',
-                        gradient: 'from-emerald-500/20 via-green-500/10 to-emerald-600/20',
-                        accentColor: 'emerald-400',
-                        glowColor: 'rgba(16, 185, 129, 0.3)',
-                        bgPattern: 'radial-gradient(circle at 20% 20%, rgba(16, 185, 129, 0.15) 0%, transparent 50%)'
+                        description: lang === 'zh' ? '从小城市出发，对世界和技术充满好奇，为未来打下基础。' : 'Starting from a small city, full of curiosity about the world and technology, laying the foundation for the future.'
                       },
                       {
                         period: '🚀 2008-2014',
                         location: lang === 'zh' ? '上海' : 'Shanghai',
                         role: lang === 'zh' ? '上海 · 易班（校园社交创业）' : 'Shanghai · Yiban (Campus Social Startup)',
-                        description: lang === 'zh' ? '初来上海求学时，机缘巧合参与了校园社交平台的搭建，从学生身份逐步转变为开发者，也开启了我与前端技术的长期关系。' : 'When I first came to Shanghai for studies, I had the opportunity to participate in building a campus social platform, gradually transforming from student to developer, beginning my long-term relationship with frontend technology.',
-                        gradient: 'from-blue-500/20 via-sky-500/10 to-blue-600/20',
-                        accentColor: 'sky-400',
-                        glowColor: 'rgba(14, 165, 233, 0.3)',
-                        bgPattern: 'radial-gradient(circle at 80% 30%, rgba(14, 165, 233, 0.15) 0%, transparent 50%)'
+                        description: lang === 'zh' ? '初来上海求学时，机缘巧合参与了校园社交平台的搭建，从学生身份逐步转变为开发者，也开启了我与前端技术的长期关系。' : 'When I first came to Shanghai for studies, I had the opportunity to participate in building a campus social platform, gradually transforming from student to developer, beginning my long-term relationship with frontend technology.'
                       },
                       {
                         period: '🧠 2014-2018',
                         location: lang === 'zh' ? '北京' : 'Beijing',
                         role: lang === 'zh' ? '北京 · 百度（数据可视化）' : 'Beijing · Baidu (Data Visualization)',
-                        description: lang === 'zh' ? '在大型互联网公司打磨前端技能，专注数据可视化与交互体验，积累系统级研发经验。' : 'Honing frontend skills at a major internet company, focusing on data visualization and interactive experiences, accumulating system-level development experience.',
-                        gradient: 'from-purple-500/20 via-violet-500/10 to-purple-600/20',
-                        accentColor: 'violet-400',
-                        glowColor: 'rgba(124, 58, 237, 0.3)',
-                        bgPattern: 'radial-gradient(circle at 30% 70%, rgba(124, 58, 237, 0.15) 0%, transparent 50%)'
+                        description: lang === 'zh' ? '在大型互联网公司打磨前端技能，专注数据可视化与交互体验，积累系统级研发经验。' : 'Honing frontend skills at a major internet company, focusing on data visualization and interactive experiences, accumulating system-level development experience.'
                       },
                       {
                         period: '🌍 2018-2023',
                         location: lang === 'zh' ? '上海' : 'Shanghai',
                         role: lang === 'zh' ? '上海 · Mapbox（地图平台研发）' : 'Shanghai · Mapbox (Map Platform Development)',
-                        description: lang === 'zh' ? '加入全球团队，主导地图数据处理管道建设，深入探索地理信息与大数据的结合，将工程能力与全球化产品实践相融合。' : 'Joined a global team, leading map data processing pipeline construction, deeply exploring the combination of geographic information and big data, integrating engineering capabilities with global product practices.',
-                        gradient: 'from-cyan-500/20 via-teal-500/10 to-cyan-600/20',
-                        accentColor: 'teal-400',
-                        glowColor: 'rgba(20, 184, 166, 0.3)',
-                        bgPattern: 'radial-gradient(circle at 70% 50%, rgba(20, 184, 166, 0.15) 0%, transparent 50%)'
+                        description: lang === 'zh' ? '加入全球团队，主导地图数据处理管道建设，深入探索地理信息与大数据的结合，将工程能力与全球化产品实践相融合。' : 'Joined a global team, leading map data processing pipeline construction, deeply exploring the combination of geographic information and big data, integrating engineering capabilities with global product practices.'
                       },
                       {
                         period: lang === 'zh' ? '❄️ 2023-至今' : '❄️ 2023-Now',
                         location: lang === 'zh' ? '赫尔辛基' : 'Helsinki',
                         role: lang === 'zh' ? '赫尔辛基 · Mapbox（数据 & AI 工程）' : 'Helsinki · Mapbox (Data & AI Engineering)',
-                        description: lang === 'zh' ? '搬到北欧后，继续在地图与数据处理领域深耕，目前专注于将 AI 能力引入地理信息系统，探索智能体、自动化分析等方向，致力于让地图变得更聪明、更有洞察力。' : 'After moving to Northern Europe, continuing to deepen expertise in mapping and data processing, currently focusing on introducing AI capabilities into geographic information systems, exploring intelligent agents and automated analysis, dedicated to making maps smarter and more insightful.',
-                        gradient: 'from-indigo-500/20 via-blue-500/10 to-purple-600/20',
-                        accentColor: 'indigo-400',
-                        glowColor: 'rgba(99, 102, 241, 0.3)',
-                        bgPattern: 'radial-gradient(circle at 50% 80%, rgba(99, 102, 241, 0.15) 0%, transparent 50%)'
+                        description: lang === 'zh' ? '搬到北欧后，继续在地图与数据处理领域深耕，目前专注于将 AI 能力引入地理信息系统，探索智能体、自动化分析等方向，致力于让地图变得更聪明、更有洞察力。' : 'After moving to Northern Europe, continuing to deepen expertise in mapping and data processing, currently focusing on introducing AI capabilities into geographic information systems, exploring intelligent agents and automated analysis, dedicated to making maps smarter and more insightful.'
                       }
                     ].map((item, index) => (
-                      <motion.div
+                      <div
                         key={index}
-                        className="relative group"
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, delay: index * 0.1, ease: "easeOut" }}
-                        viewport={{ once: true }}
+                        className="relative flex flex-col md:flex-row md:items-center gap-4 md:gap-6 lg:gap-12 group p-4 md:p-6 rounded-xl md:rounded-2xl transition-all duration-300 ml-8 md:ml-12 hover:opacity-90"
+                        style={{
+                          background: 'linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.04) 50%, rgba(255,255,255,0.08) 100%)',
+                          boxShadow: '0 8px 32px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(255,255,255,0.08)',
+                          border: '1px solid rgba(255,255,255,0.15)',
+                        }}
                       >
-
-                        {/* Futuristic card design */}
-                        <motion.div
-                          className="relative overflow-hidden"
+                        {/* 时间线连接点 */}
+                        <div
+                          className="absolute top-1/2 w-3 h-3 rounded-full border border-white/30 md:hidden"
                           style={{
-                            background: item.bgPattern,
-                            backdropFilter: 'blur(20px)',
-                            WebkitBackdropFilter: 'blur(20px)',
+                            left: 'calc(-2rem + 1rem - 6px)', // 移动端：卡片在2rem，竖线在1rem，连接点中心在竖线上
+                            transform: 'translateY(-50%)',
+                            background: 'linear-gradient(135deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.15) 100%)',
+                            boxShadow: '0 4px 16px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.4)',
+                            border: '1px solid rgba(255,255,255,0.3)',
                           }}
-                          whileHover={{ 
-                            scale: 1.01,
-                            y: -2
-                          }}
-                          transition={{ duration: 0.3, ease: "easeOut" }}
                         >
-                          {/* Hexagonal shape with clip-path */}
-                          <div 
-                            className={`relative p-6 md:p-8 text-white bg-gradient-to-br ${item.gradient}`}
-                            style={{
-                              clipPath: 'polygon(0 0, calc(100% - 25px) 0, 100% 25px, 100% 100%, 25px 100%, 0 calc(100% - 25px))',
-                              border: `1px solid ${item.glowColor}`,
-                            }}
-                          >
-                            {/* Floating geometric elements */}
-                            <div className="absolute top-3 right-3 w-8 h-8 opacity-20">
-                              <motion.div
-                                className={`w-full h-full border-2 border-${item.accentColor} rounded-full`}
-                                animate={{ rotate: 360 }}
-                                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                              />
-                              <motion.div
-                                className={`absolute top-1 left-1 w-6 h-6 border border-${item.accentColor}/60 rounded-full`}
-                                animate={{ rotate: -360 }}
-                                transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-                              />
-                            </div>
+                          <div className="w-1.5 h-1.5 rounded-full bg-white/60 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+                        </div>
 
-                            {/* Period and emoji with glow effect */}
-                            <div className="flex items-center gap-3 mb-4">
-                              <span 
-                                className={`px-4 py-2 rounded-full text-sm font-bold bg-gradient-to-r from-${item.accentColor}/30 to-${item.accentColor}/10 border border-${item.accentColor}/40 text-${item.accentColor} backdrop-blur-sm`}
-                                style={{
-                                  textShadow: `0 0 10px ${item.glowColor}`
-                                }}
-                              >
-                                {item.period}
-                              </span>
-                              <span className="text-2xl filter drop-shadow-lg">
-                                {item.period.split(' ')[0]}
-                              </span>
-                            </div>
+                        {/* PC端时间线连接点 */}
+                        <div
+                          className="absolute top-1/2 w-3 h-3 rounded-full border border-white/30 hidden md:block"
+                          style={{
+                            left: 'calc(-3rem + 1.5rem - 6px)', // PC端：卡片在3rem，竖线在1.5rem，连接点中心在竖线上
+                            transform: 'translateY(-50%)',
+                            background: 'linear-gradient(135deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.15) 100%)',
+                            boxShadow: '0 4px 16px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.4)',
+                            border: '1px solid rgba(255,255,255,0.3)',
+                          }}
+                        >
+                          <div className="w-1.5 h-1.5 rounded-full bg-white/60 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+                        </div>
 
-                            {/* Location badge */}
-                            <div className="mb-4">
-                              <span className={`inline-flex items-center gap-1 px-3 py-1 text-xs uppercase tracking-widest font-semibold text-${item.accentColor} bg-${item.accentColor}/10 rounded-full border border-${item.accentColor}/30`}>
-                                <span>📍</span>
-                                {item.location}
-                              </span>
-                            </div>
-                            
-                            {/* Role with subtle gradient text */}
-                            <h3 className={`text-xl md:text-2xl font-bold mb-4 bg-gradient-to-r from-white via-${item.accentColor} to-white bg-clip-text text-transparent leading-tight`}>
-                              {item.role}
-                            </h3>
-                            
-                            {/* Enhanced description */}
-                            <p className="text-gray-200 leading-relaxed text-sm md:text-base">
-                              {item.description}
-                            </p>
-
-                            {/* Decorative corner accents */}
-                            <div 
-                              className={`absolute top-0 right-0 w-16 h-16 border-t-2 border-r-2 border-${item.accentColor}/40 opacity-50`}
-                              style={{
-                                clipPath: 'polygon(60% 0%, 100% 0%, 100% 40%)'
-                              }}
-                            />
-                            <div 
-                              className={`absolute bottom-0 left-0 w-16 h-16 border-b-2 border-l-2 border-${item.accentColor}/40 opacity-50`}
-                              style={{
-                                clipPath: 'polygon(0% 60%, 0% 100%, 40% 100%)'
-                              }}
-                            />
-                          </div>
-
-                          {/* Subtle hover overlay */}
-                          <div
-                            className="absolute inset-0 opacity-0 group-hover:opacity-30 pointer-events-none transition-opacity duration-300"
-                            style={{
-                              background: `linear-gradient(135deg, transparent 30%, ${item.glowColor} 70%, transparent 100%)`
-                            }}
-                          />
-                        </motion.div>
-                      </motion.div>
+                        <div className="flex-shrink-0 w-full md:w-48 text-gray-500 text-xs md:text-sm lg:text-base">
+                          <div className="font-mono text-white/80 text-sm md:text-base">{item.period}</div>
+                          <div className="text-gray-400 text-xs md:text-sm mt-1">{item.location}</div>
+                        </div>
+                        <div className="flex-grow">
+                          <h3 className="text-white text-base md:text-lg lg:text-xl font-medium mb-2 group-hover:text-gray-200 transition-colors">
+                            {item.role}
+                          </h3>
+                          <p className="text-gray-400 text-sm md:text-base leading-relaxed">
+                            {item.description}
+                          </p>
+                        </div>
+                        {/* 装饰点 */}
+                        <div className="absolute top-4 right-4 w-2 h-2 bg-white/30 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      </div>
                     ))}
                   </div>
 
-                  {/* Philosophy Quote Section */}
-                  <div className="border-t border-purple-500/30 pt-16">
-                    <motion.div
-                      className="relative p-8 rounded-3xl overflow-hidden backdrop-blur-md"
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      whileInView={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.8 }}
-                      viewport={{ once: true }}
-                      whileHover={{ 
-                        boxShadow: "0 25px 50px rgba(139, 92, 246, 0.4)"
-                      }}
+                  {/* 哲学思考部分 */}
+                  <div className="border-t border-gray-800 pt-16">
+                    <div
+                      className="relative p-8 rounded-3xl overflow-hidden"
                       style={{
-                        background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(59, 130, 246, 0.08) 50%, rgba(147, 51, 234, 0.12) 100%)',
-                        border: '1px solid rgba(139, 92, 246, 0.3)',
+                        background: 'linear-gradient(135deg, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.12) 100%)',
+                        boxShadow: '0 12px 40px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.3), inset 0 -1px 0 rgba(255,255,255,0.1)',
+                        border: '1px solid rgba(255,255,255,0.25)',
                       }}
                     >
-                      <motion.blockquote 
-                        className="text-2xl md:text-3xl lg:text-4xl text-gray-200 font-light leading-relaxed max-w-5xl mx-auto text-center relative z-10"
-                        initial={{ opacity: 0, y: 30 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8, delay: 0.3 }}
-                        viewport={{ once: true }}
-                      >
-                        <span className="text-purple-400 text-5xl">&ldquo;</span>
+                      <blockquote className="text-2xl md:text-3xl lg:text-4xl text-gray-300 font-light leading-relaxed max-w-5xl mx-auto text-center relative z-10">
+                        <span className="text-gray-600">&ldquo;</span>
                         <Lan lang={lang} candidate={{
                           "zh": "探索不是为了到达某个终点，而是为了在路上发现更多的可能性。技术让我们能够跨越地理的界限，但真正的探索发生在思维的边界。",
                           "en": "Exploration is not about reaching a destination, but about discovering more possibilities along the way. Technology allows us to transcend geographical boundaries, but true exploration happens at the edges of our thinking."
                         }} />
-                        <span className="text-purple-400 text-5xl">&rdquo;</span>
-                      </motion.blockquote>
+                        <span className="text-gray-600">&rdquo;</span>
+                      </blockquote>
 
-                      {/* Animated decorative elements */}
-                      <motion.div 
-                        className="absolute top-6 right-6 w-20 h-20 opacity-20"
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                      >
-                        <div className="w-full h-full border border-purple-400/30 rounded-full"></div>
-                        <motion.div 
-                          className="absolute top-2 left-2 w-16 h-16 border border-cyan-400/30 rounded-full"
-                          animate={{ rotate: -360 }}
-                          transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-                        />
-                      </motion.div>
-                    </motion.div>
+                      {/* 装饰性元素 */}
+                      <div className="absolute top-6 right-6 w-20 h-20 opacity-10">
+                        <div className="w-full h-full border border-white/30 rounded-full"></div>
+                        <div className="absolute top-2 left-2 w-16 h-16 border border-white/20 rounded-full"></div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </Suspense>
-
-        {/* Footer with integrated design */}
-        <div className="w-full relative z-10">
-          <Foot lang={lang} isHomePage={true} />
-        </div>
-      </div>
+        <Foot lang={lang} isHomePage={true} />
+      </div >
     </>
   );
 }
