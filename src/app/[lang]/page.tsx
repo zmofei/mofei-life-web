@@ -118,82 +118,88 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
         dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
       />
 
-      {/* Full page video background - optimized performance */}
-      <VideoBackground isFullPage={true} />
+      {/* Fixed hero screen - stays in place as background */}
+      <div className="fixed inset-0 z-0">
+        {/* Video background */}
+        <VideoBackground isFullPage={true} />
+        
+        {/* Hero content overlay - fixed in place */}
+        <div className="absolute inset-0 z-10">
+          <StaggerContainer className="h-full w-full flex items-center justify-center relative">
+            {/* First screen overlay - simplified for mobile */}
+            <div className="absolute inset-0 bg-black/70 md:bg-black/80 md:backdrop-blur-[1px]"></div>
 
-      <div className="w-full relative z-10 min-h-screen">
+            <div className="w-full max-w-screen-xl z-10 mx-auto relative">
+              <StaggerItem>
+                <AnimatedTitle />
+              </StaggerItem>
 
-        <StaggerContainer className="h-svh w-full flex items-center justify-center relative">
-          {/* First screen overlay - simplified for mobile */}
-          <div className="absolute inset-0 bg-black/70 md:bg-black/80 md:backdrop-blur-[1px]"></div>
+              <StaggerItem>
+                <motion.div className="w-full max-w-screen-xl z-10 text-center 
+                 px-4 text-xl pt-10 font-light text-gray-300 leading-relaxed
+                 md:px-10 lg:px-16 md:text-3xl md:pt-20"
+                  initial={{ opacity: 0, translateY: 0 }}
+                  animate={{ opacity: 1, translateY: -60 }}
+                  transition={{ duration: 0.5, delay: 2 }}>
 
-          <div className="w-full max-w-screen-xl z-10 mx-auto relative">
-            {/* <div className='bg-yellow-400 py-10'> */}
+                <div className="block">
+                  <Lan lang={lang} candidate={{
+                    "zh": <span>一起探索芬兰软件工程师的生活与经历。  </span>,
+                    "en": <span>Join me in exploring the life of a software engineer in Finland.  </span>,
+                  }} />
+                </div>
+                </motion.div>
+              </StaggerItem>
+
+            </div>
+            {/* Simplified scroll hint for mobile */}
             <StaggerItem>
-              <AnimatedTitle />
-            </StaggerItem>
-            {/* </div> */}
-
-            <StaggerItem>
-              <motion.div className="w-full max-w-screen-xl z-10 text-center 
-               px-4 text-xl pt-10 font-light text-gray-300 leading-relaxed
-               md:px-10 lg:px-16 md:text-3xl md:pt-20"
-                initial={{ opacity: 0, translateY: 0 }}
-                animate={{ opacity: 1, translateY: -60 }}
-                transition={{ duration: 0.5, delay: 2 }}>
-
-
-              <div className="block">
-                <Lan lang={lang} candidate={{
-                  "zh": <span>Hei! <br />我是Mofei <br />你想和我一起探索<br />芬兰的软件工程师的生活与经历么？</span>,
-                  "en": <span>Hei! <br />I am Mofei <br />would you like to join me<br />in exploring <br />the life of a software engineer in Finland?</span>,
-                }} />
+              <motion.div
+              className="absolute left-0 right-0 bottom-10 md:bottom-20 flex justify-center opacity-60 md:opacity-80"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{
+                opacity: [0.6, 1, 0.6],
+                y: [0, 10, 0]
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: 2
+              }}
+            >
+              <div>
+                <Image
+                  src="/img/down-arrow-svgrepo-com.svg"
+                  alt="Scroll down arrow"
+                  width={16}
+                  height={16}
+                  className="h-4 w-4 md:h-10 md:w-10"
+                  sizes="(max-width: 768px) 16px, 40px"
+                  priority={false}
+                />
               </div>
               </motion.div>
             </StaggerItem>
+          </StaggerContainer>
+        </div>
+      </div>
 
-          </div>
-          {/* Simplified scroll hint for mobile */}
-          <StaggerItem>
-            <motion.div
-            className="absolute left-0 right-0 bottom-10 md:bottom-20 flex justify-center opacity-60 md:opacity-80"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{
-              opacity: [0.6, 1, 0.6],
-              y: [0, 10, 0]
-            }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: 2
-            }}
-          >
-            <div>
-              <Image
-                src="/img/down-arrow-svgrepo-com.svg"
-                alt="Scroll down arrow"
-                width={16}
-                height={16}
-                className="h-4 w-4 md:h-10 md:w-10"
-                sizes="(max-width: 768px) 16px, 40px"
-                priority={false}
-              />
-            </div>
-            </motion.div>
-          </StaggerItem>
-        </StaggerContainer>
+      {/* Spacer to push content down one screen height */}
+      <div className="h-screen relative z-10"></div>
 
-        {/* Divider line */}
-        <div className="w-full bg-black">
+      {/* Glass content container that scrolls over the fixed video background */}
+      <div className="relative z-20 bg-black/30 backdrop-blur-lg border-t border-white/10">
+        {/* Gradient separator line */}
+        <div className="w-full">
           <div className="container max-w-[2000px] mx-auto px-5 md:px-10 lg:px-16">
-            <div className="h-px bg-gradient-to-r from-transparent via-gray-700 to-transparent"></div>
+            <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
           </div>
         </div>
 
         {/* About me - stunning design */}
         <Suspense fallback={<div className="min-h-svh bg-black/80 flex items-center justify-center text-white">Loading...</div>}>
-          <div className="min-h-svh w-full relative bg-black/85 overflow-hidden">
+          <div className="min-h-svh w-full relative bg-black/40 backdrop-blur-sm overflow-hidden">
             {/* Static background particles - optimized performance */}
             <div className="absolute inset-0 opacity-20 hidden md:block">
               {[...Array(6)].map((_, i) => (
@@ -531,16 +537,16 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
           </div>
         </Suspense>
 
-        {/* Divider line */}
-        <div className="w-full bg-black">
+        {/* Separator between sections within glass container */}
+        <div className="w-full">
           <div className="container max-w-[2000px] mx-auto px-5 md:px-10 lg:px-16">
-            <div className="h-px bg-gradient-to-r from-transparent via-gray-700 to-transparent"></div>
+            <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
           </div>
         </div>
 
         {/* 探索之路 - 优化后的高性能版本 */}
         <Suspense fallback={<div className="min-h-svh bg-black/80 flex items-center justify-center text-white">Loading...</div>}>
-          <div className="min-h-svh w-full relative bg-black/85 overflow-hidden">
+          <div className="min-h-svh w-full relative bg-black/40 backdrop-blur-sm overflow-hidden">
             <div className='container max-w-[2000px] m-auto relative z-10'>
               <div className='px-5 md:px-10 lg:px-16 py-16 md:py-24 lg:py-32'>
                 <div
@@ -656,8 +662,15 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
                     ))}
                   </div>
 
+                  {/* Quote section separator */}
+                  <div className="w-full">
+                    <div className="container max-w-[2000px] mx-auto px-5 md:px-10 lg:px-16">
+                      <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+                    </div>
+                  </div>
+
                   {/* 哲学思考部分 */}
-                  <div className="border-t border-gray-800 pt-16">
+                  <div className="pt-16">
                     <div
                       className="relative p-8 rounded-3xl overflow-hidden"
                       style={{
@@ -687,8 +700,11 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
             </div>
           </div>
         </Suspense>
+
+        <div className="w-full"><div className="container max-w-[2000px] mx-auto px-5 md:px-10 lg:px-16"><div className="h-px bg-gradient-to-r from-transparent via-gray-700 to-transparent"></div></div></div>
+        
         <Foot lang={lang} isHomePage={true} />
-      </div >
+      </div>
     </>
   );
 }

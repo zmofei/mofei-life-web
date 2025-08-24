@@ -246,20 +246,20 @@ const InteractiveHero = ({ lang }: InteractiveHeroProps) => {
           />
         </motion.div>
 
-        {/* Name with 3D effect */}
+        {/* Name with SVG logo */}
         <motion.div
           className="mb-8 perspective-1000"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.3 }}
         >
-          <h2 className="text-4xl md:text-6xl font-light text-white text-center">
+          <div className="flex items-center justify-center text-4xl md:text-6xl font-light text-white">
             <Lan lang={lang} candidate={{
               zh: "我是",
               en: "I am"
             }} />
-            <motion.span
-              className="font-bold ml-3 inline-block"
+            <motion.div
+              className="ml-3 md:ml-6 inline-block"
               whileHover={{
                 rotateY: 360,
                 scale: 1.1,
@@ -269,9 +269,16 @@ const InteractiveHero = ({ lang }: InteractiveHeroProps) => {
                 transformStyle: "preserve-3d",
               }}
             >
-              Mofei
-            </motion.span>
-          </h2>
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                viewBox="0 0 301.6 68.3"
+                className="h-12 md:h-20 w-auto"
+              >
+                <path d="M14.9.2h27.6l10.7 41.4L63.8.2h27.6v68H74.2V16.3L60.9 68.2H45.4L32.1 16.3v51.9H14.9zm148.4.1h51.9v14.6h-30.9v11.9h26.4v13.7h-26.4v27.8h-21.1zm55.9 0h56.3v14.5h-35.2v10.8H273v13.9h-32.7v13.4h36.3v15.4h-57.3zm61.4 0h21.1v68h-21.1zM147.4 0h-52v68h63.4V0zm-9.7 41.5v11.9h-21.2V14.6h21.2z" fill="#fff" />
+                <path d="M1.8 6.9h21.4v15.3c0 6.2-.5 11.1-1.6 14.7s-3.1 6.8-6.1 9.6-6.7 5.1-11.3 6.7L0 44.4C4.3 43 7.4 41 9.2 38.5s2.8-5.9 2.9-10.2H1.8z" fill="#f15a54" />
+              </svg>
+            </motion.div>
+          </div>
         </motion.div>
 
         {/* Typewriter effect */}
