@@ -1,6 +1,6 @@
 // "use client"
 
-import { fetchBlogContent, fetchBlogRecommend } from '@/app/actions/blog-server'
+import { fetchBlogContent, fetchBlogContentWithVisits, fetchBlogRecommend } from '@/app/actions/blog-server'
 import Foot from '@/components/Common/Foot';
 import Recommend from './recommends';
 import BlogComments from './comments';
@@ -94,7 +94,7 @@ export default async function Home({ params }: { params: Promise<{ lang: 'zh' | 
   const lang = (await params).lang
   const blog_id = (await params).blog_id
   const [blog, blogRecommend] = await Promise.all([
-    fetchBlogContent(blog_id, lang),
+    fetchBlogContentWithVisits(blog_id, lang),
     fetchBlogRecommend(blog_id, lang)
   ])
 

@@ -10,7 +10,6 @@ import { trackEvent } from '@/lib/gtag';
 import VoiceFeatureNotice from '@/components/VoiceFeatureNotice';
 import AudioManager from '@/utils/audioManager';
 import { useBlogVisitTracker } from '@/hooks/useBlogVisitTracker';
-import { getBlogVisits } from '@/app/actions/blog';
 import { usePlaylist } from '@/components/Context/PlaylistContext';
 
 interface BlogContent {
@@ -40,25 +39,14 @@ export default function PageContent({ params }: { params: { content: BlogContent
     // Track blog visit for analytics
     useBlogVisitTracker(blog_id);
 
-    // Get latest visit count from dedicated API
+    // Use visit count from server-side fetch (optimized - reduced API calls)
     useEffect(() => {
-        const fetchLatestVisitCount = async () => {
-            setLoadingVisitCount(true);
-            try {
-                const latestCount = await getBlogVisits(blog_id);
-                console.log('Latest visit count:', latestCount, 'for blog:', blog_id);
-                setVisitCount(latestCount);
-            } catch (error) {
-                console.warn('Failed to fetch latest visit count:', error);
-                // Keep using the initial count from blog content
-                setVisitCount(blog.visited || 0);
-            } finally {
-                setLoadingVisitCount(false);
-            }
-        };
-
-        // Fetch latest count after component mounts
-        fetchLatestVisitCount();
+        // blog.visited now contains the latest visit count from fetchBlogContentWithVisits
+        // This eliminates the need for a separate client-side API call in most cases
+        setVisitCount(blog.visited || 0);
+        setLoadingVisitCount(false);
+        
+        console.log('Using server-side visit count:', blog.visited, 'for blog:', blog_id);
     }, [blog_id, blog.visited]);
 
     const handleWeChatClick = () => {
@@ -130,13 +118,14 @@ export default function PageContent({ params }: { params: { content: BlogContent
         );
     };
 
-    // 检查当前音频是否正在播放 - 优化检查频率
+    // 事件驱动的音频状态检查 - 完全移除轮询
     useEffect(() => {
         if (!hasVoiceCommentary) return;
         
+        const audioManager = AudioManager.getInstance();
+        const audioSrc = `https://static.mofei.life/${blog.voice_commentary}`;
+        
         const checkPlayingStatus = () => {
-            const audioManager = AudioManager.getInstance();
-            const audioSrc = `https://static.mofei.life/${blog.voice_commentary}`;
             const newIsPlaying = audioManager.isPlaying(audioSrc);
             
             // 只在状态真正改变时才更新
@@ -148,10 +137,32 @@ export default function PageContent({ params }: { params: { content: BlogContent
             });
         };
         
-        // 减少检查频率，从200ms改为1000ms
-        const interval = setInterval(checkPlayingStatus, 1000);
+        // 初始状态检查
+        checkPlayingStatus();
         
-        return () => clearInterval(interval);
+        // 事件驱动更新 - 监听全局音频管理器的状态变化
+        const currentAudio = audioManager.getCurrentAudio();
+        if (currentAudio) {
+            const handlePlay = () => checkPlayingStatus();
+            const handlePause = () => checkPlayingStatus();
+            const handleEnded = () => checkPlayingStatus();
+            const handleLoadStart = () => checkPlayingStatus();
+            const handleCanPlay = () => checkPlayingStatus();
+            
+            currentAudio.addEventListener('play', handlePlay);
+            currentAudio.addEventListener('pause', handlePause);
+            currentAudio.addEventListener('ended', handleEnded);
+            currentAudio.addEventListener('loadstart', handleLoadStart);
+            currentAudio.addEventListener('canplay', handleCanPlay);
+            
+            return () => {
+                currentAudio.removeEventListener('play', handlePlay);
+                currentAudio.removeEventListener('pause', handlePause);
+                currentAudio.removeEventListener('ended', handleEnded);
+                currentAudio.removeEventListener('loadstart', handleLoadStart);
+                currentAudio.removeEventListener('canplay', handleCanPlay);
+            };
+        }
     }, [hasVoiceCommentary, blog.voice_commentary]);
 
     return <>

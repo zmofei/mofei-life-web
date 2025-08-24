@@ -116,7 +116,7 @@ export default function Comments(params: CommentsParams) {
         } finally {
             setIsPosting(false)
         }
-    }, [isPosting, message_id, singlePageMode, finalBaseURL, freshId])
+    }, [isPosting, message_id, singlePageMode, finalBaseURL, freshId, lang])
 
 
 

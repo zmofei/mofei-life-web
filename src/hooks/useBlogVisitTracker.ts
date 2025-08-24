@@ -4,30 +4,33 @@ import { useEffect, useRef } from 'react';
 import { recordBlogVisit } from '@/app/actions/blog';
 
 /**
- * Hook to track blog visits with deduplication
- * Prevents multiple visits from being recorded for the same blog within 1 minute
+ * Hook to track blog visits - records every page view (PV)
+ * No deduplication - each visit/refresh counts as a new visit
  */
 export function useBlogVisitTracker(blogId: string) {
   const hasRecorded = useRef(false);
-  const sessionKey = `blog_visit_${blogId}`;
 
   useEffect(() => {
-    // Avoid recording multiple times for the same blog in the same component lifecycle
-    if (hasRecorded.current) return;
-    
+    // Avoid recording multiple times in the same component lifecycle/render
+    if (hasRecorded.current) {
+      console.log(`🔄 Visit already recorded in this render for: ${blogId}`);
+      return;
+    }
 
     // Record the visit
     const recordVisit = async () => {
+      console.log(`🔥 Recording PV for blog: ${blogId}`);
       try {
         const success = await recordBlogVisit(blogId);
+        console.log(`📊 PV record result for ${blogId}:`, success);
         if (success) {
-          // Mark as recorded in session to prevent duplicate records
-          sessionStorage.setItem(sessionKey, '1');
           hasRecorded.current = true;
-          console.debug(`Blog visit recorded for: ${blogId}`);
+          console.log(`✅ PV recorded successfully for: ${blogId}`);
+        } else {
+          console.warn(`❌ Failed to record PV for: ${blogId} - API returned false`);
         }
       } catch (error) {
-        console.warn(`Failed to record blog visit for ${blogId}:`, error);
+        console.warn(`💥 Failed to record PV for ${blogId}:`, error);
       }
     };
 
@@ -37,5 +40,10 @@ export function useBlogVisitTracker(blogId: string) {
     return () => {
       clearTimeout(timeoutId);
     };
-  }, [blogId, sessionKey]);
+  }, [blogId]);
+
+  // Reset the flag when blogId changes (navigating to different blog)
+  useEffect(() => {
+    hasRecorded.current = false;
+  }, [blogId]);
 }

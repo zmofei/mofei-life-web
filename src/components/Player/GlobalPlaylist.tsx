@@ -57,7 +57,7 @@ export default function GlobalPlaylist() {
     }
   }, [currentTrack, isPlaying, currentTime, duration, setPlayerState]);
 
-  // Handle audio events
+  // Handle audio events with event-driven approach (no polling)
   useEffect(() => {
     if (!currentTrack) return;
 
@@ -73,32 +73,35 @@ export default function GlobalPlaylist() {
     // Initial check
     checkAudioState();
     
-    // Set up regular updates with longer interval to reduce rerender frequency
-    const interval = setInterval(checkAudioState, 1000);
-    
-    // Listen to audio events for more responsive updates
+    // Event-driven updates only - no polling interval
     const currentAudio = audioManager.getCurrentAudio();
     if (currentAudio) {
       const handleTimeUpdate = () => checkAudioState();
       const handleLoadedMetadata = () => checkAudioState();
       const handlePlay = () => checkAudioState();
       const handlePause = () => checkAudioState();
+      const handleEnded = () => checkAudioState();
+      const handleLoadStart = () => checkAudioState();
+      const handleCanPlay = () => checkAudioState();
       
       currentAudio.addEventListener('timeupdate', handleTimeUpdate);
       currentAudio.addEventListener('loadedmetadata', handleLoadedMetadata);
       currentAudio.addEventListener('play', handlePlay);
       currentAudio.addEventListener('pause', handlePause);
+      currentAudio.addEventListener('ended', handleEnded);
+      currentAudio.addEventListener('loadstart', handleLoadStart);
+      currentAudio.addEventListener('canplay', handleCanPlay);
       
       return () => {
-        clearInterval(interval);
         currentAudio.removeEventListener('timeupdate', handleTimeUpdate);
         currentAudio.removeEventListener('loadedmetadata', handleLoadedMetadata);
         currentAudio.removeEventListener('play', handlePlay);
         currentAudio.removeEventListener('pause', handlePause);
+        currentAudio.removeEventListener('ended', handleEnded);
+        currentAudio.removeEventListener('loadstart', handleLoadStart);
+        currentAudio.removeEventListener('canplay', handleCanPlay);
       };
     }
-    
-    return () => clearInterval(interval);
   }, [currentTrack, isPlaying, checkAudioState]);
 
   // Format time display

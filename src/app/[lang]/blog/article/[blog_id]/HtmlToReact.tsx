@@ -45,10 +45,21 @@ const HtmlToReact: React.FC<{ htmlString: string }> = ({ htmlString }) => {
     } = {
         img: (node, props) => {
             props.src = replaceCDNDomain(props.src);
+            // Enhanced image loading with lazy loading and better performance
             return (
                 <PhotoView key={props.src} src={props.src}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img {...props} alt="" />
+                    <img 
+                        {...props} 
+                        alt={props.alt || ""}
+                        loading="lazy"
+                        decoding="async"
+                        style={{
+                            ...props.style,
+                            maxWidth: '100%',
+                            height: 'auto',
+                        }}
+                    />
                 </PhotoView>
             )
         },

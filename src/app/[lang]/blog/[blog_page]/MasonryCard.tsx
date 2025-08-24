@@ -145,14 +145,16 @@ export default function MasonryCard({ blog, index }: { blog: any, index: number 
                                 }}></div>
                         </div>
                     ) : (
-                        // Regular image for life articles
+                        // Regular image for life articles with optimized loading
                         <Image
                             src={replaceCDNDomain(cover)}
                             alt={title}
                             fill
                             className="object-cover"
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                            priority={index < 6}
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, (max-width: 1600px) 33vw, 25vw"
+                            priority={index < 4} // 优化：前4张优先加载
+                            loading={index < 4 ? 'eager' : 'lazy'}
+                            quality={index < 2 ? 90 : 80} // 前2张更高质量
                             style={{ objectFit: 'cover' }}
                         />
                         )

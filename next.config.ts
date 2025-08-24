@@ -61,7 +61,7 @@ const nextConfig: NextConfig = {
         // },
         {
           source: "/api/:path*",
-          destination: "https://www.mofei.life/api/:path*", // Proxy to Backend
+          destination: "https://api.mofei.life/api/:path*", // Proxy to Backend
         },
         {
           source: "/api/finshare/wall/:path*",

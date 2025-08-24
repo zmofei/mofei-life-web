@@ -1,4 +1,5 @@
-const NEW_API_URL = "https://api.mofei.life/api";
+// Use proxy in development, direct API in production
+const NEW_API_URL = process.env.NODE_ENV === "development" ? "/api" : "https://api.mofei.life/api";
 
 export async function fetchSiteMap() {
   const URL = `${NEW_API_URL}/blog/sitemap`;
