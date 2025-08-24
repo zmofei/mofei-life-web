@@ -17,7 +17,7 @@ function Foot(params: { lang: string; isHomePage?: boolean }) {
         setShowWeChatModal(false);
     };
     const footerBackgroundClass = params.isHomePage
-        ? "w-full bg-black/80 snap-start overflow-hidden relative pb-safe min-h-fit"
+        ? "w-full bg-black/30 backdrop-blur-md border-t border-purple-500/20 snap-start overflow-hidden relative pb-safe min-h-fit"
         : "w-full bg-white/10 backdrop-blur-lg border-t border-white/20 snap-start overflow-hidden relative pb-safe min-h-fit";
 
     return (
@@ -26,7 +26,7 @@ function Foot(params: { lang: string; isHomePage?: boolean }) {
             {/* 分割线 */}
             <div className="w-full">
                 <div className="container max-w-[2000px] mx-auto px-5 md:px-10 lg:px-16">
-                    <div className="h-px bg-gradient-to-r from-transparent via-gray-700 to-transparent"></div>
+                    <div className={`h-px ${params.isHomePage ? 'bg-gradient-to-r from-transparent via-purple-500/50 to-transparent' : 'bg-gradient-to-r from-transparent via-gray-700 to-transparent'}`}></div>
                 </div>
             </div>
 

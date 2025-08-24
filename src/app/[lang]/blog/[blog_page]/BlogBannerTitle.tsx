@@ -46,14 +46,14 @@ export default function BlogBannerTitle(params: { lang: 'zh' | 'en' }) {
 
     return (
         <>
-            <div className='container max-w-[2000px] m-auto width-full overflow-hidden'>
-                <div className='font-extrabold overflow-hidden pt-20 w-full px-5 md:px-10 lg:px-16'>
+            <div className='container max-w-[2000px] m-auto width-full overflow-hidden pt-20 md:pt-32 pb-8'>
+                <div className='font-extrabold overflow-hidden w-full px-5 md:px-10 lg:px-16'>
                     <h1
                         className={`font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#a1c4fd] to-[#c2e9fb] leading-tight 
-                            text-3xl mt-5 mb-4
-                            md:text-5xl md:mt-10 md:mb-6
-                            lg:text-6xl lg:mt-10 lg:mb-8
-                            xl:text-7xl xl:mt-10 xl:mb-10
+                            text-3xl mb-4
+                            md:text-5xl md:mb-6
+                            lg:text-6xl lg:mb-8
+                            xl:text-7xl xl:mb-10
                         `}
                     >
                         <Lan lang={lang} candidate={{

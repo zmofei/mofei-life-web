@@ -22,7 +22,7 @@ export default function BlogComments(
 
     return (
         <>
-            <div id="comments-section" className='max-w-7xl mx-auto px-4 md:px-6 lg:px-8
+            <div id="comments-section" className='max-w-7xl mx-auto
                   mt-5 text-lg 
                   md:mt-18 md:text-3xl
                 '>
@@ -32,7 +32,7 @@ export default function BlogComments(
                     >{BlogCommentPrompts[blogCommentPromptIndex][lang]}</h3>
                 </div>
             </div>
-            <div className='max-w-7xl mx-auto px-2 md:px-6 lg:px-8
+            <div className='max-w-7xl mx-auto
                       mt-5 text-lg 
                       md:mt-18 md:text-3xl
                     '>

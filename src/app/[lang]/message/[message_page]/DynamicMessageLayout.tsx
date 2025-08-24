@@ -1,0 +1,59 @@
+"use client"
+
+import Foot from '@/components/Common/Foot';
+import Comments from '@/components/Comments/Comments';
+import BlogBackground from '../../blog/[blog_page]/BlogBackground';
+import MessageHeader from './MessageHeader';
+
+interface DynamicMessageLayoutProps {
+  lang: 'zh' | 'en';
+  message_page: number;
+}
+
+export default function DynamicMessageLayout({ 
+  lang, 
+  message_page 
+}: DynamicMessageLayoutProps) {
+
+  return (
+    <>
+      {/* Fixed background */}
+      <div className="fixed inset-0 z-0">
+        <BlogBackground />
+      </div>
+
+      {/* Fixed header section */}
+      <div className="fixed top-0 left-0 right-0 z-10">
+        <MessageHeader lang={lang} />
+      </div>
+
+      {/* Spacer with hidden header content to maintain exact height */}
+      <div className="invisible pointer-events-none" aria-hidden="true">
+        <MessageHeader lang={lang} />
+      </div>
+
+      {/* Scrolling content with glass effect */}
+      <div className="relative z-20">
+        <div className="bg-black/10 backdrop-blur-lg">
+          {/* Gradient separator line */}
+          <div className="container max-w-[2000px] m-auto px-5 md:px-10 py-8 md:py-12">
+            <div className="h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+          </div>
+          
+          <div className='min-h-screen relative
+            px-2 pt-0 pb-4
+            md:px-10 md:pt-0 md:pb-6
+            lg:px-16 xl:px-20 2xl:px-24
+          '>
+            <Comments lang={lang} message_id="000000000000000000000000" message_page={message_page} />
+          </div>
+          
+          {/* Footer - outside content wrapper for full width */}
+          <div className='mt-10 md:mt-20'>
+            <Foot lang={lang} />
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}

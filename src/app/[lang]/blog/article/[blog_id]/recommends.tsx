@@ -23,7 +23,7 @@ export default function Recommend({ blogRecommend }: { blogRecommend: Array<Blog
 
 
     return blogRecommend.length == 0 ? <></> : (
-        <div className='max-w-7xl mx-auto px-2 md:px-6 lg:px-8
+        <div className='max-w-7xl mx-auto
               mt-16 mb-16
               md:mt-20 md:mb-20
             '

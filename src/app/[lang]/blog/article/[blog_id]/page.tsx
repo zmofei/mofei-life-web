@@ -1,12 +1,6 @@
-// "use client"
-
 import { fetchBlogContent, fetchBlogContentWithVisits, fetchBlogRecommend } from '@/app/actions/blog-server'
-import Foot from '@/components/Common/Foot';
-import Recommend from './recommends';
-import BlogComments from './comments';
-import type { Metadata } from 'next'
-import PageContent from './page_content';
-import BlogBackground from '../../[blog_page]/BlogBackground';
+import type { Metadata } from 'next';
+import DynamicArticleLayout from './DynamicArticleLayout';
 
 type Props = {
   params: Promise<{ lang: 'zh' | 'en', blog_page: number, blog_id: string }>
@@ -172,28 +166,12 @@ export default async function Home({ params }: { params: Promise<{ lang: 'zh' | 
       dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
     />
 
-    {/* Animated background */}
-    <BlogBackground />
-
-    {/* Main html */}
-    <div className='min-h-screen relative z-10
-      mt-20 px-2 
-      md:mt-32 md:px-10
-      lg:px-16 xl:px-20 2xl:px-24
-    '>
-      <PageContent params={{ content: blog, lang, blog_id }} />
-
-      {/* Recommend blogs */}
-      <Recommend blogRecommend={blogRecommend} />
-
-      {/* Comments */}
-      <BlogComments lang={lang} message_id={blog_id} />
-    </div >
-
-    {/* Foot */}
-    <div className='mt-10 md:mt-20 relative z-10'>
-      <Foot lang={lang} />
-    </div>
+    <DynamicArticleLayout 
+      blog={blog} 
+      lang={lang} 
+      blog_id={blog_id} 
+      blogRecommend={blogRecommend} 
+    />
   </>
 
 }

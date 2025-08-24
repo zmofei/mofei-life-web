@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import InteractiveHero from "@/components/Home/InteractiveHero";
 import { motion } from "motion/react";
@@ -10,6 +10,7 @@ import { notFound } from 'next/navigation';
 export default function Home({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = use(params);
   
+  // Validate language parameter
   const VALID_LANGUAGES = ['en', 'zh'];
   if (!VALID_LANGUAGES.includes(lang)) {
     notFound();
@@ -50,7 +51,7 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
         "name": "Baidu"
       },
       {
-        "@type": "Organization", 
+        "@type": "Organization",
         "name": "Yiban"
       }
     ],
@@ -99,6 +100,7 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
 
   return (
     <>
+      {/* Structured Data */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
@@ -108,15 +110,11 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
         dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
       />
 
-      {/* Fixed hero background including particles */}
-      <div className="fixed inset-0 z-0">
-        <InteractiveHero lang={lang} />
-      </div>
+      {/* Interactive Hero Section */}
+      <InteractiveHero lang={lang} />
 
-      {/* Spacer for fixed hero */}
-      <div className="h-screen"></div>
-
-      <div className="w-full relative z-10 min-h-screen bg-black/30 backdrop-blur-sm">
+      <div className="w-full relative z-10 min-h-screen bg-gradient-to-br from-slate-900 via-purple-900/5 to-slate-900">
+        {/* Global floating particles */}
         <div className="fixed inset-0 pointer-events-none z-0">
           {[...Array(10)].map((_, i) => (
             <motion.div
@@ -142,7 +140,8 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
           ))}
         </div>
 
-        <div className="w-full bg-black/10 backdrop-blur-sm">
+        {/* Animated Divider */}
+        <div className="w-full bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900">
           <div className="container max-w-[2000px] mx-auto px-5 md:px-10 lg:px-16">
             <motion.div 
               className="h-px bg-gradient-to-r from-transparent via-purple-500/50 to-transparent"
@@ -154,8 +153,10 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
           </div>
         </div>
 
-        <Suspense fallback={<div className="min-h-svh flex items-center justify-center text-white">Loading...</div>}>
-          <div className="min-h-svh w-full relative overflow-hidden bg-black/20 backdrop-blur-sm">
+        {/* About Me - Interactive Design */}
+        <Suspense fallback={<div className="min-h-svh bg-gradient-to-br from-slate-900 to-purple-900/20 flex items-center justify-center text-white">Loading...</div>}>
+          <div className="min-h-svh w-full relative bg-gradient-to-br from-slate-900 via-purple-900/10 to-slate-900 overflow-hidden">
+            {/* Animated background particles */}
             <div className="absolute inset-0 opacity-30">
               {[...Array(15)].map((_, i) => (
                 <motion.div
@@ -181,6 +182,7 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
               ))}
             </div>
 
+            {/* Animated gradient orbs */}
             <div className="absolute inset-0">
               <motion.div
                 className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500 rounded-full filter blur-[128px] opacity-20"
@@ -211,6 +213,7 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
             <div className='container max-w-[2000px] m-auto relative z-10'>
               <div className='px-5 md:px-10 lg:px-16 py-16 md:py-24 lg:py-32'>
                 <div>
+                  {/* Section Title with Animation */}
                   <motion.div 
                     className="text-center mb-16 relative"
                     initial={{ opacity: 0, y: 50 }}
@@ -233,13 +236,22 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
                     />
                   </motion.div>
 
+                  {/* Core introduction with glassmorphism cards */}
                   <div className="mb-16 md:mb-20 w-full">
                     <motion.div 
                       className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8"
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.6, ease: "easeOut" }}
+                      initial="hidden"
+                      whileInView="visible"
                       viewport={{ once: true }}
+                      variants={{
+                        hidden: { opacity: 0 },
+                        visible: {
+                          opacity: 1,
+                          transition: {
+                            staggerChildren: 0.2
+                          }
+                        }
+                      }}
                     >
                       {[
                         {
@@ -255,9 +267,17 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
                           en: "Beyond technology, I record thoughts with words and capture moments with cameras. Exploration is my way of staying curious about the world."
                         }
                       ].map((item, index) => (
-                        <div
+                        <motion.div
                           key={index}
-                          className={`relative overflow-hidden p-6 md:p-8 rounded-2xl backdrop-blur-md transition-all duration-300 hover:scale-[1.01] hover:translate-y-[-2px] group ${index === 0 ? 'lg:col-span-2' : ''}`}
+                          className={`relative overflow-hidden p-6 md:p-8 rounded-2xl backdrop-blur-md transition-all duration-300 hover:scale-[1.02] ${index === 0 ? 'lg:col-span-2' : ''
+                            }`}
+                          initial={{ opacity: 0, y: 50 }}
+                          whileInView={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.5, delay: index * 0.1 }}
+                          viewport={{ once: true }}
+                          whileHover={{ 
+                            boxShadow: "0 20px 40px rgba(139, 92, 246, 0.3)"
+                          }}
                           style={{
                             background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(59, 130, 246, 0.05) 50%, rgba(147, 51, 234, 0.1) 100%)',
                             border: '1px solid rgba(139, 92, 246, 0.3)',
@@ -266,17 +286,19 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
                           <p className="relative z-10 text-lg md:text-xl lg:text-2xl font-light leading-relaxed text-gray-300">
                             {item[lang as 'zh' | 'en']}
                           </p>
-                          <div
-                            className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-300 pointer-events-none"
+                          {/* Animated gradient overlay */}
+                          <motion.div
+                            className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-300 pointer-events-none"
                             style={{
-                              background: 'radial-gradient(600px circle at 50% 50%, rgba(139, 92, 246, 0.3), transparent 40%)'
+                              background: 'radial-gradient(600px circle at 50% 50%, rgba(139, 92, 246, 0.15), transparent 40%)'
                             }}
                           />
-                        </div>
+                        </motion.div>
                       ))}
                     </motion.div>
                   </div>
 
+                  {/* Skills & expertise - Interactive cards */}
                   <div className="mb-16 md:mb-20">
                     <motion.div 
                       className="flex items-center justify-between mb-12"
@@ -300,7 +322,9 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
                           border: '1px solid rgba(139, 92, 246, 0.3)',
                         }}
                       >
-                        <div style={{ transform: `rotate(${expandedSkills.size === 6 ? 180 : 0}deg)` }}>
+                        <div
+                          style={{ transform: `rotate(${expandedSkills.size === 6 ? 180 : 0}deg)` }}
+                        >
                           {expandedSkills.size === 6 ? '📤' : '📥'}
                         </div>
                         <span>
@@ -312,13 +336,7 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
                       </button>
                     </motion.div>
 
-                    <motion.div 
-                      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.6, ease: "easeOut" }}
-                      viewport={{ once: true }}
-                    >
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                       {[
                         {
                           title: { zh: "AI & 机器学习", en: "AI & Machine Learning" },
@@ -387,9 +405,16 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
                           ]
                         }
                       ].map((section, sectionIndex) => (
-                        <div
+                        <motion.div
                           key={sectionIndex}
-                          className="relative p-4 md:p-6 rounded-2xl md:rounded-3xl overflow-hidden backdrop-blur-md transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px] cursor-pointer group"
+                          className="relative p-4 md:p-6 rounded-2xl md:rounded-3xl overflow-hidden backdrop-blur-md transition-all duration-300 hover:scale-105 cursor-pointer"
+                          initial={{ opacity: 0, y: 30 }}
+                          whileInView={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.5, delay: sectionIndex * 0.1 }}
+                          viewport={{ once: true }}
+                          whileHover={{ 
+                            boxShadow: "0 20px 40px rgba(139, 92, 246, 0.3)"
+                          }}
                           onClick={() => {
                             setExpandedSkills(prev => {
                               const newSet = new Set(prev);
@@ -436,15 +461,22 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
                             ))}
                           </div>
 
-                          <div className="absolute top-4 right-4 md:top-6 md:right-6 w-12 h-12 md:w-20 md:h-20 opacity-20">
+                          <motion.div 
+                            className="absolute top-4 right-4 md:top-6 md:right-6 w-12 h-12 md:w-20 md:h-20 opacity-20"
+                            animate={{
+                              rotate: expandedSkills.has(sectionIndex) ? 360 : 0,
+                            }}
+                            transition={{ duration: 0.5 }}
+                          >
                             <div className="w-full h-full border border-purple-400/30 rounded-full"></div>
                             <div className="absolute top-1 left-1 md:top-2 md:left-2 w-10 h-10 md:w-16 md:h-16 border border-cyan-400/20 rounded-full"></div>
-                          </div>
-                        </div>
+                          </motion.div>
+                        </motion.div>
                       ))}
-                    </motion.div>
+                    </div>
                   </div>
 
+                  {/* Contact Section - Interactive Design */}
                   <div className="border-t border-purple-500/30 pt-16 relative">
                     <motion.h2 
                       className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-cyan-400 to-purple-600 bg-clip-text text-transparent mb-12 tracking-wide text-center"
@@ -459,13 +491,7 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
                       }} />
                     </motion.h2>
 
-                    <motion.div 
-                      className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 lg:gap-8"
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.6, ease: "easeOut" }}
-                      viewport={{ once: true }}
-                    >
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
                       {[
                         {
                           label: "Email",
@@ -490,9 +516,17 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
                         }
                       ].map((contact, index) => {
                         return (
-                          <div
+                          <motion.div
                             key={index}
-                            className="relative p-4 md:p-6 rounded-xl md:rounded-2xl overflow-hidden cursor-pointer group backdrop-blur-md transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]"
+                            className="relative p-4 md:p-6 rounded-xl md:rounded-2xl overflow-hidden cursor-pointer group backdrop-blur-md transition-all duration-300"
+                            initial={{ opacity: 0, y: 30 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: index * 0.1 }}
+                            viewport={{ once: true }}
+                            whileHover={{ 
+                              scale: 1.05,
+                              boxShadow: "0 20px 40px rgba(139, 92, 246, 0.4)"
+                            }}
                             style={{
                               background: `linear-gradient(135deg, ${contact.color.replace('/20', '/15')})`,
                               border: '1px solid rgba(139, 92, 246, 0.3)',
@@ -501,7 +535,7 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
                               onClick: () => window.open(contact.href, contact.href.startsWith('http') ? '_blank' : '_self')
                             })}
                           >
-                            <div
+                            <motion.div
                               className={`absolute inset-0 bg-gradient-to-br ${contact.color.replace('/20', '/30')} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}
                             />
 
@@ -518,18 +552,23 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
                             </p>
 
                             {contact.href && (
-                              <div
+                              <motion.div
                                 className="absolute top-4 right-4 w-2 h-2 bg-gradient-to-r from-cyan-400 to-purple-500 rounded-full opacity-0 group-hover:opacity-100"
+                                animate={{ scale: [1, 1.2, 1] }}
+                                transition={{ duration: 2, repeat: Infinity }}
                               />
                             )}
 
-                            <div
-                              className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-purple-500 to-cyan-400 w-0 group-hover:w-full transition-all duration-300"
+                            <motion.div
+                              className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-purple-500 to-cyan-400"
+                              initial={{ width: 0 }}
+                              whileHover={{ width: "100%" }}
+                              transition={{ duration: 0.3 }}
                             />
-                          </div>
+                          </motion.div>
                         );
                       })}
-                    </motion.div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -537,297 +576,7 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
           </div>
         </Suspense>
 
-        {/* Animated Divider */}
-        <div className="w-full bg-black/10 backdrop-blur-sm">
-          <div className="container max-w-[2000px] mx-auto px-5 md:px-10 lg:px-16">
-            <motion.div 
-              className="h-px bg-gradient-to-r from-transparent via-purple-500/50 to-transparent"
-              initial={{ scaleX: 0 }}
-              whileInView={{ scaleX: 1 }}
-              transition={{ duration: 1 }}
-              viewport={{ once: true }}
-            />
-          </div>
-        </div>
-
-        {/* Journey Section - Interactive Design */}
-        <Suspense fallback={<div className="min-h-svh flex items-center justify-center text-white">Loading...</div>}>
-          <div className="min-h-svh w-full relative overflow-hidden bg-black/20 backdrop-blur-sm">
-            {/* Animated gradient orbs */}
-            <div className="absolute inset-0">
-              <motion.div
-                className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500 rounded-full filter blur-[128px] opacity-20"
-                animate={{
-                  x: [0, 100, 0],
-                  y: [0, -100, 0],
-                }}
-                transition={{
-                  duration: 20,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-              />
-              <motion.div
-                className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500 rounded-full filter blur-[128px] opacity-20"
-                animate={{
-                  x: [0, -100, 0],
-                  y: [0, 100, 0],
-                }}
-                transition={{
-                  duration: 15,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-              />
-            </div>
-
-            <div className='container max-w-[2000px] m-auto relative z-10'>
-              <div className='px-5 md:px-10 lg:px-16 py-16 md:py-24 lg:py-32'>
-                <div>
-                  {/* Interactive Section Title */}
-                  <motion.h1 
-                    className="text-4xl md:text-6xl lg:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 mb-8 tracking-wider"
-                    initial={{ opacity: 0, y: 50 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8 }}
-                    viewport={{ once: true }}
-                  >
-                    <Lan lang={lang} candidate={{
-                      "zh": "探索之路",
-                      "en": "The Journey"
-                    }} />
-                  </motion.h1>
-
-                  {/* Animated subtitle */}
-                  <motion.p 
-                    className="text-xl md:text-2xl text-gray-300 mb-16 md:mb-20 max-w-3xl font-light leading-relaxed"
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 0.2 }}
-                    viewport={{ once: true }}
-                  >
-                    <Lan lang={lang} candidate={{
-                      "zh": `从淮南到赫尔辛基，${yearsOfExperience}年的技术与人生轨迹。每一次迁移，都是对可能性的重新定义。`,
-                      "en": `From Huainan to Helsinki, ${yearsOfExperience} years of technology and life trajectory. Every move redefines the realm of possibilities.`
-                    }} />
-                  </motion.p>
-
-                  {/* Interactive Timeline */}
-                  <div className="relative space-y-6 md:space-y-8 lg:space-y-12 mb-16 md:mb-20">
-
-                    {[
-                      {
-                        period: lang === 'zh' ? '🌱 至2008' : '🌱 -2008',
-                        location: lang === 'zh' ? '淮南' : 'Huainan',
-                        role: lang === 'zh' ? '起点 · 淮南' : 'Starting Point · Huainan',
-                        description: lang === 'zh' ? '从小城市出发，对世界和技术充满好奇，为未来打下基础。' : 'Starting from a small city, full of curiosity about the world and technology, laying the foundation for the future.',
-                        gradient: 'from-emerald-500/20 via-green-500/10 to-emerald-600/20',
-                        accentColor: 'emerald-400',
-                        glowColor: 'rgba(16, 185, 129, 0.3)',
-                        bgPattern: 'radial-gradient(circle at 20% 20%, rgba(16, 185, 129, 0.15) 0%, transparent 50%)'
-                      },
-                      {
-                        period: '🚀 2008-2014',
-                        location: lang === 'zh' ? '上海' : 'Shanghai',
-                        role: lang === 'zh' ? '上海 · 易班（校园社交创业）' : 'Shanghai · Yiban (Campus Social Startup)',
-                        description: lang === 'zh' ? '初来上海求学时，机缘巧合参与了校园社交平台的搭建，从学生身份逐步转变为开发者，也开启了我与前端技术的长期关系。' : 'When I first came to Shanghai for studies, I had the opportunity to participate in building a campus social platform, gradually transforming from student to developer, beginning my long-term relationship with frontend technology.',
-                        gradient: 'from-blue-500/20 via-sky-500/10 to-blue-600/20',
-                        accentColor: 'sky-400',
-                        glowColor: 'rgba(14, 165, 233, 0.3)',
-                        bgPattern: 'radial-gradient(circle at 80% 30%, rgba(14, 165, 233, 0.15) 0%, transparent 50%)'
-                      },
-                      {
-                        period: '🧠 2014-2018',
-                        location: lang === 'zh' ? '北京' : 'Beijing',
-                        role: lang === 'zh' ? '北京 · 百度（数据可视化）' : 'Beijing · Baidu (Data Visualization)',
-                        description: lang === 'zh' ? '在大型互联网公司打磨前端技能，专注数据可视化与交互体验，积累系统级研发经验。' : 'Honing frontend skills at a major internet company, focusing on data visualization and interactive experiences, accumulating system-level development experience.',
-                        gradient: 'from-purple-500/20 via-violet-500/10 to-purple-600/20',
-                        accentColor: 'violet-400',
-                        glowColor: 'rgba(124, 58, 237, 0.3)',
-                        bgPattern: 'radial-gradient(circle at 30% 70%, rgba(124, 58, 237, 0.15) 0%, transparent 50%)'
-                      },
-                      {
-                        period: '🌍 2018-2023',
-                        location: lang === 'zh' ? '上海' : 'Shanghai',
-                        role: lang === 'zh' ? '上海 · Mapbox（地图平台研发）' : 'Shanghai · Mapbox (Map Platform Development)',
-                        description: lang === 'zh' ? '加入全球团队，主导地图数据处理管道建设，深入探索地理信息与大数据的结合，将工程能力与全球化产品实践相融合。' : 'Joined a global team, leading map data processing pipeline construction, deeply exploring the combination of geographic information and big data, integrating engineering capabilities with global product practices.',
-                        gradient: 'from-cyan-500/20 via-teal-500/10 to-cyan-600/20',
-                        accentColor: 'teal-400',
-                        glowColor: 'rgba(20, 184, 166, 0.3)',
-                        bgPattern: 'radial-gradient(circle at 70% 50%, rgba(20, 184, 166, 0.15) 0%, transparent 50%)'
-                      },
-                      {
-                        period: lang === 'zh' ? '❄️ 2023-至今' : '❄️ 2023-Now',
-                        location: lang === 'zh' ? '赫尔辛基' : 'Helsinki',
-                        role: lang === 'zh' ? '赫尔辛基 · Mapbox（数据 & AI 工程）' : 'Helsinki · Mapbox (Data & AI Engineering)',
-                        description: lang === 'zh' ? '搬到北欧后，继续在地图与数据处理领域深耕，目前专注于将 AI 能力引入地理信息系统，探索智能体、自动化分析等方向，致力于让地图变得更聪明、更有洞察力。' : 'After moving to Northern Europe, continuing to deepen expertise in mapping and data processing, currently focusing on introducing AI capabilities into geographic information systems, exploring intelligent agents and automated analysis, dedicated to making maps smarter and more insightful.',
-                        gradient: 'from-indigo-500/20 via-blue-500/10 to-purple-600/20',
-                        accentColor: 'indigo-400',
-                        glowColor: 'rgba(99, 102, 241, 0.3)',
-                        bgPattern: 'radial-gradient(circle at 50% 80%, rgba(99, 102, 241, 0.15) 0%, transparent 50%)'
-                      }
-                    ].map((item, index) => (
-                      <motion.div
-                        key={index}
-                        className="relative group"
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, delay: index * 0.1, ease: "easeOut" }}
-                        viewport={{ once: true }}
-                      >
-
-                        {/* Futuristic card design */}
-                        <motion.div
-                          className="relative overflow-hidden"
-                          style={{
-                            background: item.bgPattern,
-                            backdropFilter: 'blur(20px)',
-                            WebkitBackdropFilter: 'blur(20px)',
-                          }}
-                          whileHover={{ 
-                            scale: 1.01,
-                            y: -2
-                          }}
-                          transition={{ duration: 0.3, ease: "easeOut" }}
-                        >
-                          {/* Hexagonal shape with clip-path */}
-                          <div 
-                            className={`relative p-6 md:p-8 text-white bg-gradient-to-br ${item.gradient}`}
-                            style={{
-                              clipPath: 'polygon(0 0, calc(100% - 25px) 0, 100% 25px, 100% 100%, 25px 100%, 0 calc(100% - 25px))',
-                              border: `1px solid ${item.glowColor}`,
-                            }}
-                          >
-                            {/* Floating geometric elements */}
-                            <div className="absolute top-3 right-3 w-8 h-8 opacity-20">
-                              <motion.div
-                                className={`w-full h-full border-2 border-${item.accentColor} rounded-full`}
-                                animate={{ rotate: 360 }}
-                                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                              />
-                              <motion.div
-                                className={`absolute top-1 left-1 w-6 h-6 border border-${item.accentColor}/60 rounded-full`}
-                                animate={{ rotate: -360 }}
-                                transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-                              />
-                            </div>
-
-                            {/* Period and emoji with glow effect */}
-                            <div className="flex items-center gap-3 mb-4">
-                              <span 
-                                className={`px-4 py-2 rounded-full text-sm font-bold bg-gradient-to-r from-${item.accentColor}/30 to-${item.accentColor}/10 border border-${item.accentColor}/40 text-${item.accentColor} backdrop-blur-sm`}
-                                style={{
-                                  textShadow: `0 0 10px ${item.glowColor}`
-                                }}
-                              >
-                                {item.period}
-                              </span>
-                              <span className="text-2xl filter drop-shadow-lg">
-                                {item.period.split(' ')[0]}
-                              </span>
-                            </div>
-
-                            {/* Location badge */}
-                            <div className="mb-4">
-                              <span className={`inline-flex items-center gap-1 px-3 py-1 text-xs uppercase tracking-widest font-semibold text-${item.accentColor} bg-${item.accentColor}/10 rounded-full border border-${item.accentColor}/30`}>
-                                <span>📍</span>
-                                {item.location}
-                              </span>
-                            </div>
-                            
-                            {/* Role with subtle gradient text */}
-                            <h3 className={`text-xl md:text-2xl font-bold mb-4 bg-gradient-to-r from-white via-${item.accentColor} to-white bg-clip-text text-transparent leading-tight`}>
-                              {item.role}
-                            </h3>
-                            
-                            {/* Enhanced description */}
-                            <p className="text-gray-200 leading-relaxed text-sm md:text-base">
-                              {item.description}
-                            </p>
-
-                            {/* Decorative corner accents */}
-                            <div 
-                              className={`absolute top-0 right-0 w-16 h-16 border-t-2 border-r-2 border-${item.accentColor}/40 opacity-50`}
-                              style={{
-                                clipPath: 'polygon(60% 0%, 100% 0%, 100% 40%)'
-                              }}
-                            />
-                            <div 
-                              className={`absolute bottom-0 left-0 w-16 h-16 border-b-2 border-l-2 border-${item.accentColor}/40 opacity-50`}
-                              style={{
-                                clipPath: 'polygon(0% 60%, 0% 100%, 40% 100%)'
-                              }}
-                            />
-                          </div>
-
-                          {/* Subtle hover overlay */}
-                          <div
-                            className="absolute inset-0 opacity-0 group-hover:opacity-30 pointer-events-none transition-opacity duration-300"
-                            style={{
-                              background: `linear-gradient(135deg, transparent 30%, ${item.glowColor} 70%, transparent 100%)`
-                            }}
-                          />
-                        </motion.div>
-                      </motion.div>
-                    ))}
-                  </div>
-
-                  {/* Philosophy Quote Section */}
-                  <div className="border-t border-purple-500/30 pt-16">
-                    <motion.div
-                      className="relative p-8 rounded-3xl overflow-hidden backdrop-blur-md"
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      whileInView={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.8 }}
-                      viewport={{ once: true }}
-                      whileHover={{ 
-                        boxShadow: "0 25px 50px rgba(139, 92, 246, 0.4)"
-                      }}
-                      style={{
-                        background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(59, 130, 246, 0.08) 50%, rgba(147, 51, 234, 0.12) 100%)',
-                        border: '1px solid rgba(139, 92, 246, 0.3)',
-                      }}
-                    >
-                      <motion.blockquote 
-                        className="text-2xl md:text-3xl lg:text-4xl text-gray-200 font-light leading-relaxed max-w-5xl mx-auto text-center relative z-10"
-                        initial={{ opacity: 0, y: 30 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8, delay: 0.3 }}
-                        viewport={{ once: true }}
-                      >
-                        <span className="text-purple-400 text-5xl">&ldquo;</span>
-                        <Lan lang={lang} candidate={{
-                          "zh": "探索不是为了到达某个终点，而是为了在路上发现更多的可能性。技术让我们能够跨越地理的界限，但真正的探索发生在思维的边界。",
-                          "en": "Exploration is not about reaching a destination, but about discovering more possibilities along the way. Technology allows us to transcend geographical boundaries, but true exploration happens at the edges of our thinking."
-                        }} />
-                        <span className="text-purple-400 text-5xl">&rdquo;</span>
-                      </motion.blockquote>
-
-                      {/* Animated decorative elements */}
-                      <motion.div 
-                        className="absolute top-6 right-6 w-20 h-20 opacity-20"
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                      >
-                        <div className="w-full h-full border border-purple-400/30 rounded-full"></div>
-                        <motion.div 
-                          className="absolute top-2 left-2 w-16 h-16 border border-cyan-400/30 rounded-full"
-                          animate={{ rotate: -360 }}
-                          transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-                        />
-                      </motion.div>
-                    </motion.div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </Suspense>
-
-        {/* Footer with integrated design */}
-        <div className="w-full relative z-10">
-          <Foot lang={lang} isHomePage={true} />
-        </div>
+        <Foot lang={lang} isHomePage={true} />
       </div>
     </>
   );

@@ -1,13 +1,7 @@
 
-import Foot from '@/components/Common/Foot';
-
 import { fetchBlogList, fetchTagList } from '@/app/actions/blog-server';
-
-import BlogBannerTitle from './BlogBannerTitle'
-import BlogBackground from './BlogBackground'
-import BlogContent from './BlogContent'
+import DynamicBlogLayout from './DynamicBlogLayout';
 import './blog-grid.css'
-
 import type { Metadata } from 'next'
 
 
@@ -52,32 +46,14 @@ export default async function BlogPage({ params, searchParams }: Props) {
 
 
   return (
-    <>
-      <BlogBackground />
-      
-      <div className="relative z-10">
-        <BlogBannerTitle lang={lang} />
-      
-      {/* Separator between banner and blog items */}
-      <div className="container max-w-[2000px] m-auto px-5 md:px-10 my-8 md:my-12">
-        <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-      </div>
-      
-      {/* Enhanced blog content with loading states */}
-      <BlogContent
-        blogList={blogList}
-        totalPages={totalPages}
-        lang={lang}
-        tagList={tagList}
-        currentPage={Number(blog_page)}
-        tag={tag as string}
-        isPageOutOfBounds={isPageOutOfBounds}
-      />
-
-        <div className='mt-10 md:mt-24'>
-          <Foot lang={lang} />
-        </div>
-      </div>
-    </>
+    <DynamicBlogLayout
+      blogList={blogList}
+      totalPages={totalPages}
+      lang={lang}
+      tagList={tagList}
+      currentPage={Number(blog_page)}
+      tag={tag as string}
+      isPageOutOfBounds={isPageOutOfBounds}
+    />
   );
 }
