@@ -8,19 +8,31 @@ import BlogContent from './BlogContent';
 interface BlogItem {
   _id: string;
   title: string;
-  [key: string]: unknown;
+  content: string;
+  date: string;
+  processedCover?: string;
+  fallbackCover?: string;
+  processedTitle?: { en?: string; zh?: string };
+  processedIntroduction?: { en?: string; zh?: string };
+  introduction?: string;
+  tags?: Array<{ id: number; name: string; color?: string }>;
+  pubtime: string;
+  isTechArticle?: boolean;
+  voice_commentary?: string;
 }
 
-interface TagItem {
+interface Tag {
+  id: number;
   name: string;
-  [key: string]: unknown;
+  name_en?: string;
+  count: number;
 }
 
 interface DynamicBlogLayoutProps {
   blogList: BlogItem[];
   totalPages: number;
   lang: 'zh' | 'en';
-  tagList: TagItem[];
+  tagList: Tag[];
   currentPage: number;
   tag: string;
   isPageOutOfBounds: boolean;
