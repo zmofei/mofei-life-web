@@ -5,11 +5,22 @@ import BlogBannerTitle from './BlogBannerTitle';
 import BlogBackground from './BlogBackground';
 import BlogContent from './BlogContent';
 
+interface BlogItem {
+  _id: string;
+  title: string;
+  [key: string]: unknown;
+}
+
+interface TagItem {
+  name: string;
+  [key: string]: unknown;
+}
+
 interface DynamicBlogLayoutProps {
-  blogList: any[];
+  blogList: BlogItem[];
   totalPages: number;
   lang: 'zh' | 'en';
-  tagList: any[];
+  tagList: TagItem[];
   currentPage: number;
   tag: string;
   isPageOutOfBounds: boolean;

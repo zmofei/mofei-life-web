@@ -19,11 +19,17 @@ interface BlogContent {
   cover?: string;
 }
 
+interface RecommendItem {
+  _id: string;
+  title: string;
+  [key: string]: unknown;
+}
+
 interface DynamicArticleLayoutProps {
   blog: BlogContent;
   lang: 'zh' | 'en';
   blog_id: string;
-  blogRecommend: any[];
+  blogRecommend: RecommendItem[];
 }
 
 export default function DynamicArticleLayout({ blog, lang, blog_id, blogRecommend }: DynamicArticleLayoutProps) {

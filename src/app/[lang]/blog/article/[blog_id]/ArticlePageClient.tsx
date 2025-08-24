@@ -17,11 +17,17 @@ interface BlogContent {
   visited?: number;
 }
 
+interface RecommendItem {
+  _id: string;
+  title: string;
+  [key: string]: unknown;
+}
+
 interface ArticlePageClientProps {
   blog: BlogContent;
   lang: 'zh' | 'en';
   blog_id: string;
-  blogRecommend: any[];
+  blogRecommend: RecommendItem[];
 }
 
 // Memoized components to prevent unnecessary re-renders
