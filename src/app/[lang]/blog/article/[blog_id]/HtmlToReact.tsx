@@ -30,7 +30,53 @@ const parseStyle = (styleString: string): React.CSSProperties => {
  * @param {string} htmlString - 要解析的 HTML 字符串
  * @returns {JSX.Element} - 渲染的 React 元素
  */
+interface ImageInfo {
+    src: string;
+    alt?: string;
+    title?: string;
+}
+
 const HtmlToReact: React.FC<{ htmlString: string }> = ({ htmlString }) => {
+    const imageListRef = React.useRef<ImageInfo[]>([]);
+    
+    const overlayRenderCallback = React.useCallback(({ index }: { index: number }) => {
+        const currentImage = imageListRef.current[index];
+        if (!currentImage) return null;
+        
+        const imageTitle = currentImage.alt || currentImage.title;
+        if (!imageTitle) return null;
+        
+        // 检测是否为移动设备
+        const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+        
+        return (
+            <div style={{
+                position: 'fixed',
+                bottom: isMobile ? 'calc(env(safe-area-inset-bottom) + 80px)' : '40px',
+                left: isMobile ? '16px' : '50%',
+                right: isMobile ? '16px' : 'auto',
+                transform: isMobile ? 'none' : 'translateX(-50%)',
+                background: 'rgba(0, 0, 0, 0.85)',
+                backdropFilter: 'blur(10px)',
+                WebkitBackdropFilter: 'blur(10px)',
+                color: 'white',
+                padding: isMobile ? '12px 16px' : '12px 24px',
+                borderRadius: '8px',
+                fontSize: isMobile ? '14px' : '16px',
+                fontWeight: 500,
+                maxWidth: isMobile ? 'none' : '80%',
+                textAlign: 'center',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+                zIndex: 9999,
+                pointerEvents: 'none',
+                lineHeight: 1.5,
+                wordBreak: 'break-word'
+            }}>
+                {imageTitle}
+            </div>
+        );
+    }, []);
+    
     if (!htmlString) {
         return null;
     }
@@ -43,11 +89,15 @@ const HtmlToReact: React.FC<{ htmlString: string }> = ({ htmlString }) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         [key: string]: (node: HTMLElement, props: any, children: React.ReactNode[]) => React.ReactNode;
     } = {
-        img: (node, props) => {
+        img: (_node, props) => {
             props.src = replaceCDNDomain(props.src);
+            
             // Enhanced image loading with lazy loading and better performance
             return (
-                <PhotoView key={props.src} src={props.src}>
+                <PhotoView 
+                    key={props.src} 
+                    src={props.src}
+                >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img 
                         {...props} 
@@ -58,6 +108,20 @@ const HtmlToReact: React.FC<{ htmlString: string }> = ({ htmlString }) => {
                             ...props.style,
                             maxWidth: '100%',
                             height: 'auto',
+                            borderRadius: '12px',
+                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+                            transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+                            cursor: 'pointer',
+                        }}
+                        onMouseEnter={(e) => {
+                            const target = e.currentTarget;
+                            target.style.transform = 'scale(1.02)';
+                            target.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';
+                        }}
+                        onMouseLeave={(e) => {
+                            const target = e.currentTarget;
+                            target.style.transform = 'scale(1)';
+                            target.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)';
                         }}
                     />
                 </PhotoView>
@@ -105,7 +169,7 @@ const HtmlToReact: React.FC<{ htmlString: string }> = ({ htmlString }) => {
                 />
             );
         },
-        video: (node, props, children) => {
+        video: (_node, props, children) => {
             props.controls = "true"; // 强制添加 `controls` 属性
             props.poster = replaceCDNDomain(props.poster);
 
@@ -177,6 +241,20 @@ const HtmlToReact: React.FC<{ htmlString: string }> = ({ htmlString }) => {
         const parser = new DOMParser();
         const doc = parser.parseFromString(htmlString, "text/html");
         const bodyChildNodes = doc.body.childNodes;
+        
+        // 收集所有图片信息
+        const images = doc.querySelectorAll('img');
+        const imgList: ImageInfo[] = [];
+        images.forEach(img => {
+            const srcAttr = img.getAttribute('src');
+            if (srcAttr) {
+                const src = replaceCDNDomain(srcAttr);
+                const alt = img.getAttribute('alt') || undefined;
+                const title = img.getAttribute('title') || undefined;
+                imgList.push({ src, alt, title });
+            }
+        });
+        imageListRef.current = imgList;
 
         const parsedElements = Array.from(bodyChildNodes).map((node) =>
             convertNodeToReact(node)
@@ -184,7 +262,16 @@ const HtmlToReact: React.FC<{ htmlString: string }> = ({ htmlString }) => {
         return (
             <div className={CSS.article}>
 
-                <PhotoProvider>
+                <PhotoProvider
+                    speed={() => 600}
+                    maskOpacity={0.9}
+                    loop
+                    pullClosable
+                    maskClosable
+                    bannerVisible
+                    photoClosable
+                    overlayRender={overlayRenderCallback}
+                >
                     {parsedElements}
                 </PhotoProvider>
             </div>
