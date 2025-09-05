@@ -3,7 +3,7 @@
 import { useLanguage } from "@/components/Context/LanguageContext"
 import { useScrolling } from "@/components/util/useScrolling"
 import Image from 'next/image'
-import { usePlaylist } from '@/components/Context/PlaylistContext'
+import { usePlaylistActions, usePlaylistMeta } from '@/components/Context/PlaylistContext'
 import { useMemo } from 'react'
 
 // 标签翻译和图标映射
@@ -52,7 +52,8 @@ const getTagDisplay = (tag: { id: number; name: string; color?: string }, lang: 
 export default function TechCard({ blog }: { blog: any; index: number }) {
     const lang = useLanguage().lang
     const isScrolling = useScrolling(150)
-    const { playTrack, showPlaylist, togglePlay, currentTrack, isPlaying: globalIsPlaying } = usePlaylist()
+    const { playTrack, showPlaylist, togglePlay, loadPlaylist } = usePlaylistActions()
+    const { currentTrack, isPlaying: globalIsPlaying } = usePlaylistMeta()
 
     // Use preprocessed data from server
     const title = (lang === 'en' ? blog.processedTitle?.en : blog.processedTitle?.zh) || blog.title
@@ -84,7 +85,7 @@ export default function TechCard({ blog }: { blog: any; index: number }) {
     const isCurrentlyPlaying = currentTrack?._id === blog._id && globalIsPlaying
 
     // 播放语音评论 - 使用全局播放器，支持暂停
-    const playVoiceCommentary = (e: React.MouseEvent) => {
+    const playVoiceCommentary = async (e: React.MouseEvent) => {
         e.preventDefault()
         e.stopPropagation()
         if (hasVoiceCommentary) {
@@ -93,6 +94,7 @@ export default function TechCard({ blog }: { blog: any; index: number }) {
                 togglePlay()
             } else {
                 // 否则播放这个音频
+                await loadPlaylist(lang)
                 playTrack(voiceBlog)
                 showPlaylist()
             }
@@ -102,10 +104,10 @@ export default function TechCard({ blog }: { blog: any; index: number }) {
     return (
         <div className='relative w-full h-full'>
             <div className="group relative w-full h-full rounded-3xl overflow-hidden
-                shadow-2xl transition-all duration-700 ease-out
+                shadow-xl transition-transform duration-300 ease-out
                 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900
                 border border-slate-700/50 flex flex-col
-                transform-gpu">
+                transform-gpu hover:-translate-y-0.5">
 
                 {/* Header with tech badge and title - 更加大气的头部 */}
                 <div className="p-6 md:p-8 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 

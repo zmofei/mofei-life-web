@@ -1,36 +1,60 @@
 "use client"
 
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useState } from 'react';
+
+// Singleton scroll state to avoid multiple window listeners
+let initialized = false;
+let globalIsScrolling = false;
+let timer: ReturnType<typeof setTimeout> | null = null;
+let defaultDelay = 150;
+const subscribers = new Set<(v: boolean) => void>();
+
+function notify(value: boolean) {
+  subscribers.forEach((cb) => cb(value));
+}
+
+function handleScroll() {
+  if (!globalIsScrolling) {
+    globalIsScrolling = true;
+    notify(true);
+  }
+  if (timer) clearTimeout(timer);
+  timer = setTimeout(() => {
+    globalIsScrolling = false;
+    notify(false);
+  }, defaultDelay);
+}
+
+function initIfNeeded(delay: number) {
+  if (initialized) return;
+  initialized = true;
+  defaultDelay = delay || defaultDelay;
+  if (typeof window !== 'undefined') {
+    window.addEventListener('scroll', handleScroll, { passive: true });
+  }
+}
+
+function cleanupIfNoSubscribers() {
+  if (subscribers.size === 0 && initialized && typeof window !== 'undefined') {
+    window.removeEventListener('scroll', handleScroll);
+    initialized = false;
+    if (timer) {
+      clearTimeout(timer);
+      timer = null;
+    }
+  }
+}
 
 export function useScrolling(delay: number = 150) {
-  const [isScrolling, setIsScrolling] = useState(false);
-  const scrollTimer = useRef<NodeJS.Timeout | null>(null);
+  const [isScrolling, setIsScrolling] = useState<boolean>(false);
 
   useEffect(() => {
-    const handleScroll = () => {
-      // 立即设置为滚动状态
-      setIsScrolling(true);
-      
-      // 清除之前的定时器
-      if (scrollTimer.current) {
-        clearTimeout(scrollTimer.current);
-      }
-      
-      // 延迟设置为非滚动状态
-      scrollTimer.current = setTimeout(() => {
-        setIsScrolling(false);
-      }, delay);
-    };
-
-    // 添加滚动监听
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    
-    // 清理函数
+    initIfNeeded(delay);
+    const cb = (v: boolean) => setIsScrolling(v);
+    subscribers.add(cb);
     return () => {
-      window.removeEventListener('scroll', handleScroll);
-      if (scrollTimer.current) {
-        clearTimeout(scrollTimer.current);
-      }
+      subscribers.delete(cb);
+      cleanupIfNoSubscribers();
     };
   }, [delay]);
 

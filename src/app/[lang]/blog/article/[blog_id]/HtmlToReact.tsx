@@ -1,6 +1,5 @@
 "use client";
-import React, { ReactNode, ReactElement } from "react";
-import "react-photo-view/dist/react-photo-view.css";
+import React, { ReactNode, ReactElement, useEffect } from "react";
 import CSS from "./article.module.scss";
 import { PhotoProvider, PhotoView } from "react-photo-view";
 import { Highlight } from "prism-react-renderer";
@@ -38,6 +37,12 @@ interface ImageInfo {
 
 const HtmlToReact: React.FC<{ htmlString: string }> = ({ htmlString }) => {
     const imageListRef = React.useRef<ImageInfo[]>([]);
+    
+    // Load photo-view CSS only when this component mounts (article pages)
+    useEffect(() => {
+        // Lazy-load CSS to avoid adding it to non-article routes
+        import('react-photo-view/dist/react-photo-view.css').catch(() => {});
+    }, []);
     
     const overlayRenderCallback = React.useCallback(({ index }: { index: number }) => {
         const currentImage = imageListRef.current[index];
@@ -127,9 +132,15 @@ const HtmlToReact: React.FC<{ htmlString: string }> = ({ htmlString }) => {
                 </PhotoView>
             )
         },
-        iframe: (node) => (
-            <div dangerouslySetInnerHTML={{ __html: node.outerHTML }} />
-        ),
+        iframe: (_node, props) => {
+            // 启用懒加载，减少首屏阻塞
+            (props as any).loading = (props as any).loading || 'lazy';
+            if ((props as any).referrerpolicy === undefined) {
+                (props as any).referrerPolicy = 'no-referrer-when-downgrade';
+            }
+            (props as any).allowFullScreen = true;
+            return React.createElement('iframe', { ...props });
+        },
         h2: (node) => {
             return <h2 className="text-4xl font-bold">{node.textContent}</h2>
         },
