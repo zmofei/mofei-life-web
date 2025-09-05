@@ -128,13 +128,10 @@ const HtmlToReact: React.FC<{ htmlString: string }> = ({ htmlString }) => {
             )
         },
         iframe: (node) => (
-            <div
-                key={Math.random()}
-                dangerouslySetInnerHTML={{ __html: node.outerHTML }}
-            />
+            <div dangerouslySetInnerHTML={{ __html: node.outerHTML }} />
         ),
         h2: (node) => {
-            return <h2 key={Math.random()} className="text-4xl font-bold">{node.textContent}</h2>
+            return <h2 className="text-4xl font-bold">{node.textContent}</h2>
         },
         pre: (node) => {
             const { childNodes } = node;
@@ -158,15 +155,12 @@ const HtmlToReact: React.FC<{ htmlString: string }> = ({ htmlString }) => {
             });
 
             if (codeContent.trim()) {
-                return <CodeBlock key={Math.random()} codeContent={codeContent.trim()} language={language} />;
+                return <CodeBlock codeContent={codeContent.trim()} language={language} />;
             }
 
             // 如果没有 <code> 标签或没有内容，直接渲染原始 HTML
             return (
-                <pre
-                    key={Math.random()}
-                    dangerouslySetInnerHTML={{ __html: node.outerHTML }}
-                />
+                <pre dangerouslySetInnerHTML={{ __html: node.outerHTML }} />
             );
         },
         video: (_node, props, children) => {
@@ -189,7 +183,7 @@ const HtmlToReact: React.FC<{ htmlString: string }> = ({ htmlString }) => {
             }
 
             const newChildren = replaceSourceDomain(children);
-            return React.createElement("video", { ...props, key: Math.random() }, ...React.Children.toArray(newChildren));
+            return React.createElement("video", { ...props }, ...React.Children.toArray(newChildren));
         },
     };
 
@@ -229,7 +223,7 @@ const HtmlToReact: React.FC<{ htmlString: string }> = ({ htmlString }) => {
             }
 
             // 默认处理
-            return React.createElement(tagName.toLowerCase(), { ...props, key: Math.random() }, ...children);
+            return React.createElement(tagName.toLowerCase(), { ...props }, ...children);
         }
 
         return null;
@@ -332,5 +326,5 @@ const CodeBlock: React.FC<{ codeContent: string; language: string }> = ({ codeCo
     );
 };
 
-export default HtmlToReact;
+export default React.memo(HtmlToReact, (prev, next) => prev.htmlString === next.htmlString);
 export { CodeBlock };

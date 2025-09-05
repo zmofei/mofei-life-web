@@ -9,7 +9,7 @@ import { trackEvent } from '@/lib/gtag';
 import VoiceFeatureNotice from '@/components/VoiceFeatureNotice';
 import AudioManager from '@/utils/audioManager';
 import { useBlogVisitTracker } from '@/hooks/useBlogVisitTracker';
-import { usePlaylist } from '@/components/Context/PlaylistContext';
+import { usePlaylistActions } from '@/components/Context/PlaylistContext';
 
 interface BlogContent {
     title: string;
@@ -37,7 +37,7 @@ export default function PageContent({ params }: { params: PageContentProps }) {
     const hasVoiceCommentary = blog.voice_commentary && blog.voice_commentary.trim().length > 0;
     
     // Playlist context for global audio control
-    const { playTrack, showPlaylist } = usePlaylist();
+    const { playTrack, showPlaylist } = usePlaylistActions();
     
     // Create a stable fallback pubtime to prevent new Date() from being called repeatedly
     const fallbackPubtime = useMemo(() => new Date().toISOString(), []);

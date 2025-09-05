@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import VoiceFeatureNotice from '@/components/VoiceFeatureNotice';
 import AudioManager from '@/utils/audioManager';
-import { usePlaylist } from '@/components/Context/PlaylistContext';
+import { usePlaylistActions } from '@/components/Context/PlaylistContext';
 import { trackEvent } from '@/lib/gtag';
 
 interface BlogContent {
@@ -24,7 +24,7 @@ export default function ArticleHeader({ blog, lang, blog_id }: ArticleHeaderProp
   const hasVoiceCommentary = blog.voice_commentary && blog.voice_commentary.trim().length > 0;
   
   // Playlist context for global audio control
-  const { playTrack, showPlaylist } = usePlaylist();
+  const { playTrack, showPlaylist } = usePlaylistActions();
   
   // Create a stable fallback pubtime to prevent new Date() from being called repeatedly
   const fallbackPubtime = useMemo(() => new Date().toISOString(), []);

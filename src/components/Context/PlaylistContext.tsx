@@ -1,6 +1,6 @@
 "use client"
 
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, useMemo, ReactNode } from 'react';
 import { fetchVoiceBlogList } from '@/app/actions/blog';
 
 interface VoiceBlog {
@@ -43,10 +43,26 @@ interface PlaylistContextType {
 
 const PlaylistContext = createContext<PlaylistContextType | undefined>(undefined);
 
+// Lightweight actions-only context to avoid re-renders from time/duration ticks
+type PlaylistActionsType = Pick<PlaylistContextType,
+  'showPlaylist' | 'hidePlaylist' | 'togglePlaylist' | 'toggleExpanded' | 'toggleMinimized' | 'togglePlayerState' |
+  'playTrack' | 'playNext' | 'playPrevious' | 'togglePlay' | 'loadPlaylist' | 'setPlayerState'
+>;
+
+const PlaylistActionsContext = createContext<PlaylistActionsType | undefined>(undefined);
+
 export function usePlaylist() {
   const context = useContext(PlaylistContext);
   if (context === undefined) {
     throw new Error('usePlaylist must be used within a PlaylistProvider');
+  }
+  return context;
+}
+
+export function usePlaylistActions() {
+  const context = useContext(PlaylistActionsContext);
+  if (context === undefined) {
+    throw new Error('usePlaylistActions must be used within a PlaylistProvider');
   }
   return context;
 }
@@ -192,9 +208,39 @@ export function PlaylistProvider({ children }: PlaylistProviderProps) {
     setPlayerState,
   };
 
+  const actionsValue: PlaylistActionsType = useMemo(() => ({
+    showPlaylist,
+    hidePlaylist,
+    togglePlaylist,
+    toggleExpanded,
+    toggleMinimized,
+    togglePlayerState,
+    playTrack,
+    playNext,
+    playPrevious,
+    togglePlay,
+    loadPlaylist,
+    setPlayerState,
+  }), [
+    showPlaylist,
+    hidePlaylist,
+    togglePlaylist,
+    toggleExpanded,
+    toggleMinimized,
+    togglePlayerState,
+    playTrack,
+    playNext,
+    playPrevious,
+    togglePlay,
+    loadPlaylist,
+    setPlayerState,
+  ]);
+
   return (
     <PlaylistContext.Provider value={value}>
-      {children}
+      <PlaylistActionsContext.Provider value={actionsValue}>
+        {children}
+      </PlaylistActionsContext.Provider>
     </PlaylistContext.Provider>
   );
 }
