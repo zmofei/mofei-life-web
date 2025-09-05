@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from 'react';
 import FriendsHeader from './FriendsHeader';
 import Foot from '@/components/Common/Foot';
 import Comments from '@/components/Comments/Comments';
@@ -31,11 +32,12 @@ interface DynamicFriendsLayoutProps {
   lang: 'zh' | 'en';
 }
 
-export default function DynamicFriendsLayout({ 
-  friendsData, 
-  recentUpdates, 
-  lang 
+export default function DynamicFriendsLayout({
+  friendsData,
+  recentUpdates,
+  lang
 }: DynamicFriendsLayoutProps) {
+  const [showSiteInfo, setShowSiteInfo] = useState(false);
 
   return (
     <>
@@ -252,18 +254,23 @@ export default function DynamicFriendsLayout({
                       {/* 装饰性背景 */}
                       <div className="absolute inset-0 bg-gradient-to-br from-[#e04b45]/10 to-[#ff7b54]/10 rounded-2xl opacity-50"></div>
 
-                      {/* 头部 */}
-                      <div className="relative z-10 text-center mb-4">
-                        <p className="text-white/60 text-sm font-medium flex items-center justify-center gap-2">
-                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-                          </svg>
-                          {lang === 'zh' ? '本站信息' : 'Site Info'}
-                        </p>
-                      </div>
+                      {/* 头部按钮 */}
+                      <button
+                        type="button"
+                        onClick={() => setShowSiteInfo(!showSiteInfo)}
+                        className="relative z-10 text-center mb-4 w-full text-white/60 text-sm font-medium flex items-center justify-center gap-2"
+                        aria-expanded={showSiteInfo}
+                        aria-controls="site-info-details"
+                      >
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                        </svg>
+                        {lang === 'zh' ? '本站信息' : 'Site Info'}
+                      </button>
 
                       {/* 信息列表 */}
-                      <div className="relative z-10 space-y-3">
+                      {showSiteInfo && (
+                      <div id="site-info-details" className="relative z-10 space-y-3">
                         <div className="group/item">
                           <div className="text-white/60 text-xs font-medium mb-1">
                             {lang === 'zh' ? '网站名称' : 'Site Name'}
@@ -309,8 +316,9 @@ export default function DynamicFriendsLayout({
                               }
                             </code>
                           </div>
+                          </div>
                         </div>
-                      </div>
+                      )}
                     </div>
 
                     {/* Comments Section */}
