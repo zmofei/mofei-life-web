@@ -5,12 +5,20 @@ import { LanguageProvider } from "@/components/Context/LanguageContext";
 import { RouterProvider } from "@/components/Context/RouterContext";
 import { PlaylistProvider } from "@/components/Context/PlaylistContext";
 import WebVitalsProvider from '@/components/util/WebVitalsProvider';
-import WebVitalsDashboard from '@/components/util/WebVitalsDashboard';
+import dynamic from 'next/dynamic';
 import GoogleAnalytics from '@/components/Analytics/GoogleAnalytics';
 import PageTracker from '@/components/Analytics/PageTracker';
 import SPATransition from '@/components/util/SPATransition';
 import GlobalPlaylist from '@/components/Player/GlobalPlaylist';
 import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
+
+const inter = Inter({ subsets: ['latin'], display: 'swap' })
+
+// Load the dashboard only in development
+const WebVitalsDashboard = process.env.NODE_ENV === 'development'
+  ? dynamic(() => import('@/components/util/WebVitalsDashboard'))
+  : (() => null) as unknown as React.ComponentType;
 
 
 interface GenerateMetadataParams {
@@ -91,20 +99,18 @@ export default function RootLayout(params: Readonly<{
   return (
     <html lang={lang}>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" />
-        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-        <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
+        <link rel="dns-prefetch" href="https://static.mofei.life" />
+        <link rel="preconnect" href="https://static.mofei.life" crossOrigin="anonymous" />
 
         <link rel="alternate" type="application/rss+xml" title="Mofei's Blog RSS Feed" href="https://www.mofei.life/en/rss" />
         <link rel="alternate" type="application/rss+xml" title="Mofei 的博客订阅" href="https://www.mofei.life/zh/rss" />
         <link rel="alternate" type="application/rss+xml" title="Mofei Blog's Comments RSS Feed" href="https://www.mofei.life/en/rss_comments" />
-        <link href="https://api.mapbox.com/mapbox-gl-js/v3.10.0/mapbox-gl.css" rel="stylesheet" />
+        {/* Remove global Mapbox CSS as it's not used on every page; load on-demand if needed */}
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="anonymous" />
 
       </head>
-      <body
-        className={`antialiased relative`}
-      >
+      <body className={`${inter.className} antialiased relative`}>
         <GoogleAnalytics />
         <WebVitalsProvider>
           <LanguageProvider defaultLang={lang}>

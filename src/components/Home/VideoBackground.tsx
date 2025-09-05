@@ -5,18 +5,34 @@ import { useState, useEffect } from 'react';
 const VideoBackground = ({ isFullPage = false }: { isFullPage?: boolean }) => {
     const [videoLoaded, setVideoLoaded] = useState(false);
     const [showVideo, setShowVideo] = useState(false);
+    const [reducedMotion, setReducedMotion] = useState(false);
 
     useEffect(() => {
+        // 尊重用户偏好：减少动态效果时不自动播放视频
+        if (typeof window !== 'undefined' && 'matchMedia' in window) {
+            const mql = window.matchMedia('(prefers-reduced-motion: reduce)');
+            const update = () => setReducedMotion(!!mql.matches);
+            update();
+            mql.addEventListener?.('change', update);
+            return () => mql.removeEventListener?.('change', update);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (reducedMotion) return; // 不加载视频以节省资源
         // 延迟加载视频以提高初始加载速度
         const timer = setTimeout(() => {
             setShowVideo(true);
         }, 100);
         return () => clearTimeout(timer);
-    }, []);
+    }, [reducedMotion]);
+    
+    const preloadMode = reducedMotion ? 'none' : 'metadata';
+    const shouldShowPoster = !videoLoaded || reducedMotion;
     if (isFullPage) {
         return (
             <>
-                {showVideo && (
+                {showVideo && !reducedMotion && (
                     <video
                         className="fixed top-0 left-0 w-full h-full object-cover z-[-10]"
                         id="bgvid"
@@ -26,7 +42,7 @@ const VideoBackground = ({ isFullPage = false }: { isFullPage?: boolean }) => {
                         playsInline
                         poster="//static.mofei.life/image/index/cover-820e030cca.jpg"
                         onLoadedData={() => setVideoLoaded(true)}
-                        preload="metadata"
+                        preload={preloadMode}
                     >
                         <source src="//static.mofei.life/video/bgvideo-0c73e2c57a.mp4" type="video/mp4" />
                         <source src="//static.mofei.life/video/bgvideo-513397179e.webm" type="video/webm" />
@@ -35,7 +51,7 @@ const VideoBackground = ({ isFullPage = false }: { isFullPage?: boolean }) => {
                 )}
                 
                 {/* 显示封面图直到视频加载完成 */}
-                {!videoLoaded && (
+                {shouldShowPoster && (
                     <div 
                         className="fixed top-0 left-0 w-full h-full bg-cover bg-center z-[-10]"
                         style={{
@@ -60,7 +76,7 @@ const VideoBackground = ({ isFullPage = false }: { isFullPage?: boolean }) => {
 
     return (
         <>
-            {showVideo && (
+            {showVideo && !reducedMotion && (
                 <video
                     className="absolute top-0 left-0 w-full h-full object-cover -z-10"
                     id="bgvid"
@@ -70,7 +86,7 @@ const VideoBackground = ({ isFullPage = false }: { isFullPage?: boolean }) => {
                     playsInline
                     poster="//static.mofei.life/image/index/cover-820e030cca.jpg"
                     onLoadedData={() => setVideoLoaded(true)}
-                    preload="metadata"
+                    preload={preloadMode}
                 >
                     <source src="//static.mofei.life/video/bgvideo-0c73e2c57a.mp4" type="video/mp4" />
                     <source src="//static.mofei.life/video/bgvideo-513397179e.webm" type="video/webm" />
@@ -79,7 +95,7 @@ const VideoBackground = ({ isFullPage = false }: { isFullPage?: boolean }) => {
             )}
             
             {/* 显示封面图直到视频加载完成 */}
-            {!videoLoaded && (
+            {shouldShowPoster && (
                 <div 
                     className="absolute top-0 left-0 w-full h-full bg-cover bg-center -z-10"
                     style={{

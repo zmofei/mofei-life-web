@@ -6,7 +6,7 @@ import { motion } from "motion/react";
 import Image from "next/image";
 
 import Lan from "@/components/util/Language";
-import { use, useMemo, Suspense, useState } from 'react';
+import { use, useMemo, Suspense, useState, useEffect } from 'react';
 import Foot from '@/components/Common/Foot';
 import { StaggerContainer, StaggerItem } from '@/components/util/PageTransition';
 import { notFound } from 'next/navigation';
@@ -22,6 +22,16 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
     notFound();
   }
   const [expandedSkills, setExpandedSkills] = useState<Set<number>>(new Set());
+  const [reducedMotion, setReducedMotion] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !('matchMedia' in window)) return;
+    const mql = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const update = () => setReducedMotion(!!mql.matches);
+    update();
+    mql.addEventListener?.('change', update);
+    return () => mql.removeEventListener?.('change', update);
+  }, []);
 
   const toggleAllSkills = () => {
     const skillsCount = 6; // Total number of skill cards
@@ -138,9 +148,9 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
                 <motion.div className="w-full max-w-screen-xl z-10 text-center 
                  px-4 text-xl pt-10 font-light text-gray-300 leading-relaxed
                  md:px-10 lg:px-16 md:text-3xl md:pt-20"
-                  initial={{ opacity: 0, translateY: 0 }}
-                  animate={{ opacity: 1, translateY: -60 }}
-                  transition={{ duration: 0.5, delay: 2 }}>
+                  initial={reducedMotion ? { opacity: 1, translateY: 0 } : { opacity: 0, translateY: 0 }}
+                  animate={reducedMotion ? { opacity: 1, translateY: 0 } : { opacity: 1, translateY: -60 }}
+                  transition={reducedMotion ? { duration: 0 } : { duration: 0.5, delay: 2 }}>
 
                 <div className="block">
                   <Lan lang={lang} candidate={{
@@ -156,17 +166,9 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
             <StaggerItem>
               <motion.div
               className="absolute left-0 right-0 bottom-10 md:bottom-20 flex justify-center opacity-60 md:opacity-80"
-              initial={{ opacity: 0, y: -20 }}
-              animate={{
-                opacity: [0.6, 1, 0.6],
-                y: [0, 10, 0]
-              }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: 2
-              }}
+              initial={reducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: -20 }}
+              animate={reducedMotion ? { opacity: 1, y: 0 } : { opacity: [0.6, 1, 0.6], y: [0, 10, 0] }}
+              transition={reducedMotion ? { duration: 0 } : { duration: 2, repeat: Infinity, ease: "easeInOut", delay: 2 }}
             >
               <div>
                 <Image

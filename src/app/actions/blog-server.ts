@@ -96,7 +96,6 @@ function processCoverInfo(
 
 export async function fetchBlogContent(blog_id = "", lang = "en") {
   const URL = `${API_URL}/blog/article/${blog_id}?lang=${lang}`;
-  console.log(URL);
   const response = await fetch(URL, {
     next: { revalidate: 10 },
   });
@@ -133,7 +132,7 @@ export async function fetchBlogContentWithVisits(blog_id = "", lang = "en") {
         if (typeof visitsData.visited === 'number') {
           latestVisitCount = visitsData.visited;
           hasLatestVisitCount = true;
-          console.log(`Fresh visit count: ${latestVisitCount}, cached blog count: ${blog.visited}`);
+          // Keep internal, avoid noisy logs in production
         }
       }
     } catch (visitsError) {

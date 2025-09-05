@@ -207,6 +207,36 @@
     overflow-x: hidden;
   }
 
+  /* Respect user's reduced motion preference globally */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001s !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001s !important;
+      scroll-behavior: auto !important;
+    }
+    /* Disable hover/active transforms for common interactive classes */
+    .interactive-element,
+    .interactive-element:hover,
+    .interactive-element:active,
+    .glass-hover,
+    .glass-hover:hover,
+    .nav-item,
+    .nav-item:hover,
+    .btn-glass::before {
+      transform: none !important;
+      transition: none !important;
+      animation: none !important;
+    }
+    /* Neutralize group-hover effects broadly */
+    .group:hover *,
+    .group:active * {
+      transform: none !important;
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+
   /* Fix mobile scrolling issues */
   @media (max-width: 768px) {
     html, body {

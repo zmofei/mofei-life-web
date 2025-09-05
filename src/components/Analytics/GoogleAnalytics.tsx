@@ -92,37 +92,41 @@ export default function GoogleAnalytics() {
                 
                 // Only send events when scroll depth increases
                 if (scrollPercent > maxScroll && scrollPercent > 0) {
-                  maxScroll = scrollPercent;
+                  const prevMax = maxScroll;
                   
-                  // Send scroll depth milestone events
-                  if (scrollPercent >= 25 && scrollPercent < 50 && maxScroll < 25) {
+                  // Send scroll depth milestone events once per threshold
+                  if (scrollPercent >= 25 && prevMax < 25) {
                     gtag('event', 'scroll', {
                       event_category: 'engagement',
                       event_label: '25%',
                       value: 25
                     });
-                  } else if (scrollPercent >= 50 && scrollPercent < 75 && maxScroll < 50) {
+                  } 
+                  if (scrollPercent >= 50 && prevMax < 50) {
                     gtag('event', 'scroll', {
                       event_category: 'engagement', 
                       event_label: '50%',
                       value: 50
                     });
-                  } else if (scrollPercent >= 75 && scrollPercent < 90 && maxScroll < 75) {
+                  }
+                  if (scrollPercent >= 75 && prevMax < 75) {
                     gtag('event', 'scroll', {
                       event_category: 'engagement',
                       event_label: '75%', 
                       value: 75
                     });
-                  } else if (scrollPercent >= 90 && maxScroll < 90) {
+                  }
+                  if (scrollPercent >= 90 && prevMax < 90) {
                     gtag('event', 'scroll', {
                       event_category: 'engagement',
                       event_label: '90%',
                       value: 90
                     });
                   }
+                  maxScroll = scrollPercent;
                 }
               }, 250);
-            });
+            }, { passive: true });
           `,
         }}
       />
