@@ -4,6 +4,7 @@ import Foot from '@/components/Common/Foot';
 import Comments from '@/components/Comments/Comments';
 import BlogBackground from '../../blog/[blog_page]/BlogBackground';
 import MessageHeader from './MessageHeader';
+import { useState } from 'react';
 
 interface DynamicMessageLayoutProps {
   lang: 'zh' | 'en';
@@ -14,7 +15,8 @@ export default function DynamicMessageLayout({
   lang, 
   message_page 
 }: DynamicMessageLayoutProps) {
-
+  // Ensure fixed header and spacer render identical title to keep heights in sync
+  const [titleIndex] = useState(() => Math.floor(Math.random() * 10));
   return (
     <>
       {/* Fixed background */}
@@ -24,12 +26,12 @@ export default function DynamicMessageLayout({
 
       {/* Fixed header section */}
       <div className="fixed top-0 left-0 right-0 z-10">
-        <MessageHeader lang={lang} />
+        <MessageHeader lang={lang} titleIndex={titleIndex} />
       </div>
 
       {/* Spacer with hidden header content to maintain exact height */}
       <div className="invisible pointer-events-none" aria-hidden="true">
-        <MessageHeader lang={lang} />
+        <MessageHeader lang={lang} titleIndex={titleIndex} />
       </div>
 
       {/* Scrolling content with glass effect */}

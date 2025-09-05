@@ -4,9 +4,10 @@ import { useState } from 'react';
 
 interface MessageHeaderProps {
   lang: 'zh' | 'en';
+  titleIndex?: number; // optionally control the random index externally
 }
 
-export default function MessageHeader({ lang }: MessageHeaderProps) {
+export default function MessageHeader({ lang, titleIndex }: MessageHeaderProps) {
   const TitleList = [
     { "zh": "别害羞，留言吧！我等不及想看了！", "en": "Don't be shy, leave a message!" },
     { "zh": "写下你的想法，让我开心一整天吧！", "en": "Share your thoughts and brighten my day!" },
@@ -21,7 +22,13 @@ export default function MessageHeader({ lang }: MessageHeaderProps) {
   ];
   
   // Random selection on initial load, then stays fixed
-  const [TitleIndex] = useState(() => Math.floor(Math.random() * TitleList.length));
+  const [TitleIndex] = useState(() => {
+    const idx = typeof titleIndex === 'number'
+      ? titleIndex
+      : Math.floor(Math.random() * TitleList.length);
+    // Clamp to list length to avoid OOB if provided externally
+    return ((idx % TitleList.length) + TitleList.length) % TitleList.length;
+  });
 
   return (
     <div className='container max-w-[2000px] m-auto px-5 md:px-10 lg:px-16 xl:px-20 2xl:px-24 pt-20 md:pt-32 pb-8'>
