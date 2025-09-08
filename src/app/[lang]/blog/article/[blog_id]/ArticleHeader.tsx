@@ -1,9 +1,8 @@
 "use client"
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import VoiceFeatureNotice from '@/components/VoiceFeatureNotice';
-import AudioManager from '@/utils/audioManager';
-import { usePlaylistActions } from '@/components/Context/PlaylistContext';
+import { usePlaylistActions, usePlaylistMeta } from '@/components/Context/PlaylistContext';
 import { trackEvent } from '@/lib/gtag';
 
 interface BlogContent {
@@ -20,11 +19,13 @@ interface ArticleHeaderProps {
 }
 
 export default function ArticleHeader({ blog, lang, blog_id }: ArticleHeaderProps) {
-  const [isPlaying, setIsPlaying] = useState(false);
   const hasVoiceCommentary = blog.voice_commentary && blog.voice_commentary.trim().length > 0;
-  
+
   // Playlist context for global audio control
-  const { playTrack, showPlaylist, loadPlaylist } = usePlaylistActions();
+  const { playTrack, showPlaylist, loadPlaylist, togglePlay } = usePlaylistActions();
+  const { currentTrack, isPlaying: globalIsPlaying } = usePlaylistMeta();
+  const isCurrent = currentTrack?._id === blog_id;
+  const isPlaying = isCurrent && globalIsPlaying;
   
   // Create a stable fallback pubtime to prevent new Date() from being called repeatedly
   const fallbackPubtime = useMemo(() => new Date().toISOString(), []);
@@ -32,7 +33,6 @@ export default function ArticleHeader({ blog, lang, blog_id }: ArticleHeaderProp
   // 播放语音评论 - 使用全局播放列表
   const playVoiceCommentary = useCallback(async () => {
     if (hasVoiceCommentary) {
-      // Create a VoiceBlog object from current blog data
       const voiceBlog = {
         _id: blog_id,
         title: blog.title,
@@ -40,67 +40,22 @@ export default function ArticleHeader({ blog, lang, blog_id }: ArticleHeaderProp
         pubtime: blog.pubtime || fallbackPubtime,
         introduction: ''
       };
-      
-      // Ensure full playlist is available
+
       await loadPlaylist(lang);
-      // Play this track and show the playlist
       playTrack(voiceBlog);
       showPlaylist();
       trackEvent.navClick('Voice Commentary Play', `Article: ${blog.title}`);
     }
   }, [hasVoiceCommentary, blog_id, blog.title, blog.voice_commentary, blog.pubtime, fallbackPubtime, playTrack, showPlaylist, loadPlaylist, lang]);
 
-  const stopVoiceCommentary = () => {
-    const audioManager = AudioManager.getInstance();
-    audioManager.stop();
-  };
-
-  // 事件驱动的音频状态检查 - 完全移除轮询
-  useEffect(() => {
+  const handleVoiceCommentary = useCallback(async () => {
     if (!hasVoiceCommentary) return;
-    
-    const audioManager = AudioManager.getInstance();
-    const audioSrc = `https://static.mofei.life/${blog.voice_commentary}`;
-    
-    const checkPlayingStatus = () => {
-      const newIsPlaying = audioManager.isPlaying(audioSrc);
-      
-      // 只在状态真正改变时才更新
-      setIsPlaying(prevIsPlaying => {
-        if (prevIsPlaying !== newIsPlaying) {
-          return newIsPlaying;
-        }
-        return prevIsPlaying;
-      });
-    };
-    
-    // 初始状态检查
-    checkPlayingStatus();
-    
-    // 事件驱动更新 - 监听全局音频管理器的状态变化
-    const currentAudio = audioManager.getCurrentAudio();
-    if (currentAudio) {
-      const handlePlay = () => checkPlayingStatus();
-      const handlePause = () => checkPlayingStatus();
-      const handleEnded = () => checkPlayingStatus();
-      const handleLoadStart = () => checkPlayingStatus();
-      const handleCanPlay = () => checkPlayingStatus();
-      
-      currentAudio.addEventListener('play', handlePlay);
-      currentAudio.addEventListener('pause', handlePause);
-      currentAudio.addEventListener('ended', handleEnded);
-      currentAudio.addEventListener('loadstart', handleLoadStart);
-      currentAudio.addEventListener('canplay', handleCanPlay);
-      
-      return () => {
-        currentAudio.removeEventListener('play', handlePlay);
-        currentAudio.removeEventListener('pause', handlePause);
-        currentAudio.removeEventListener('ended', handleEnded);
-        currentAudio.removeEventListener('loadstart', handleLoadStart);
-        currentAudio.removeEventListener('canplay', handleCanPlay);
-      };
+    if (isCurrent) {
+      togglePlay();
+    } else {
+      await playVoiceCommentary();
     }
-  }, [hasVoiceCommentary, blog.voice_commentary]);
+  }, [hasVoiceCommentary, isCurrent, playVoiceCommentary, togglePlay]);
 
   const handleGoBack = () => {
     if (typeof window !== 'undefined' && window.history.length > 1) {
@@ -171,16 +126,16 @@ export default function ArticleHeader({ blog, lang, blog_id }: ArticleHeaderProp
           {hasVoiceCommentary && (
             <VoiceFeatureNotice lang={lang} hasVoiceCommentary={!!hasVoiceCommentary}>
               <button
-                onClick={isPlaying ? stopVoiceCommentary : playVoiceCommentary}
+                onClick={handleVoiceCommentary}
                 className="inline-flex items-center gap-1 sm:gap-1.5 text-white font-medium rounded-full px-2 py-1 sm:px-3 sm:py-1.5 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl border backdrop-blur-sm ml-2 sm:ml-3 align-middle text-xs sm:text-sm"
                 style={{
-                  background: isPlaying 
+                  background: isPlaying
                     ? 'linear-gradient(135deg, rgba(239,68,68,0.9) 0%, rgba(220,38,38,0.9) 100%)'
                     : 'linear-gradient(135deg, rgba(16,185,129,0.9) 0%, rgba(5,150,105,0.9) 100%)',
-                  boxShadow: isPlaying 
+                  boxShadow: isPlaying
                     ? '0 2px 8px rgba(239,68,68,0.3), 0 0 0 1px rgba(239,68,68,0.2)'
                     : '0 2px 8px rgba(16,185,129,0.3), 0 0 0 1px rgba(16,185,129,0.2)',
-                  borderColor: isPlaying 
+                  borderColor: isPlaying
                     ? 'rgba(239,68,68,0.3)'
                     : 'rgba(16,185,129,0.3)'
                 }}
