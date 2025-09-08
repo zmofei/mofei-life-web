@@ -5,7 +5,7 @@ import { replaceCDNDomain } from "@/components/util/util";
 import { useScrolling } from "@/components/util/useScrolling"
 import { timeUtils } from "@/utils/timeUtils";
 import Image from 'next/image';
-import { usePlaylist } from '@/components/Context/PlaylistContext';
+import { usePlaylistActions, usePlaylistMeta } from '@/components/Context/PlaylistContext';
 import { useMemo } from 'react';
 
 // 标签翻译和图标映射
@@ -54,7 +54,8 @@ const getTagDisplay = (tag: { id: number; name: string; color?: string }, lang: 
 export default function MasonryCard({ blog, index }: { blog: any, index: number }) {
     const lang = useLanguage().lang
     const isScrolling = useScrolling(150)
-    const { playTrack, showPlaylist, togglePlay, currentTrack, isPlaying: globalIsPlaying } = usePlaylist()
+    const { playTrack, showPlaylist, togglePlay, loadPlaylist } = usePlaylistActions()
+    const { currentTrack, isPlaying: globalIsPlaying } = usePlaylistMeta()
     
     // Use preprocessed data from server
     const cover = blog.processedCover || blog.fallbackCover
@@ -88,7 +89,7 @@ export default function MasonryCard({ blog, index }: { blog: any, index: number 
     const isCurrentlyPlaying = currentTrack?._id === blog._id && globalIsPlaying
 
     // 播放语音评论 - 使用全局播放器，支持暂停
-    const playVoiceCommentary = (e: React.MouseEvent) => {
+    const playVoiceCommentary = async (e: React.MouseEvent) => {
         e.preventDefault()
         e.stopPropagation()
         if (hasVoiceCommentary) {
@@ -97,6 +98,8 @@ export default function MasonryCard({ blog, index }: { blog: any, index: number 
                 togglePlay()
             } else {
                 // 否则播放这个音频
+                // 确保播放列表已就绪（按需加载）
+                await loadPlaylist(lang)
                 playTrack(voiceBlog)
                 showPlaylist()
             }
@@ -107,10 +110,10 @@ export default function MasonryCard({ blog, index }: { blog: any, index: number 
     return (
         <div className='relative w-full h-full'>
             <div className={`group relative w-full h-full rounded-3xl overflow-hidden
-                shadow-xl transition-all duration-700 ease-out flex flex-col
+                shadow-lg transition-transform duration-300 ease-out flex flex-col
                 bg-gradient-to-br from-black/60 via-black/40 to-black/70
                 border border-white/20
-                ${!isScrolling ? 'hover:shadow-2xl group-hover:from-black/70 group-hover:via-black/50 group-hover:to-black/80 group-hover:border-white/30' : ''}`}
+                ${!isScrolling ? 'hover:-translate-y-0.5' : ''}`}
                 style={{ height: '100%', minHeight: '100%', maxHeight: '100%' }}>
                 
                 {/* Fixed height image/gradient container */}

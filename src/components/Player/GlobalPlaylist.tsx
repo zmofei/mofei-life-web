@@ -24,16 +24,10 @@ export default function GlobalPlaylist() {
     playNext, 
     playPrevious, 
     togglePlay,
-    setPlayerState,
-    loadPlaylist
+    setPlayerState
   } = usePlaylist();
   
   const { lang } = useLanguage();
-
-  // Load playlist when component mounts
-  useEffect(() => {
-    loadPlaylist(lang);
-  }, [lang, loadPlaylist]);
 
   // Check audio state function - moved outside useEffect to fix hook rules
   const checkAudioState = useCallback(() => {
