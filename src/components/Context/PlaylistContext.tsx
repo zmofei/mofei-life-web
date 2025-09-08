@@ -1,6 +1,6 @@
 "use client"
 
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, useMemo, ReactNode } from 'react';
 import { fetchVoiceBlogList } from '@/app/actions/blog';
 
 interface VoiceBlog {
@@ -37,16 +37,44 @@ interface PlaylistContextType {
   playNext: () => void;
   playPrevious: () => void;
   togglePlay: () => void;
-  loadPlaylist: (lang: string) => void;
+  loadPlaylist: (lang: string) => Promise<void>;
   setPlayerState: (state: { isPlaying?: boolean; currentTime?: number; duration?: number }) => void;
 }
 
 const PlaylistContext = createContext<PlaylistContextType | undefined>(undefined);
 
+// Lightweight actions-only context to avoid re-renders from time/duration ticks
+type PlaylistActionsType = Pick<PlaylistContextType,
+  'showPlaylist' | 'hidePlaylist' | 'togglePlaylist' | 'toggleExpanded' | 'toggleMinimized' | 'togglePlayerState' |
+  'playTrack' | 'playNext' | 'playPrevious' | 'togglePlay' | 'loadPlaylist' | 'setPlayerState'
+>;
+
+const PlaylistActionsContext = createContext<PlaylistActionsType | undefined>(undefined);
+
 export function usePlaylist() {
   const context = useContext(PlaylistContext);
   if (context === undefined) {
     throw new Error('usePlaylist must be used within a PlaylistProvider');
+  }
+  return context;
+}
+
+export function usePlaylistActions() {
+  const context = useContext(PlaylistActionsContext);
+  if (context === undefined) {
+    throw new Error('usePlaylistActions must be used within a PlaylistProvider');
+  }
+  return context;
+}
+
+// Minimal state for UI badges that shouldn't re-render on progress ticks
+type PlaylistMetaType = Pick<PlaylistContextType, 'currentTrack' | 'isPlaying' | 'currentIndex'>;
+const PlaylistMetaContext = createContext<PlaylistMetaType | undefined>(undefined);
+
+export function usePlaylistMeta() {
+  const context = useContext(PlaylistMetaContext);
+  if (context === undefined) {
+    throw new Error('usePlaylistMeta must be used within a PlaylistProvider');
   }
   return context;
 }
@@ -70,7 +98,7 @@ export function PlaylistProvider({ children }: PlaylistProviderProps) {
   const [isMinimized, setIsMinimized] = useState(false);
 
   // Load playlist from API
-  const loadPlaylist = useCallback(async (lang: string) => {
+  const loadPlaylist = useCallback(async (lang: string): Promise<void> => {
     if (playlist.length > 0) return; // Don't reload if already loaded
     
     setIsLoading(true);
@@ -121,16 +149,27 @@ export function PlaylistProvider({ children }: PlaylistProviderProps) {
 
   // Play specific track
   const playTrack = useCallback((blog: VoiceBlog) => {
-    const index = playlist.findIndex(item => item._id === blog._id);
-    if (index !== -1) {
-      setCurrentTrack(blog);
-      setCurrentIndex(index);
-      setIsPlaying(true);
-      if (!isPlaylistVisible) {
-        setIsPlaylistVisible(true);
+    // Use functional update to always work with the freshest playlist
+    setPlaylist(prev => {
+      const idx = prev.findIndex(item => item._id === blog._id);
+      if (idx === -1 && blog.voice_commentary) {
+        const next = [blog, ...prev];
+        setCurrentTrack(blog);
+        setCurrentIndex(0);
+        setIsPlaying(true);
+        if (!isPlaylistVisible) setIsPlaylistVisible(true);
+        return next;
       }
-    }
-  }, [playlist, isPlaylistVisible]);
+      if (idx !== -1) {
+        // Use the item from the list to stay consistent
+        setCurrentTrack(prev[idx]);
+        setCurrentIndex(idx);
+        setIsPlaying(true);
+        if (!isPlaylistVisible) setIsPlaylistVisible(true);
+      }
+      return prev;
+    });
+  }, [isPlaylistVisible]);
 
   // Play next track
   const playNext = useCallback(() => {
@@ -192,9 +231,47 @@ export function PlaylistProvider({ children }: PlaylistProviderProps) {
     setPlayerState,
   };
 
+  const actionsValue: PlaylistActionsType = useMemo(() => ({
+    showPlaylist,
+    hidePlaylist,
+    togglePlaylist,
+    toggleExpanded,
+    toggleMinimized,
+    togglePlayerState,
+    playTrack,
+    playNext,
+    playPrevious,
+    togglePlay,
+    loadPlaylist,
+    setPlayerState,
+  }), [
+    showPlaylist,
+    hidePlaylist,
+    togglePlaylist,
+    toggleExpanded,
+    toggleMinimized,
+    togglePlayerState,
+    playTrack,
+    playNext,
+    playPrevious,
+    togglePlay,
+    loadPlaylist,
+    setPlayerState,
+  ]);
+
+  const metaValue: PlaylistMetaType = useMemo(() => ({
+    currentTrack,
+    isPlaying,
+    currentIndex,
+  }), [currentTrack, isPlaying, currentIndex]);
+
   return (
     <PlaylistContext.Provider value={value}>
-      {children}
+      <PlaylistActionsContext.Provider value={actionsValue}>
+        <PlaylistMetaContext.Provider value={metaValue}>
+          {children}
+        </PlaylistMetaContext.Provider>
+      </PlaylistActionsContext.Provider>
     </PlaylistContext.Provider>
   );
 }

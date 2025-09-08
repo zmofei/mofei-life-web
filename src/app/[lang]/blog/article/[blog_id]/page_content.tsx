@@ -9,7 +9,7 @@ import { trackEvent } from '@/lib/gtag';
 import VoiceFeatureNotice from '@/components/VoiceFeatureNotice';
 import AudioManager from '@/utils/audioManager';
 import { useBlogVisitTracker } from '@/hooks/useBlogVisitTracker';
-import { usePlaylist } from '@/components/Context/PlaylistContext';
+import { usePlaylistActions } from '@/components/Context/PlaylistContext';
 
 interface BlogContent {
     title: string;
@@ -37,7 +37,7 @@ export default function PageContent({ params }: { params: PageContentProps }) {
     const hasVoiceCommentary = blog.voice_commentary && blog.voice_commentary.trim().length > 0;
     
     // Playlist context for global audio control
-    const { playTrack, showPlaylist } = usePlaylist();
+    const { playTrack, showPlaylist, loadPlaylist } = usePlaylistActions();
     
     // Create a stable fallback pubtime to prevent new Date() from being called repeatedly
     const fallbackPubtime = useMemo(() => new Date().toISOString(), []);
@@ -66,7 +66,7 @@ export default function PageContent({ params }: { params: PageContentProps }) {
     };
 
     // 播放语音评论 - 使用全局播放列表
-    const playVoiceCommentary = useCallback(() => {
+    const playVoiceCommentary = useCallback(async () => {
         if (hasVoiceCommentary) {
             // Create a VoiceBlog object from current blog data
             const voiceBlog = {
@@ -77,12 +77,14 @@ export default function PageContent({ params }: { params: PageContentProps }) {
                 introduction: ''
             };
             
+            // Ensure full playlist is loaded so users can browse more tracks
+            await loadPlaylist(lang);
             // Play this track and show the playlist
             playTrack(voiceBlog);
             showPlaylist();
             trackEvent.navClick('Voice Commentary Play', `Article: ${blog.title}`);
         }
-    }, [hasVoiceCommentary, blog_id, blog.title, blog.voice_commentary, blog.pubtime, fallbackPubtime, playTrack, showPlaylist]);
+    }, [hasVoiceCommentary, blog_id, blog.title, blog.voice_commentary, blog.pubtime, fallbackPubtime, playTrack, showPlaylist, loadPlaylist, lang]);
 
     const stopVoiceCommentary = () => {
         const audioManager = AudioManager.getInstance();
