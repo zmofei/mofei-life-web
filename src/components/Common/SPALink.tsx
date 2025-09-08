@@ -83,7 +83,7 @@ export default function SPALink({
       onClick={handleClick}
       onMouseEnter={() => {
         if (isInternal) {
-          const conn = (navigator as any).connection;
+          const conn = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
           const saveData = !!(conn && conn.saveData);
           if (!saveData) {
             try { router.prefetch(href); } catch {}
@@ -97,7 +97,7 @@ export default function SPALink({
       }}
       onTouchStart={() => {
         if (isInternal) {
-          const conn = (navigator as any).connection;
+          const conn = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
           const saveData = !!(conn && conn.saveData);
           if (!saveData) {
             try { router.prefetch(href); } catch {}

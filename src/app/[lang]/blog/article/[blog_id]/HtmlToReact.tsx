@@ -135,13 +135,21 @@ const HtmlToReact: React.FC<{ htmlString: string }> = ({ htmlString }) => {
         
         // Safer, lazy-loaded iframes
         iframe: (_node, props) => {
+            // Narrow props to expected iframe attributes to avoid any-casts
+            type IframeProps = {
+                loading?: 'lazy' | 'eager';
+                referrerPolicy?: string;
+                allowFullScreen?: boolean;
+                [key: string]: unknown;
+            };
+            const iframeProps = props as IframeProps;
             // 启用懒加载，减少首屏阻塞
-            (props as any).loading = (props as any).loading || 'lazy';
-            if ((props as any).referrerpolicy === undefined) {
-                (props as any).referrerPolicy = 'no-referrer-when-downgrade';
+            iframeProps.loading = iframeProps.loading || 'lazy';
+            if (iframeProps.referrerPolicy === undefined) {
+                iframeProps.referrerPolicy = 'no-referrer-when-downgrade';
             }
-            (props as any).allowFullScreen = true;
-            return React.createElement('iframe', { ...props });
+            iframeProps.allowFullScreen = true;
+            return React.createElement('iframe', { ...iframeProps });
         },
         
         h2: (node) => {
