@@ -149,30 +149,27 @@ export function PlaylistProvider({ children }: PlaylistProviderProps) {
 
   // Play specific track
   const playTrack = useCallback((blog: VoiceBlog) => {
-    let index = playlist.findIndex(item => item._id === blog._id);
-    if (index === -1 && blog.voice_commentary) {
-      // Ensure the requested track is present
-      setPlaylist(prev => {
-        const exists = prev.findIndex(item => item._id === blog._id) !== -1;
-        if (exists) return prev;
-        index = 0;
-        return [blog, ...prev];
-      });
-      setCurrentIndex(0);
-      setCurrentTrack(blog);
-      setIsPlaying(true);
-      if (!isPlaylistVisible) setIsPlaylistVisible(true);
-      return;
-    }
-    if (index !== -1) {
-      setCurrentTrack(blog);
-      setCurrentIndex(index);
-      setIsPlaying(true);
-      if (!isPlaylistVisible) {
-        setIsPlaylistVisible(true);
+    // Use functional update to always work with the freshest playlist
+    setPlaylist(prev => {
+      const idx = prev.findIndex(item => item._id === blog._id);
+      if (idx === -1 && blog.voice_commentary) {
+        const next = [blog, ...prev];
+        setCurrentTrack(blog);
+        setCurrentIndex(0);
+        setIsPlaying(true);
+        if (!isPlaylistVisible) setIsPlaylistVisible(true);
+        return next;
       }
-    }
-  }, [playlist, isPlaylistVisible]);
+      if (idx !== -1) {
+        // Use the item from the list to stay consistent
+        setCurrentTrack(prev[idx]);
+        setCurrentIndex(idx);
+        setIsPlaying(true);
+        if (!isPlaylistVisible) setIsPlaylistVisible(true);
+      }
+      return prev;
+    });
+  }, [isPlaylistVisible]);
 
   // Play next track
   const playNext = useCallback(() => {

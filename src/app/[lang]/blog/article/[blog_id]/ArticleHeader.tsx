@@ -24,13 +24,13 @@ export default function ArticleHeader({ blog, lang, blog_id }: ArticleHeaderProp
   const hasVoiceCommentary = blog.voice_commentary && blog.voice_commentary.trim().length > 0;
   
   // Playlist context for global audio control
-  const { playTrack, showPlaylist } = usePlaylistActions();
+  const { playTrack, showPlaylist, loadPlaylist } = usePlaylistActions();
   
   // Create a stable fallback pubtime to prevent new Date() from being called repeatedly
   const fallbackPubtime = useMemo(() => new Date().toISOString(), []);
 
   // 播放语音评论 - 使用全局播放列表
-  const playVoiceCommentary = useCallback(() => {
+  const playVoiceCommentary = useCallback(async () => {
     if (hasVoiceCommentary) {
       // Create a VoiceBlog object from current blog data
       const voiceBlog = {
@@ -41,12 +41,14 @@ export default function ArticleHeader({ blog, lang, blog_id }: ArticleHeaderProp
         introduction: ''
       };
       
+      // Ensure full playlist is available
+      await loadPlaylist(lang);
       // Play this track and show the playlist
       playTrack(voiceBlog);
       showPlaylist();
       trackEvent.navClick('Voice Commentary Play', `Article: ${blog.title}`);
     }
-  }, [hasVoiceCommentary, blog_id, blog.title, blog.voice_commentary, blog.pubtime, fallbackPubtime, playTrack, showPlaylist]);
+  }, [hasVoiceCommentary, blog_id, blog.title, blog.voice_commentary, blog.pubtime, fallbackPubtime, playTrack, showPlaylist, loadPlaylist, lang]);
 
   const stopVoiceCommentary = () => {
     const audioManager = AudioManager.getInstance();
