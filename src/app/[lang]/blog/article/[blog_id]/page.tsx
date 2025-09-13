@@ -33,6 +33,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       languages: {
         'en': `https://www.mofei.life/en/blog/article/${blog_id}`,
         'zh': `https://www.mofei.life/zh/blog/article/${blog_id}`,
+        'x-default': `https://www.mofei.life/en/blog/article/${blog_id}`,
       }
     },
     openGraph: {

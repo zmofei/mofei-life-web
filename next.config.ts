@@ -110,6 +110,11 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
+        hostname: "avatar.mofei.life",
+        pathname: "**",
+      },
+      {
+        protocol: "https",
         hostname: "github.com",
         pathname: "**",
       },

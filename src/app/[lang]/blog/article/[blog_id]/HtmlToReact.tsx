@@ -210,7 +210,7 @@ const HtmlToReact: React.FC<{ htmlString: string }> = ({ htmlString }) => {
     };
 
     // 递归解析 DOM 节点为 React 元素
-    const convertNodeToReact = (node: Node): React.ReactNode => {
+    const convertNodeToReact = (node: Node, key?: number): React.ReactNode => {
         if (node.nodeType === Node.TEXT_NODE) {
             return node.textContent;
         }
@@ -235,8 +235,8 @@ const HtmlToReact: React.FC<{ htmlString: string }> = ({ htmlString }) => {
                 }
             }
 
-            const children = Array.from(childNodes).map((childNode) =>
-                convertNodeToReact(childNode)
+            const children = Array.from(childNodes).map((childNode, index) =>
+                convertNodeToReact(childNode, index)
             );
 
             // 如果有自定义处理器，使用它
@@ -245,7 +245,7 @@ const HtmlToReact: React.FC<{ htmlString: string }> = ({ htmlString }) => {
             }
 
             // 默认处理
-            return React.createElement(tagName.toLowerCase(), { ...props }, ...children);
+            return React.createElement(tagName.toLowerCase(), { ...props, key }, ...children);
         }
 
         return null;
@@ -272,8 +272,8 @@ const HtmlToReact: React.FC<{ htmlString: string }> = ({ htmlString }) => {
         });
         imageListRef.current = imgList;
 
-        const parsedElements = Array.from(bodyChildNodes).map((node) =>
-            convertNodeToReact(node)
+        const parsedElements = Array.from(bodyChildNodes).map((node, index) =>
+            convertNodeToReact(node, index)
         );
         return (
             <div className={CSS.article}>

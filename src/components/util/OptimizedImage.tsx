@@ -68,7 +68,8 @@ export default function OptimizedImage({
 
   // 预加载处理
   useEffect(() => {
-    if (preload && containerRef.current) {
+    const current = containerRef.current;
+    if (preload && current) {
       // 立即预加载高优先级图片
       if (preloadPriority === 'high' || priority) {
         imagePreloader.preload(src).then((success) => {
@@ -76,13 +77,12 @@ export default function OptimizedImage({
         });
       } else {
         // 其他优先级使用交集观察器
-        imagePreloader.observe(containerRef.current, src);
+        imagePreloader.observe(current, src);
       }
     }
 
     return () => {
-      // 在清理函数中存储current值以避免React警告
-      const current = containerRef.current;
+      // 使用在effect开始时捕获的current值
       if (current) {
         imagePreloader.unobserve(current);
       }
