@@ -236,7 +236,7 @@ export default function PageContent({ params }: { params: PageContentProps }) {
 
         </div>
 
-        <div className='max-w-7xl mx-auto prose-stone prose-xl-invert overflow-y-auto break-words 
+        <div className='max-w-7xl mx-auto prose-stone prose-xl-invert overflow-visible break-words 
                   prose-base prose-gray-300
                   md:prose-xl lg:prose-xl
                   custom-paragraph leading-relaxed

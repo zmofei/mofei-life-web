@@ -1,7 +1,14 @@
 /* 第一个 h2 标签 */
 .article {
     max-width: 100%;
-    overflow: hidden;
+    /* Allow inner elements (e.g., images) to scale without being clipped */
+    overflow: visible;
+
+    /* Prevent wide code blocks from causing horizontal page scroll */
+    :global(pre.code-block) {
+        overflow-x: auto;
+        max-width: 100%;
+    }
 
     h2:nth-of-type(1) {
         background: url("/article/01.png") no-repeat;
