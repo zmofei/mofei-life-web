@@ -77,14 +77,14 @@ export async function deleteComment(commentId: string, token: string) {
     throw new Error("Missing comment id or token");
   }
 
-  const URL = `${NEW_API_URL}/blog/anonymous/comment/delete/${commentId}`;
+  const URL = `${NEW_API_URL}/blog/comment/${commentId}`;
   const res = await fetch(URL, {
-    method: "POST",
+    method: "PATCH",
     headers: {
       "Content-Type": "application/json",
     },
     credentials: "include",
-    body: JSON.stringify({ token }),
+    body: JSON.stringify({ token, action: "delete" }),
   });
 
   if (!res.ok) {
@@ -99,14 +99,14 @@ export async function updateComment(commentId: string, token: string, content: s
     throw new Error("Missing comment id or token");
   }
 
-  const URL = `${NEW_API_URL}/blog/anonymous/comment/update/${commentId}`;
+  const URL = `${NEW_API_URL}/blog/comment/${commentId}`;
   const res = await fetch(URL, {
-    method: "POST",
+    method: "PATCH",
     headers: {
       "Content-Type": "application/json",
     },
     credentials: "include",
-    body: JSON.stringify({ token, content }),
+    body: JSON.stringify({ token, action: "update", content }),
   });
 
   if (!res.ok) {

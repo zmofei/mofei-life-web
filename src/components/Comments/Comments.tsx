@@ -12,6 +12,36 @@ import CommentItem from './CommentItem'
 // import { HomeIcon } from '@heroicons/react/24/outline'
 
 
+interface ParentCommentMeta {
+    id: number | string
+    content: string
+    name: string
+    email: string
+    time: string
+    translate_zh?: string
+    translate_en?: string
+}
+
+interface CommentEntry {
+    id?: number | string
+    _id?: number | string
+    email: string
+    name: string
+    blog?: string
+    content: string
+    translate_zh?: string
+    translate_en?: string
+    time: string
+    like?: string | number
+    likes?: number
+    isLiked?: boolean
+    country?: string
+    region?: string
+    city?: string
+    timezone?: string
+    parent_comment?: ParentCommentMeta | null
+}
+
 interface CommentsParams {
     lang: string;
     message_id: string;
@@ -19,6 +49,16 @@ interface CommentsParams {
     singlePageMode?: boolean;
     baseURL?: string;
 }
+
+const encodeContentForDisplay = (raw: string) => {
+    return raw
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+        .replace(/\r?\n/g, '<br />');
+};
 
 export default function Comments(params: CommentsParams) {
     // Performance monitoring
@@ -28,7 +68,7 @@ export default function Comments(params: CommentsParams) {
     const messageArea = useRef<HTMLDivElement>(null);
     const finalBaseURL = baseURL || `/${lang}/message`
 
-    const [blogList, setBlogList] = useState([])
+    const [blogList, setBlogList] = useState<CommentEntry[]>([])
     const [totalPages, setTotalPages] = useState(1)
     const [messagePage, setMessagePage] = useState(message_page)
     const [freshId, setFreshId] = useState(0)
@@ -65,7 +105,7 @@ export default function Comments(params: CommentsParams) {
     const handleDeleteComment = useCallback(async (commentId: string, token: string) => {
         try {
             await deleteComment(commentId, token)
-            localStorage.removeItem(`comment_token_${commentId}`)
+            localStorage.removeItem(`comment_token_${String(commentId)}`)
             setFreshId((prev) => prev + 1)
         } catch (error) {
             console.error('Failed to delete comment:', error)
@@ -75,7 +115,57 @@ export default function Comments(params: CommentsParams) {
 
     const handleUpdateComment = useCallback(async (commentId: string, token: string, content: string) => {
         try {
-            await updateComment(commentId, token, content)
+            const response = await updateComment(commentId, token, content)
+            const payload = response?.data ?? response
+
+            const newIdValue = payload?.id ?? commentId
+            const previousIdValue = payload?.previousId ?? commentId
+            const previousKey = String(previousIdValue)
+            const hasNewId = newIdValue !== undefined && newIdValue !== null
+            const nextKey = hasNewId ? String(newIdValue) : previousKey
+
+            localStorage.removeItem(`comment_token_${previousKey}`)
+            if (typeof payload?.token === 'string' && payload.token.length > 0) {
+                localStorage.setItem(`comment_token_${nextKey}`, payload.token)
+            }
+
+            const safeContent = encodeContentForDisplay(content)
+            const updatedTimestamp: string = payload?.time ?? payload?.updatedAt ?? new Date().toISOString()
+
+            setBlogList((prevList) => {
+                let replaced = false
+                const nextList = prevList.map((item) => {
+                    const currentKey = String(item.id ?? item._id ?? '')
+                    if (!currentKey || currentKey !== previousKey) {
+                        return item
+                    }
+
+                    replaced = true
+
+                    const nextItem: CommentEntry = {
+                        ...item,
+                        content: safeContent,
+                        translate_en: undefined,
+                        translate_zh: undefined,
+                        time: updatedTimestamp,
+                    }
+
+                    if (typeof item.id !== 'undefined') {
+                        nextItem.id = hasNewId ? newIdValue : item.id
+                    }
+                    if (typeof item._id !== 'undefined') {
+                        nextItem._id = hasNewId ? String(newIdValue) : item._id
+                    }
+                    if (typeof item.id === 'undefined' && typeof item._id === 'undefined' && hasNewId) {
+                        nextItem.id = newIdValue
+                    }
+
+                    return nextItem
+                })
+
+                return replaced ? nextList : prevList
+            })
+
             setFreshId((prev) => prev + 1)
         } catch (error) {
             console.error('Failed to update comment:', error)
@@ -148,7 +238,7 @@ export default function Comments(params: CommentsParams) {
 
     // 将评论列表提取为独立组件以减少重新渲染
     const CommentList = memo(({ blogList, lang, onSubmitReply, isPosting, onDeleteComment, onUpdateComment }: {
-        blogList: Array<{ id?: string; _id?: string; email: string; name: string; blog?: string; content: string; translate_zh?: string; translate_en?: string; time: string; }>;
+        blogList: CommentEntry[];
         lang: string;
         onSubmitReply: (commentId: string, content: string) => void;
         isPosting: boolean;
@@ -157,7 +247,7 @@ export default function Comments(params: CommentsParams) {
     }) => {
         return (
             <>
-                {blogList.map((blog: { id?: string; _id?: string; email: string; name: string; blog?: string; content: string; translate_zh?: string; translate_en?: string; time: string; }) => {
+                {blogList.map((blog: CommentEntry) => {
                     const commentId = String(blog.id || blog._id || `${blog.email}_${blog.name}_${blog.time}`)
                     const itemKey = `${commentId}`;
                     return (
