@@ -127,15 +127,29 @@ export default function Comments(params: CommentsParams) {
             const response = await updateComment(commentId, token, content)
             const payload = response?.data ?? response
 
-            const newIdValue = payload?.id ?? commentId
-            const previousIdValue = payload?.previousId ?? commentId
-            const previousKey = String(previousIdValue)
+            const newIdValue = payload?.id ?? payload?._id ?? commentId
+            const previousIdValue = payload?.previousId ?? payload?.previous_id ?? commentId
+            const previousKey = previousIdValue != null ? String(previousIdValue) : ''
             const hasNewId = newIdValue !== undefined && newIdValue !== null
             const nextKey = hasNewId ? String(newIdValue) : previousKey
+            const previousLikedKey = previousKey ? `comment_liked_${previousKey}` : null
+            const nextLikedKey = nextKey ? `comment_liked_${nextKey}` : null
+            const updatedToken = typeof payload?.token === 'string' && payload.token.length > 0 ? payload.token : null
 
-            localStorage.removeItem(`comment_token_${previousKey}`)
-            if (typeof payload?.token === 'string' && payload.token.length > 0) {
-                localStorage.setItem(`comment_token_${nextKey}`, payload.token)
+            if (previousKey) {
+                localStorage.removeItem(`comment_token_${previousKey}`)
+            }
+            if (hasNewId && previousKey && nextKey && previousKey !== nextKey && previousLikedKey && nextLikedKey) {
+                const existingLikedValue = localStorage.getItem(previousLikedKey)
+                if (existingLikedValue !== null) {
+                    localStorage.removeItem(previousLikedKey)
+                    localStorage.setItem(nextLikedKey, existingLikedValue)
+                }
+            }
+
+            if (nextKey && nextLikedKey && updatedToken) {
+                localStorage.setItem(`comment_token_${nextKey}`, updatedToken)
+                localStorage.setItem(nextLikedKey, updatedToken)
             }
 
             const safeContent = encodeContentForDisplay(content)
@@ -207,9 +221,14 @@ export default function Comments(params: CommentsParams) {
                 lang: lang as 'zh' | 'en',
             })
 
-            if (response?.data?.id && response?.data?.token) {
-                const commentKey = `comment_token_${response.data.id}`
-                localStorage.setItem(commentKey, response.data.token)
+            const rawId = response?.data?.id ?? response?.data?._id ?? response?.id ?? response?._id
+            const rawToken = response?.data?.token ?? response?.token
+            if (rawId != null && typeof rawToken === 'string' && rawToken.length > 0) {
+                const commentId = String(rawId)
+                const commentTokenKey = `comment_token_${commentId}`
+                const commentLikedKey = `comment_liked_${commentId}`
+                localStorage.setItem(commentTokenKey, rawToken)
+                localStorage.setItem(commentLikedKey, rawToken)
             }
 
             // Track comment submission event
@@ -297,9 +316,14 @@ export default function Comments(params: CommentsParams) {
                             website,
                             lang: lang as 'zh' | 'en',
                         }).then((response) => {
-                            if (response?.data?.id && response?.data?.token) {
-                                const commentKey = `comment_token_${response.data.id}`
-                                localStorage.setItem(commentKey, response.data.token)
+                            const rawId = response?.data?.id ?? response?.data?._id ?? response?.id ?? response?._id
+                            const rawToken = response?.data?.token ?? response?.token
+                            if (rawId != null && typeof rawToken === 'string' && rawToken.length > 0) {
+                                const commentId = String(rawId)
+                                const commentTokenKey = `comment_token_${commentId}`
+                                const commentLikedKey = `comment_liked_${commentId}`
+                                localStorage.setItem(commentTokenKey, rawToken)
+                                localStorage.setItem(commentLikedKey, rawToken)
                             }
                             // Track comment submission event
                             trackEvent.commentSubmit(message_id);

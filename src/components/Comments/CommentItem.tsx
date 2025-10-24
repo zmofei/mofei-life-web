@@ -128,10 +128,14 @@ const CommentItem = memo(({ blog, lang, onSubmitReply, isPosting, onDeleteCommen
     
     // Initialize liked state from localStorage on client side
     useEffect(() => {
-        if (commentId) {
-            const storedLiked = localStorage.getItem(likedKey) === 'true';
-            setIsLiked(storedLiked || blog.isLiked || false);
+        if (!commentId) {
+            setIsLiked(false);
+            return;
         }
+
+        const storedValue = localStorage.getItem(likedKey);
+        const storedLiked = storedValue !== null && storedValue !== 'false' && storedValue.length > 0;
+        setIsLiked(storedLiked || blog.isLiked || false);
     }, [commentId, likedKey, blog.isLiked]);
     const [isLiking, setIsLiking] = useState(false);
     const [ownedToken, setOwnedToken] = useState<string | null>(null);
@@ -159,6 +163,7 @@ const CommentItem = memo(({ blog, lang, onSubmitReply, isPosting, onDeleteCommen
         if (isLiking || !commentId) return; // Prevent double clicks
         
         setIsLiking(true);
+        const storedBefore = localStorage.getItem(likedKey);
         const previousLiked = isLiked;
         const previousCount = likesCount;
         
@@ -171,7 +176,12 @@ const CommentItem = memo(({ blog, lang, onSubmitReply, isPosting, onDeleteCommen
                 // 点赞
                 setLikesCount(prev => prev + 1);
                 setIsLiked(true);
-                localStorage.setItem(likedKey, 'true');
+
+                const nextPersistedValue =
+                    (storedBefore && storedBefore !== 'false' && storedBefore.length > 0)
+                        ? storedBefore
+                        : (ownedToken ?? 'true');
+                localStorage.setItem(likedKey, nextPersistedValue);
                 
                 // Call API
                 const result = await likeComment(commentId);
@@ -189,11 +199,15 @@ const CommentItem = memo(({ blog, lang, onSubmitReply, isPosting, onDeleteCommen
             // Rollback on error
             setIsLiked(previousLiked);
             setLikesCount(previousCount);
-            localStorage.setItem(likedKey, String(previousLiked));
+            if (storedBefore !== null) {
+                localStorage.setItem(likedKey, storedBefore);
+            } else {
+                localStorage.removeItem(likedKey);
+            }
         } finally {
             setIsLiking(false);
         }
-    }, [isLiking, isLiked, likesCount, commentId, likedKey]);
+    }, [isLiking, isLiked, likesCount, commentId, likedKey, ownedToken]);
     
     // Update likes count when blog data changes
     useEffect(() => {
