@@ -67,7 +67,6 @@ interface CommentItemProps {
     lang: string;
     onSubmitReply: (commentId: string, content: string) => void;
     isPosting: boolean;
-    ownedToken?: string;
     onDeleteComment: (commentId: string, token: string) => Promise<void>;
     onUpdateComment: (commentId: string, token: string, content: string) => Promise<void>;
 }
@@ -107,7 +106,7 @@ const stripHtmlTags = (htmlContent: string) => {
         .trim();
 };
 
-const CommentItem = memo(({ blog, lang, onSubmitReply, isPosting, ownedToken, onDeleteComment, onUpdateComment }: CommentItemProps) => {
+const CommentItem = memo(({ blog, lang, onSubmitReply, isPosting, onDeleteComment, onUpdateComment }: CommentItemProps) => {
     const [showOriginal, setShowOriginal] = useState(false);
     const [replyActive, setReplyActive] = useState(false);
     // 使用API返回的like字段，转换为数字
@@ -127,6 +126,21 @@ const CommentItem = memo(({ blog, lang, onSubmitReply, isPosting, ownedToken, on
         }
     }, [commentId, likedKey, blog.isLiked]);
     const [isLiking, setIsLiking] = useState(false);
+    const [ownedToken, setOwnedToken] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (typeof window === 'undefined') {
+            return;
+        }
+
+        if (!commentId) {
+            setOwnedToken(null);
+            return;
+        }
+
+        const token = localStorage.getItem(`comment_token_${commentId}`);
+        setOwnedToken(token);
+    }, [commentId, blog.time]);
     
     // Handle like action
     const handleLike = useCallback(async () => {
@@ -275,6 +289,7 @@ const CommentItem = memo(({ blog, lang, onSubmitReply, isPosting, ownedToken, on
         setIsProcessing(true);
         try {
             await onDeleteComment(String(commentId), ownedToken);
+            setOwnedToken(null);
         } catch (error) {
             console.error('Delete comment failed:', error);
             if (typeof window !== 'undefined') {
@@ -596,7 +611,6 @@ const CommentItem = memo(({ blog, lang, onSubmitReply, isPosting, ownedToken, on
     if (prevProps.blog.content !== nextProps.blog.content) return false;
     if (prevProps.isPosting !== nextProps.isPosting) return false;
     if (prevProps.lang !== nextProps.lang) return false;
-    if (prevProps.ownedToken !== nextProps.ownedToken) return false;
 
     // 函数引用比较（这些函数应该是稳定的）
     if (prevProps.onSubmitReply !== nextProps.onSubmitReply) return false;

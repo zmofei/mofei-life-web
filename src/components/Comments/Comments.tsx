@@ -32,7 +32,6 @@ export default function Comments(params: CommentsParams) {
     const [totalPages, setTotalPages] = useState(1)
     const [messagePage, setMessagePage] = useState(message_page)
     const [freshId, setFreshId] = useState(0)
-    const [commentTokens, setCommentTokens] = useState<Record<string, string>>({})
     const [isLoading, setIsLoading] = useState(false)
     const [isPosting, setIsPosting] = useState(false)
     // Remove animations entirely to prevent repeated animation issues
@@ -63,39 +62,10 @@ export default function Comments(params: CommentsParams) {
         getToken()
     }, [])
 
-    const loadStoredTokens = useCallback(() => {
-        if (typeof window === 'undefined') {
-            return
-        }
-
-        const storedTokens: Record<string, string> = {}
-        for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i)
-            if (!key) continue
-            if (key.startsWith('comment_token_')) {
-                const token = localStorage.getItem(key)
-                if (token) {
-                    const commentId = key.replace('comment_token_', '')
-                    storedTokens[commentId] = token
-                }
-            }
-        }
-        setCommentTokens(storedTokens)
-    }, [])
-
-    useEffect(() => {
-        loadStoredTokens()
-    }, [loadStoredTokens])
-
     const handleDeleteComment = useCallback(async (commentId: string, token: string) => {
         try {
             await deleteComment(commentId, token)
             localStorage.removeItem(`comment_token_${commentId}`)
-            setCommentTokens((prev) => {
-                const updated = { ...prev }
-                delete updated[commentId]
-                return updated
-            })
             setFreshId((prev) => prev + 1)
         } catch (error) {
             console.error('Failed to delete comment:', error)
@@ -141,10 +111,6 @@ export default function Comments(params: CommentsParams) {
             if (response?.data?.id && response?.data?.token) {
                 const commentKey = `comment_token_${response.data.id}`
                 localStorage.setItem(commentKey, response.data.token)
-                setCommentTokens((prev) => ({
-                    ...prev,
-                    [String(response.data.id)]: response.data.token,
-                }))
             }
             
             // Track comment submission event
@@ -181,12 +147,11 @@ export default function Comments(params: CommentsParams) {
 
 
     // 将评论列表提取为独立组件以减少重新渲染
-    const CommentList = memo(({ blogList, lang, onSubmitReply, isPosting, commentTokens, onDeleteComment, onUpdateComment }: {
+    const CommentList = memo(({ blogList, lang, onSubmitReply, isPosting, onDeleteComment, onUpdateComment }: {
         blogList: Array<{ id?: string; _id?: string; email: string; name: string; blog?: string; content: string; translate_zh?: string; translate_en?: string; time: string; }>;
         lang: string;
         onSubmitReply: (commentId: string, content: string) => void;
         isPosting: boolean;
-        commentTokens: Record<string, string>;
         onDeleteComment: (commentId: string, token: string) => Promise<void>;
         onUpdateComment: (commentId: string, token: string, content: string) => Promise<void>;
     }) => {
@@ -202,7 +167,6 @@ export default function Comments(params: CommentsParams) {
                             lang={lang}
                             onSubmitReply={onSubmitReply}
                             isPosting={isPosting}
-                            ownedToken={commentTokens[commentId]}
                             onDeleteComment={onDeleteComment}
                             onUpdateComment={onUpdateComment}
                         />
@@ -215,17 +179,6 @@ export default function Comments(params: CommentsParams) {
         if (prevProps.blogList.length !== nextProps.blogList.length) return false;
         if (prevProps.lang !== nextProps.lang) return false;
         if (prevProps.isPosting !== nextProps.isPosting) return false;
-        const prevTokens = prevProps.commentTokens;
-        const nextTokens = nextProps.commentTokens;
-        const prevTokenKeys = Object.keys(prevTokens);
-        const nextTokenKeys = Object.keys(nextTokens);
-        if (prevTokenKeys.length !== nextTokenKeys.length) return false;
-        for (const key of prevTokenKeys) {
-            if (prevTokens[key] !== nextTokens[key]) {
-                return false;
-            }
-        }
-
         return true;
     });
 
@@ -248,10 +201,6 @@ export default function Comments(params: CommentsParams) {
                             if (response?.data?.id && response?.data?.token) {
                                 const commentKey = `comment_token_${response.data.id}`
                                 localStorage.setItem(commentKey, response.data.token)
-                                setCommentTokens((prev) => ({
-                                    ...prev,
-                                    [String(response.data.id)]: response.data.token,
-                                }))
                             }
                             // Track comment submission event
                             trackEvent.commentSubmit(message_id);
@@ -344,7 +293,6 @@ export default function Comments(params: CommentsParams) {
                             lang={lang}
                             onSubmitReply={handleSubmitReply}
                             isPosting={isPosting}
-                            commentTokens={commentTokens}
                             onDeleteComment={handleDeleteComment}
                             onUpdateComment={handleUpdateComment}
                         />
