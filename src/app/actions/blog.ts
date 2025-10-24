@@ -72,6 +72,50 @@ export async function likeComment(commentId: string) {
   return res.json();
 }
 
+export async function deleteComment(commentId: string, token: string) {
+  if (!commentId || !token) {
+    throw new Error("Missing comment id or token");
+  }
+
+  const URL = `${NEW_API_URL}/blog/comment/${commentId}`;
+  const res = await fetch(URL, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+    body: JSON.stringify({ token, action: "delete" }),
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to delete comment");
+  }
+
+  return res.json();
+}
+
+export async function updateComment(commentId: string, token: string, content: string) {
+  if (!commentId || !token) {
+    throw new Error("Missing comment id or token");
+  }
+
+  const URL = `${NEW_API_URL}/blog/comment/${commentId}`;
+  const res = await fetch(URL, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+    body: JSON.stringify({ token, action: "update", content }),
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to update comment");
+  }
+
+  return res.json();
+}
+
 export async function recordBlogVisit(blogId: string) {
   const URL = `${NEW_API_URL}/blog/visit/${blogId}`;
   try {

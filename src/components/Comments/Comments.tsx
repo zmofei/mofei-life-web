@@ -5,11 +5,50 @@ import { usePerformance } from '@/hooks/usePerformance';
 import { trackEvent } from '@/lib/gtag';
 import { useEffect, useState, useRef, memo, useCallback } from 'react';
 
-import { fetchMessageList, getToken, postMessage } from '@/app/actions/blog'
+import { deleteComment, fetchMessageList, getToken, postMessage, updateComment } from '@/app/actions/blog';
 import CommentInput from './CommentInput'
 import CommentItem from './CommentItem'
 
 // import { HomeIcon } from '@heroicons/react/24/outline'
+
+
+interface ParentCommentMeta {
+    id: number | string
+    content: string
+    name: string
+    email: string
+    time: string
+    translate_zh?: string
+    translate_en?: string
+}
+interface CommentEntry {
+    id?: number | string
+    _id?: number | string
+    email: string
+    name: string
+    blog?: string
+    content: string
+    translate_zh?: string
+    translate_en?: string
+    time: string
+    like?: string | number
+    likes?: number
+    isLiked?: boolean
+    country?: string
+    region?: string
+    city?: string
+    timezone?: string
+    parent_comment?: ParentCommentMeta | null,
+    ai_comment?: {
+        id?: number | string;
+        name?: string;
+        content: string;
+        time?: string;
+        translate_en?: string;
+        translate_zh?: string;
+    } | null,
+}
+
 
 
 interface CommentsParams {
@@ -20,6 +59,16 @@ interface CommentsParams {
     baseURL?: string;
 }
 
+const encodeContentForDisplay = (raw: string) => {
+    return raw
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+        .replace(/\r?\n/g, '<br />');
+};
+
 export default function Comments(params: CommentsParams) {
     // Performance monitoring
     usePerformance('Comments');
@@ -28,7 +77,7 @@ export default function Comments(params: CommentsParams) {
     const messageArea = useRef<HTMLDivElement>(null);
     const finalBaseURL = baseURL || `/${lang}/message`
 
-    const [blogList, setBlogList] = useState([])
+    const [blogList, setBlogList] = useState<CommentEntry[]>([])
     const [totalPages, setTotalPages] = useState(1)
     const [messagePage, setMessagePage] = useState(message_page)
     const [freshId, setFreshId] = useState(0)
@@ -42,7 +91,7 @@ export default function Comments(params: CommentsParams) {
         setIsLoading(true)
         // Track comment view event
         trackEvent.commentView(message_id);
-        
+
         fetchMessageList(message_id, messagePage, 10, lang).then((res) => {
             setBlogList(res.list)
             const totalCount = res.count
@@ -62,6 +111,91 @@ export default function Comments(params: CommentsParams) {
         getToken()
     }, [])
 
+    const handleDeleteComment = useCallback(async (commentId: string, token: string) => {
+        try {
+            await deleteComment(commentId, token)
+            localStorage.removeItem(`comment_token_${String(commentId)}`)
+            setFreshId((prev) => prev + 1)
+        } catch (error) {
+            console.error('Failed to delete comment:', error)
+            throw error
+        }
+    }, [])
+
+    const handleUpdateComment = useCallback(async (commentId: string, token: string, content: string) => {
+        try {
+            const response = await updateComment(commentId, token, content)
+            const payload = response?.data ?? response
+
+            const newIdValue = payload?.id ?? payload?._id ?? commentId
+            const previousIdValue = payload?.previousId ?? payload?.previous_id ?? commentId
+            const previousKey = previousIdValue != null ? String(previousIdValue) : ''
+            const hasNewId = newIdValue !== undefined && newIdValue !== null
+            const nextKey = hasNewId ? String(newIdValue) : previousKey
+            const previousLikedKey = previousKey ? `comment_liked_${previousKey}` : null
+            const nextLikedKey = nextKey ? `comment_liked_${nextKey}` : null
+            const updatedToken = typeof payload?.token === 'string' && payload.token.length > 0 ? payload.token : null
+
+            if (previousKey) {
+                localStorage.removeItem(`comment_token_${previousKey}`)
+            }
+            if (hasNewId && previousKey && nextKey && previousKey !== nextKey && previousLikedKey && nextLikedKey) {
+                const existingLikedValue = localStorage.getItem(previousLikedKey)
+                if (existingLikedValue !== null) {
+                    localStorage.removeItem(previousLikedKey)
+                    localStorage.setItem(nextLikedKey, existingLikedValue)
+                }
+            }
+
+            if (nextKey && nextLikedKey && updatedToken) {
+                localStorage.setItem(`comment_token_${nextKey}`, updatedToken)
+                localStorage.setItem(nextLikedKey, updatedToken)
+            }
+
+            const safeContent = encodeContentForDisplay(content)
+            const updatedTimestamp: string = payload?.time ?? payload?.updatedAt ?? new Date().toISOString()
+
+            setBlogList((prevList) => {
+                let replaced = false
+                const nextList = prevList.map((item) => {
+                    const currentKey = String(item.id ?? item._id ?? '')
+                    if (!currentKey || currentKey !== previousKey) {
+                        return item
+                    }
+
+                    replaced = true
+
+                    const nextItem: CommentEntry = {
+                        ...item,
+                        content: safeContent,
+                        translate_en: undefined,
+                        translate_zh: undefined,
+                        time: updatedTimestamp,
+                    }
+
+                    if (typeof item.id !== 'undefined') {
+                        nextItem.id = hasNewId ? newIdValue : item.id
+                    }
+                    if (typeof item._id !== 'undefined') {
+                        nextItem._id = hasNewId ? String(newIdValue) : item._id
+                    }
+                    if (typeof item.id === 'undefined' && typeof item._id === 'undefined' && hasNewId) {
+                        nextItem.id = newIdValue
+                    }
+
+                    return nextItem
+                })
+
+                return replaced ? nextList : prevList
+            })
+
+            setFreshId((prev) => prev + 1)
+        } catch (error) {
+            console.error('Failed to update comment:', error)
+            throw error
+        }
+    }, [])
+
 
 
 
@@ -70,15 +204,15 @@ export default function Comments(params: CommentsParams) {
     // 处理回复提交
     const handleSubmitReply = useCallback(async (commentId: string, content: string) => {
         if (!content.trim() || isPosting) return
-        
+
         setIsPosting(true)
         try {
             // Get user data from localStorage
             const email = localStorage.getItem('email') || '';
             const username = localStorage.getItem('username') || 'Mofei\'s Friend';
             const website = localStorage.getItem('website') || '';
-            
-            await postMessage(message_id, {
+
+            const response = await postMessage(message_id, {
                 content: content.trim(),
                 email,
                 name: username,
@@ -86,10 +220,20 @@ export default function Comments(params: CommentsParams) {
                 replyId: commentId,
                 lang: lang as 'zh' | 'en',
             })
-            
+
+            const rawId = response?.data?.id ?? response?.data?._id ?? response?.id ?? response?._id
+            const rawToken = response?.data?.token ?? response?.token
+            if (rawId != null && typeof rawToken === 'string' && rawToken.length > 0) {
+                const commentId = String(rawId)
+                const commentTokenKey = `comment_token_${commentId}`
+                const commentLikedKey = `comment_liked_${commentId}`
+                localStorage.setItem(commentTokenKey, rawToken)
+                localStorage.setItem(commentLikedKey, rawToken)
+            }
+
             // Track comment submission event
             trackEvent.commentSubmit(message_id)
-            
+
             // 先滚动到留言区的第一条
             if (messageArea.current) {
                 messageArea.current.scrollIntoView({
@@ -97,7 +241,7 @@ export default function Comments(params: CommentsParams) {
                     block: 'start',
                 });
             }
-            
+
             // 等待滚动完成后再刷新列表
             setTimeout(() => {
                 if (singlePageMode) {
@@ -109,7 +253,7 @@ export default function Comments(params: CommentsParams) {
                     setMessagePage(1)
                 }
             }, 300); // 等待300ms让滚动动画完成
-            
+
             // 回复成功不需要额外提示，回复框消失就是成功的反馈
         } catch (error) {
             console.error('Failed to post reply:', error)
@@ -121,50 +265,19 @@ export default function Comments(params: CommentsParams) {
 
 
     // 将评论列表提取为独立组件以减少重新渲染
-    const CommentList = memo(({ blogList, lang, onSubmitReply, isPosting }: {
-        blogList: Array<{
-            id?: string;
-            _id?: string;
-            email: string;
-            name: string;
-            blog?: string;
-            content: string;
-            translate_zh?: string;
-            translate_en?: string;
-            time: string;
-            like?: string | number;
-            likes?: number;
-            isLiked?: boolean;
-            country?: string;
-            region?: string;
-            city?: string;
-            timezone?: string;
-            parent_comment?: {
-                id: number;
-                content: string;
-                name: string;
-                email: string;
-                time: string;
-                translate_zh?: string;
-                translate_en?: string;
-            };
-            ai_comment?: {
-                id?: number | string;
-                name?: string;
-                content: string;
-                time?: string;
-                translate_en?: string;
-                translate_zh?: string;
-            };
-        }>;
+    const CommentList = memo(({ blogList, lang, onSubmitReply, isPosting, onDeleteComment, onUpdateComment }: {
+        blogList: CommentEntry[];
         lang: string;
         onSubmitReply: (commentId: string, content: string) => void;
         isPosting: boolean;
+        onDeleteComment: (commentId: string, token: string) => Promise<void>;
+        onUpdateComment: (commentId: string, token: string, content: string) => Promise<void>;
     }) => {
         return (
             <>
-                {blogList.map((blog: { id?: string; _id?: string; email: string; name: string; blog?: string; content: string; translate_zh?: string; translate_en?: string; time: string; }) => {
-                    const itemKey = `${blog.email}_${blog.name}_${blog.time}`;
+                {blogList.map((blog: CommentEntry) => {
+                    const commentId = String(blog.id || blog._id || `${blog.email}_${blog.name}_${blog.time}`)
+                    const itemKey = `${commentId}`;
                     return (
                         <CommentItem
                             key={itemKey}
@@ -172,6 +285,8 @@ export default function Comments(params: CommentsParams) {
                             lang={lang}
                             onSubmitReply={onSubmitReply}
                             isPosting={isPosting}
+                            onDeleteComment={onDeleteComment}
+                            onUpdateComment={onUpdateComment}
                         />
                     );
                 })}
@@ -182,7 +297,6 @@ export default function Comments(params: CommentsParams) {
         if (prevProps.blogList.length !== nextProps.blogList.length) return false;
         if (prevProps.lang !== nextProps.lang) return false;
         if (prevProps.isPosting !== nextProps.isPosting) return false;
-        
         return true;
     });
 
@@ -201,10 +315,19 @@ export default function Comments(params: CommentsParams) {
                             name,
                             website,
                             lang: lang as 'zh' | 'en',
-                        }).then(() => {
+                        }).then((response) => {
+                            const rawId = response?.data?.id ?? response?.data?._id ?? response?.id ?? response?._id
+                            const rawToken = response?.data?.token ?? response?.token
+                            if (rawId != null && typeof rawToken === 'string' && rawToken.length > 0) {
+                                const commentId = String(rawId)
+                                const commentTokenKey = `comment_token_${commentId}`
+                                const commentLikedKey = `comment_liked_${commentId}`
+                                localStorage.setItem(commentTokenKey, rawToken)
+                                localStorage.setItem(commentLikedKey, rawToken)
+                            }
                             // Track comment submission event
                             trackEvent.commentSubmit(message_id);
-                            
+
                             // 先滚动到留言区的第一条
                             if (messageArea.current) {
                                 messageArea.current.scrollIntoView({
@@ -212,7 +335,7 @@ export default function Comments(params: CommentsParams) {
                                     block: 'start',
                                 });
                             }
-                            
+
                             // 等待滚动完成后再刷新列表
                             setTimeout(() => {
                                 if (singlePageMode) {
@@ -259,14 +382,14 @@ export default function Comments(params: CommentsParams) {
                                     </div>
                                     <div className='bg-white/10 w-16 md:w-20 h-6 md:h-7 rounded-2xl loading-shimmer' />
                                 </div>
-                                
+
                                 {/* 内容骨架屏 */}
                                 <div className='space-y-2 md:space-y-3'>
                                     <div className='bg-white/10 w-full h-4 md:h-5 rounded-lg loading-shimmer' />
                                     <div className='bg-white/10 w-3/4 h-4 md:h-5 rounded-lg loading-shimmer' />
                                     <div className='bg-white/10 w-1/2 h-4 md:h-5 rounded-lg loading-shimmer' />
                                 </div>
-                                
+
                                 {/* 时间骨架屏 */}
                                 <div className='mt-4 flex items-center gap-2'>
                                     <div className='w-3 h-3 md:w-4 md:h-4 bg-white/10 rounded loading-shimmer' />
@@ -293,6 +416,8 @@ export default function Comments(params: CommentsParams) {
                             lang={lang}
                             onSubmitReply={handleSubmitReply}
                             isPosting={isPosting}
+                            onDeleteComment={handleDeleteComment}
+                            onUpdateComment={handleUpdateComment}
                         />
                     )}
                 </div>
