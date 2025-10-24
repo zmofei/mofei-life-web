@@ -36,12 +36,12 @@ const updateLinks = (htmlContent: string) => {
 };
 
 interface CommentItemProps {
-    blog: { 
-        id?: string; 
-        _id?: string; 
-        email: string; 
-        name: string; 
-        blog?: string; 
+    blog: {
+        id?: string;
+        _id?: string;
+        email: string;
+        name: string;
+        blog?: string;
         content: string; 
         translate_zh?: string; 
         translate_en?: string; 
@@ -67,6 +67,9 @@ interface CommentItemProps {
     lang: string;
     onSubmitReply: (commentId: string, content: string) => void;
     isPosting: boolean;
+    ownedToken?: string;
+    onDeleteComment: (commentId: string, token: string) => Promise<void>;
+    onUpdateComment: (commentId: string, token: string, content: string) => Promise<void>;
 }
 
 // Function to generate random offset for default avatars
@@ -89,7 +92,22 @@ const getAvatarStyle = (email: string, name: string) => {
     };
 };
 
-const CommentItem = memo(({ blog, lang, onSubmitReply, isPosting }: CommentItemProps) => {
+const stripHtmlTags = (htmlContent: string) => {
+    return htmlContent
+        .replace(/<br\s*\/?>(\n)?/gi, '\n')
+        .replace(/<p[^>]*>/gi, '')
+        .replace(/<\/p>/gi, '\n')
+        .replace(/<[^>]+>/g, '')
+        .replace(/&nbsp;/gi, ' ')
+        .replace(/&amp;/gi, '&')
+        .replace(/&lt;/gi, '<')
+        .replace(/&gt;/gi, '>')
+        .replace(/&quot;/gi, '"')
+        .replace(/&#39;/gi, "'")
+        .trim();
+};
+
+const CommentItem = memo(({ blog, lang, onSubmitReply, isPosting, ownedToken, onDeleteComment, onUpdateComment }: CommentItemProps) => {
     const [showOriginal, setShowOriginal] = useState(false);
     const [replyActive, setReplyActive] = useState(false);
     // 使用API返回的like字段，转换为数字
@@ -220,12 +238,91 @@ const CommentItem = memo(({ blog, lang, onSubmitReply, isPosting }: CommentItemP
         }
     }, [blog.translate_zh, blog.translate_en, blog.content, lang]);
     
+    const plainTextContent = useMemo(() => {
+        return stripHtmlTags(blog.content || '');
+    }, [blog.content]);
+
+    const canModify = useMemo(() => {
+        if (!ownedToken) {
+            return false;
+        }
+
+        if (!blog.time) {
+            return false;
+        }
+
+        const createdAt = new Date(blog.time);
+        if (Number.isNaN(createdAt.getTime())) {
+            return false;
+        }
+
+        const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+        return Date.now() - createdAt.getTime() <= ONE_DAY_MS;
+    }, [ownedToken, blog.time]);
+
+    const [isProcessing, setIsProcessing] = useState(false);
+
+    const handleDelete = useCallback(async () => {
+        if (!canModify || !ownedToken || !commentId || isProcessing) {
+            return;
+        }
+
+        const confirmMessage = lang === 'zh' ? '确定要删除这条评论吗？' : 'Delete this comment?';
+        if (typeof window !== 'undefined' && !window.confirm(confirmMessage)) {
+            return;
+        }
+
+        setIsProcessing(true);
+        try {
+            await onDeleteComment(String(commentId), ownedToken);
+        } catch (error) {
+            console.error('Delete comment failed:', error);
+            if (typeof window !== 'undefined') {
+                window.alert(lang === 'zh' ? '删除评论失败，请稍后重试。' : 'Failed to delete comment. Please try again later.');
+            }
+        } finally {
+            setIsProcessing(false);
+        }
+    }, [canModify, ownedToken, commentId, isProcessing, onDeleteComment, lang]);
+
+    const handleEdit = useCallback(async () => {
+        if (!canModify || !ownedToken || !commentId || isProcessing) {
+            return;
+        }
+
+        const promptMessage = lang === 'zh' ? '修改评论内容：' : 'Edit your comment:';
+        let updatedContent = plainTextContent;
+        if (typeof window !== 'undefined') {
+            updatedContent = window.prompt(promptMessage, plainTextContent) ?? '';
+        }
+
+        const trimmedContent = updatedContent.trim();
+        if (!trimmedContent) {
+            if (typeof window !== 'undefined') {
+                window.alert(lang === 'zh' ? '评论内容不能为空。' : 'Comment content cannot be empty.');
+            }
+            return;
+        }
+
+        setIsProcessing(true);
+        try {
+            await onUpdateComment(String(commentId), ownedToken, trimmedContent);
+        } catch (error) {
+            console.error('Update comment failed:', error);
+            if (typeof window !== 'undefined') {
+                window.alert(lang === 'zh' ? '更新评论失败，请稍后重试。' : 'Failed to update comment. Please try again later.');
+            }
+        } finally {
+            setIsProcessing(false);
+        }
+    }, [canModify, ownedToken, commentId, isProcessing, onUpdateComment, lang, plainTextContent]);
+
     return (
         <div className='mt-5 md:mt-10'>
             <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-4 md:p-8 border border-white/20 shadow-xl relative overflow-hidden text-sm md:text-lg">
                 {/* Avatar background */}
                 {blog.email && blog.email !== '0000000000' ? (
-                    <div 
+                    <div
                         className="absolute inset-0 opacity-[0.025] rounded-2xl"
                         style={{
                             backgroundImage: `url(https://assets-eu.mofei.life/gravatar/${blog.email}?s=200)`,
@@ -378,12 +475,12 @@ const CommentItem = memo(({ blog, lang, onSubmitReply, isPosting }: CommentItemP
                                 )}
                                 
                                 {/* 点赞和回复按钮 - 单独一行左对齐 */}
-                                <div className="flex items-center justify-start gap-3 mt-3">
+                                <div className="flex flex-wrap items-center justify-start gap-3 mt-3">
                                     <button
                                         onClick={handleLike}
                                         disabled={isLiking}
-                                        className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium transition-all duration-300 
-                                            ${isLiked 
+                                        className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium transition-all duration-300
+                                            ${isLiked
                                                 ? 'text-red-400 bg-red-400/10 border border-red-400/20 hover:bg-red-400/20' 
                                                 : 'text-white/60 bg-white/5 border border-white/10 hover:text-white/80 hover:bg-white/10'
                                             } 
@@ -430,6 +527,56 @@ const CommentItem = memo(({ blog, lang, onSubmitReply, isPosting }: CommentItemP
                                         </svg>
                                         <span>{lang === 'zh' ? '回复' : 'Reply'}</span>
                                     </button>
+                                    {canModify && (
+                                        <>
+                                            <button
+                                                onClick={handleEdit}
+                                                disabled={isProcessing}
+                                                className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium transition-all duration-300
+                                                    text-amber-300/80 bg-amber-300/10 border border-amber-300/20 hover:text-amber-200 hover:bg-amber-300/20
+                                                    ${isProcessing ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105'}
+                                                    backdrop-blur-sm flex-shrink-0`}
+                                            >
+                                                <svg
+                                                    className="w-3.5 h-3.5"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                >
+                                                    <path
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        strokeWidth={2}
+                                                        d="M11 4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-5m-5.586-9.586a2 2 0 112.828 2.828L11 15l-4 1 1-4 8.414-8.414z"
+                                                    />
+                                                </svg>
+                                                <span>{lang === 'zh' ? '编辑' : 'Edit'}</span>
+                                            </button>
+                                            <button
+                                                onClick={handleDelete}
+                                                disabled={isProcessing}
+                                                className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium transition-all duration-300
+                                                    text-red-300/80 bg-red-300/10 border border-red-300/20 hover:text-red-200 hover:bg-red-300/20
+                                                    ${isProcessing ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105'}
+                                                    backdrop-blur-sm flex-shrink-0`}
+                                            >
+                                                <svg
+                                                    className="w-3.5 h-3.5"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                >
+                                                    <path
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        strokeWidth={2}
+                                                        d="M6 18L18 6M6 6l12 12"
+                                                    />
+                                                </svg>
+                                                <span>{lang === 'zh' ? '删除' : 'Delete'}</span>
+                                            </button>
+                                        </>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -442,17 +589,20 @@ const CommentItem = memo(({ blog, lang, onSubmitReply, isPosting }: CommentItemP
     // 只有当这个特定评论的相关属性变化时才重新渲染
     const prevCommentId = prevProps.blog.id || prevProps.blog._id || '';
     const nextCommentId = nextProps.blog.id || nextProps.blog._id || '';
-    
+
     // 基本属性比较
     if (prevCommentId !== nextCommentId) return false;
     if (prevProps.blog.like !== nextProps.blog.like) return false;
     if (prevProps.blog.content !== nextProps.blog.content) return false;
     if (prevProps.isPosting !== nextProps.isPosting) return false;
     if (prevProps.lang !== nextProps.lang) return false;
-    
+    if (prevProps.ownedToken !== nextProps.ownedToken) return false;
+
     // 函数引用比较（这些函数应该是稳定的）
     if (prevProps.onSubmitReply !== nextProps.onSubmitReply) return false;
-    
+    if (prevProps.onDeleteComment !== nextProps.onDeleteComment) return false;
+    if (prevProps.onUpdateComment !== nextProps.onUpdateComment) return false;
+
     // 其他属性相同则不重新渲染
     return true;
 });
