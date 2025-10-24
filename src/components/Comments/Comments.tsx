@@ -21,7 +21,6 @@ interface ParentCommentMeta {
     translate_zh?: string
     translate_en?: string
 }
-
 interface CommentEntry {
     id?: number | string
     _id?: number | string
@@ -39,8 +38,18 @@ interface CommentEntry {
     region?: string
     city?: string
     timezone?: string
-    parent_comment?: ParentCommentMeta | null
+    parent_comment?: ParentCommentMeta | null,
+    ai_comment?: {
+        id?: number | string;
+        name?: string;
+        content: string;
+        time?: string;
+        translate_en?: string;
+        translate_zh?: string;
+    } | null,
 }
+
+
 
 interface CommentsParams {
     lang: string;
@@ -82,7 +91,7 @@ export default function Comments(params: CommentsParams) {
         setIsLoading(true)
         // Track comment view event
         trackEvent.commentView(message_id);
-        
+
         fetchMessageList(message_id, messagePage, 10, lang).then((res) => {
             setBlogList(res.list)
             const totalCount = res.count
@@ -188,7 +197,7 @@ export default function Comments(params: CommentsParams) {
             const email = localStorage.getItem('email') || '';
             const username = localStorage.getItem('username') || 'Mofei\'s Friend';
             const website = localStorage.getItem('website') || '';
-            
+
             const response = await postMessage(message_id, {
                 content: content.trim(),
                 email,
@@ -202,10 +211,10 @@ export default function Comments(params: CommentsParams) {
                 const commentKey = `comment_token_${response.data.id}`
                 localStorage.setItem(commentKey, response.data.token)
             }
-            
+
             // Track comment submission event
             trackEvent.commentSubmit(message_id)
-            
+
             // 先滚动到留言区的第一条
             if (messageArea.current) {
                 messageArea.current.scrollIntoView({
@@ -213,7 +222,7 @@ export default function Comments(params: CommentsParams) {
                     block: 'start',
                 });
             }
-            
+
             // 等待滚动完成后再刷新列表
             setTimeout(() => {
                 if (singlePageMode) {
@@ -225,7 +234,7 @@ export default function Comments(params: CommentsParams) {
                     setMessagePage(1)
                 }
             }, 300); // 等待300ms让滚动动画完成
-            
+
             // 回复成功不需要额外提示，回复框消失就是成功的反馈
         } catch (error) {
             console.error('Failed to post reply:', error)
@@ -294,7 +303,7 @@ export default function Comments(params: CommentsParams) {
                             }
                             // Track comment submission event
                             trackEvent.commentSubmit(message_id);
-                            
+
                             // 先滚动到留言区的第一条
                             if (messageArea.current) {
                                 messageArea.current.scrollIntoView({
@@ -302,7 +311,7 @@ export default function Comments(params: CommentsParams) {
                                     block: 'start',
                                 });
                             }
-                            
+
                             // 等待滚动完成后再刷新列表
                             setTimeout(() => {
                                 if (singlePageMode) {
@@ -349,14 +358,14 @@ export default function Comments(params: CommentsParams) {
                                     </div>
                                     <div className='bg-white/10 w-16 md:w-20 h-6 md:h-7 rounded-2xl loading-shimmer' />
                                 </div>
-                                
+
                                 {/* 内容骨架屏 */}
                                 <div className='space-y-2 md:space-y-3'>
                                     <div className='bg-white/10 w-full h-4 md:h-5 rounded-lg loading-shimmer' />
                                     <div className='bg-white/10 w-3/4 h-4 md:h-5 rounded-lg loading-shimmer' />
                                     <div className='bg-white/10 w-1/2 h-4 md:h-5 rounded-lg loading-shimmer' />
                                 </div>
-                                
+
                                 {/* 时间骨架屏 */}
                                 <div className='mt-4 flex items-center gap-2'>
                                     <div className='w-3 h-3 md:w-4 md:h-4 bg-white/10 rounded loading-shimmer' />
