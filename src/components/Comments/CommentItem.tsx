@@ -37,8 +37,8 @@ const updateLinks = (htmlContent: string) => {
 
 interface CommentItemProps {
     blog: {
-        id?: string;
-        _id?: string;
+        id?: string | number;
+        _id?: string | number;
         email: string;
         name: string;
         blog?: string;
@@ -55,14 +55,14 @@ interface CommentItemProps {
         city?: string;
         timezone?: string;
         parent_comment?: {
-            id: number;
+            id?: number | string;
             content: string;
             name: string;
             email: string;
             time: string;
             translate_zh?: string;
             translate_en?: string;
-        };
+        } | null;
         ai_comment?: {
             id?: number | string;
             name?: string;
@@ -70,7 +70,7 @@ interface CommentItemProps {
             time?: string;
             translate_en?: string;
             translate_zh?: string;
-        };
+        } | null;
     };
     lang: string;
     onSubmitReply: (commentId: string, content: string) => void;
@@ -122,13 +122,14 @@ const CommentItem = memo(({ blog, lang, onSubmitReply, isPosting, onDeleteCommen
     const [likesCount, setLikesCount] = useState(initialLikes);
     
     // 从localStorage获取用户点赞状态
-    const commentId = blog.id || blog._id || '';
-    const likedKey = `comment_liked_${commentId}`;
+    const rawCommentId = blog.id ?? blog._id ?? '';
+    const commentId = rawCommentId !== undefined && rawCommentId !== null ? String(rawCommentId) : '';
+    const likedKey = commentId ? `comment_liked_${commentId}` : '';
     const [isLiked, setIsLiked] = useState(blog.isLiked || false);
     
     // Initialize liked state from localStorage on client side
     useEffect(() => {
-        if (!commentId) {
+        if (!commentId || !likedKey) {
             setIsLiked(false);
             return;
         }
@@ -160,7 +161,7 @@ const CommentItem = memo(({ blog, lang, onSubmitReply, isPosting, onDeleteCommen
     
     // Handle like action
     const handleLike = useCallback(async () => {
-        if (isLiking || !commentId) return; // Prevent double clicks
+        if (isLiking || !commentId || !likedKey) return; // Prevent double clicks
         
         setIsLiking(true);
         const storedBefore = localStorage.getItem(likedKey);

@@ -11,9 +11,6 @@ import PageTracker from '@/components/Analytics/PageTracker';
 import SPATransition from '@/components/util/SPATransition';
 import GlobalPlaylist from '@/components/Player/GlobalPlaylist';
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
-
-const inter = Inter({ subsets: ['latin'], display: 'swap' })
 
 // Load the dashboard only in development
 const WebVitalsDashboard = process.env.NODE_ENV === 'development'
@@ -111,7 +108,7 @@ export default function RootLayout(params: Readonly<{
         <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="anonymous" />
 
       </head>
-      <body className={`${inter.className} antialiased relative`}>
+      <body className="font-sans antialiased relative">
         <GoogleAnalytics />
         <WebVitalsProvider>
           <LanguageProvider defaultLang={lang}>
