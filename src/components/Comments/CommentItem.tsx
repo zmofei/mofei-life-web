@@ -63,6 +63,14 @@ interface CommentItemProps {
             translate_zh?: string;
             translate_en?: string;
         };
+        ai_comment?: {
+            id?: number | string;
+            name?: string;
+            content: string;
+            time?: string;
+            translate_en?: string;
+            translate_zh?: string;
+        };
     };
     lang: string;
     onSubmitReply: (commentId: string, content: string) => void;
@@ -109,6 +117,10 @@ const CommentItem = memo(({ blog, lang, onSubmitReply, isPosting }: CommentItemP
         }
     }, [commentId, likedKey, blog.isLiked]);
     const [isLiking, setIsLiking] = useState(false);
+
+    const aiAssistantName = (blog.ai_comment?.name && blog.ai_comment.name.trim().length > 0)
+        ? blog.ai_comment.name
+        : (lang === 'zh' ? 'Mofei 的 AI 助理' : 'Mofei AI Assistant');
     
     // Handle like action
     const handleLike = useCallback(async () => {
@@ -197,7 +209,24 @@ const CommentItem = memo(({ blog, lang, onSubmitReply, isPosting }: CommentItemP
             }
         }
     }, [blog.translate_zh, blog.translate_en, blog.content, lang]);
-    
+
+    const aiReplyContent = useMemo(() => {
+        if (!blog.ai_comment) {
+            return null;
+        }
+
+        const ai = blog.ai_comment;
+        const candidate = lang === 'zh' ? ai.translate_zh : ai.translate_en;
+        const hasCandidate = typeof candidate === 'string' && candidate.trim().length > 0;
+        const display = hasCandidate ? candidate : ai.content;
+        const isTranslated = hasCandidate && display !== ai.content;
+
+        return {
+            content: updateLinks(display),
+            isTranslated,
+        };
+    }, [blog.ai_comment, lang]);
+
     // Cache original content
     const originalContent = useMemo(() => (
         <div className="mt-3 p-3 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 text-sm text-gray-300 leading-relaxed">
@@ -344,7 +373,53 @@ const CommentItem = memo(({ blog, lang, onSubmitReply, isPosting }: CommentItemP
                                 
                                 {/* 显示翻译内容（已缓存，不会重新渲染） */}
                                 {translatedContent}
-                                
+
+                                {aiReplyContent && (
+                                    <div className="mt-4 overflow-hidden rounded-2xl border border-sky-400/20 bg-gradient-to-br from-sky-500/10 via-indigo-500/10 to-purple-500/10 p-4 text-sm leading-relaxed text-sky-50 shadow-[0_12px_40px_rgba(56,189,248,0.18)]">
+                                        <div className="flex flex-col gap-3">
+                                            <div className="flex flex-wrap items-center gap-3">
+                                                <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.28em] text-transparent bg-clip-text bg-gradient-to-r from-cyan-200 via-white to-indigo-200 drop-shadow-[0_0_14px_rgba(125,211,252,0.45)]">
+                                                    <svg className="h-3 w-3 text-cyan-200" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.2}>
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M10 2.5l1.4 3.4 3.6.4-2.6 2.4.7 3.5L10 10.8l-3.1 1.4.7-3.5L5 6.3l3.6-.4L10 2.5z" />
+                                                    </svg>
+                                                    {aiAssistantName}
+                                                </span>
+                                                <span className="flex items-center gap-1.5 rounded-full border border-cyan-300/40 bg-gradient-to-r from-cyan-500/20 via-blue-500/20 to-indigo-500/20 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-cyan-100 shadow-[0_0_12px_rgba(34,211,238,0.35)] backdrop-blur">
+                                                    <svg className="h-3 w-3 text-cyan-200" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 20 20">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 5h2l1-2h4l1 2h2l1 2-1 2h-2l-1 2-1 2H8l-1-2H5l-1-2 1-2 1-2z" />
+                                                        <circle cx="10" cy="10" r="2.5" />
+                                                    </svg>
+                                                    <span>{lang === 'zh' ? 'AI 生成' : 'AI GENERATED'}</span>
+                                                </span>
+                                            </div>
+                                            <div
+                                                className="prose prose-invert max-w-none text-sky-50 [&>p]:my-2 [&>p:first-child]:mt-0 [&>p:last-child]:mb-0"
+                                                dangerouslySetInnerHTML={{ __html: aiReplyContent.content }}
+                                            />
+                                            {aiReplyContent.isTranslated && (
+                                                <div className="text-[11px] text-sky-100/60">
+                                                    {lang === 'zh' ? '原文由 AI 自动翻译' : 'Original auto-translated by AI'}
+                                                </div>
+                                            )}
+                                            {blog.ai_comment?.time && (
+                                                <div
+                                                    className="text-[11px] text-sky-100/60"
+                                                    title={timeUtils.toLocaleDateString(blog.ai_comment.time, lang as 'zh' | 'en', {
+                                                        weekday: 'short',
+                                                        year: 'numeric',
+                                                        month: 'short',
+                                                        day: 'numeric',
+                                                        hour: 'numeric',
+                                                        minute: 'numeric',
+                                                    })}
+                                                >
+                                                    {timeUtils.fromNow(blog.ai_comment.time, lang as 'zh' | 'en')}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+
                                 {/* 显示原文按钮 */}
                                 {shouldShowOriginalButton && (
                                     <button
@@ -447,6 +522,12 @@ const CommentItem = memo(({ blog, lang, onSubmitReply, isPosting }: CommentItemP
     if (prevCommentId !== nextCommentId) return false;
     if (prevProps.blog.like !== nextProps.blog.like) return false;
     if (prevProps.blog.content !== nextProps.blog.content) return false;
+    if (!!prevProps.blog.ai_comment !== !!nextProps.blog.ai_comment) return false;
+    if (prevProps.blog.ai_comment?.content !== nextProps.blog.ai_comment?.content) return false;
+    if (prevProps.blog.ai_comment?.translate_en !== nextProps.blog.ai_comment?.translate_en) return false;
+    if (prevProps.blog.ai_comment?.translate_zh !== nextProps.blog.ai_comment?.translate_zh) return false;
+    if (prevProps.blog.ai_comment?.time !== nextProps.blog.ai_comment?.time) return false;
+    if (prevProps.blog.ai_comment?.name !== nextProps.blog.ai_comment?.name) return false;
     if (prevProps.isPosting !== nextProps.isPosting) return false;
     if (prevProps.lang !== nextProps.lang) return false;
     

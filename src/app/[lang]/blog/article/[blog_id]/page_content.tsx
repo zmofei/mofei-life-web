@@ -26,10 +26,12 @@ interface PageContentProps {
     blog_id: string;
     hideTitle?: boolean;
     onWeChatClick?: () => void;
+    isDraftPreview?: boolean;
+    visitCountLabel?: string;
 }
 
 export default function PageContent({ params }: { params: PageContentProps }) {
-    const { content: blog, lang, blog_id, hideTitle = false, onWeChatClick } = params;
+    const { content: blog, lang, blog_id, hideTitle = false, onWeChatClick, isDraftPreview = false, visitCountLabel } = params;
     const [visitCount, setVisitCount] = useState<number>(blog.visited || 0);
     const [loadingVisitCount, setLoadingVisitCount] = useState(true);
     const hasVoiceCommentary = blog.voice_commentary && blog.voice_commentary.trim().length > 0;
@@ -44,17 +46,23 @@ export default function PageContent({ params }: { params: PageContentProps }) {
     const fallbackPubtime = useMemo(() => new Date().toISOString(), []);
     
     // Track blog visit for analytics
-    useBlogVisitTracker(blog_id);
+    useBlogVisitTracker(blog_id, { enabled: !isDraftPreview });
 
     // Use visit count from server-side fetch (optimized - reduced API calls)
     useEffect(() => {
+        if (isDraftPreview) {
+            setVisitCount(0);
+            setLoadingVisitCount(false);
+            return;
+        }
+
         // blog.visited now contains the latest visit count from fetchBlogContentWithVisits
         // This eliminates the need for a separate client-side API call in most cases
         setVisitCount(blog.visited || 0);
         setLoadingVisitCount(false);
         
         console.log('Using server-side visit count:', blog.visited, 'for blog:', blog_id);
-    }, [blog_id, blog.visited]);
+    }, [blog_id, blog.visited, isDraftPreview]);
 
     const handleWeChatClick = (e: React.MouseEvent) => {
         e.preventDefault();
@@ -156,7 +164,9 @@ export default function PageContent({ params }: { params: PageContentProps }) {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                             </svg>
                             <span className="text-xs font-medium">
-                                {loadingVisitCount ? (
+                                {visitCountLabel ? (
+                                    <span>{visitCountLabel}</span>
+                                ) : loadingVisitCount ? (
                                     <span className="animate-pulse">
                                         {lang === 'zh' ? '更新中...' : 'Updating...'}
                                     </span>

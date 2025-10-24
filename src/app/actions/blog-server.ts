@@ -102,6 +102,19 @@ export async function fetchBlogContent(blog_id = "", lang = "en") {
   return response.json();
 }
 
+export async function fetchDraftBlogContent(draftId = "", lang = "en") {
+  const URL = `${API_URL}/blog/draft/${draftId}?lang=${lang}`;
+  const response = await fetch(URL, {
+    cache: 'no-store',
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch draft blog: ${response.status}`);
+  }
+
+  return response.json();
+}
+
 // Optimized function to fetch blog content with latest visit count
 export async function fetchBlogContentWithVisits(blog_id = "", lang = "en") {
   try {

@@ -122,7 +122,41 @@ export default function Comments(params: CommentsParams) {
 
     // 将评论列表提取为独立组件以减少重新渲染
     const CommentList = memo(({ blogList, lang, onSubmitReply, isPosting }: {
-        blogList: Array<{ id?: string; _id?: string; email: string; name: string; blog?: string; content: string; translate_zh?: string; translate_en?: string; time: string; }>;
+        blogList: Array<{
+            id?: string;
+            _id?: string;
+            email: string;
+            name: string;
+            blog?: string;
+            content: string;
+            translate_zh?: string;
+            translate_en?: string;
+            time: string;
+            like?: string | number;
+            likes?: number;
+            isLiked?: boolean;
+            country?: string;
+            region?: string;
+            city?: string;
+            timezone?: string;
+            parent_comment?: {
+                id: number;
+                content: string;
+                name: string;
+                email: string;
+                time: string;
+                translate_zh?: string;
+                translate_en?: string;
+            };
+            ai_comment?: {
+                id?: number | string;
+                name?: string;
+                content: string;
+                time?: string;
+                translate_en?: string;
+                translate_zh?: string;
+            };
+        }>;
         lang: string;
         onSubmitReply: (commentId: string, content: string) => void;
         isPosting: boolean;

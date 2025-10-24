@@ -16,9 +16,10 @@ interface ArticleHeaderProps {
   blog: BlogContent;
   lang: 'zh' | 'en';
   blog_id: string;
+  visitCountLabel?: string;
 }
 
-export default function ArticleHeader({ blog, lang, blog_id }: ArticleHeaderProps) {
+export default function ArticleHeader({ blog, lang, blog_id, visitCountLabel }: ArticleHeaderProps) {
   const hasVoiceCommentary = blog.voice_commentary && blog.voice_commentary.trim().length > 0;
 
   // Playlist context for global audio control
@@ -92,7 +93,11 @@ export default function ArticleHeader({ blog, lang, blog_id }: ArticleHeaderProp
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
           </svg>
           <span className="text-xs font-medium">
-            {(blog.visited || 0).toLocaleString()} <span className="hidden xs:inline">{lang === 'zh' ? '次浏览' : 'views'}</span>
+            {visitCountLabel ?? (
+              <>
+                {(blog.visited || 0).toLocaleString()} <span className="hidden xs:inline">{lang === 'zh' ? '次浏览' : 'views'}</span>
+              </>
+            )}
           </span>
         </div>
       </div>

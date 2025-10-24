@@ -1,40 +1,52 @@
 "use client"
 
-import { useState } from 'react';
+import { useId, useMemo } from 'react';
 
 interface MessageHeaderProps {
   lang: 'zh' | 'en';
-  titleIndex?: number; // optionally control the random index externally
+  titleIndex?: number; // optionally control the index externally
 }
 
+export const MESSAGE_HEADER_VARIANTS = [
+  { zh: '别害羞，留言吧！我等不及想看了！', en: "Don't be shy, leave a message!" },
+  { zh: '写下你的想法，让我开心一整天吧！', en: 'Share your thoughts and brighten my day!' },
+  { zh: '来吧，说点什么，这会让我特别开心！', en: 'Say something, it would truly make my day!' },
+  { zh: '留言吧，你的每一句话都让我充满期待！', en: 'Your words always fill me with excitement!' },
+  { zh: '让我看到你的留言，它会是我一天中最美好的事情！', en: 'Your message will be the best part of my day!' },
+  { zh: '写点什么吧！你的留言会让这里更有意义！', en: 'Write something meaningful to make this space special!' },
+  { zh: '随便留言吧，哪怕只是一个"Hi"，我都会很开心！', en: 'Say hi, it will surely brighten my day!' },
+  { zh: '每一条留言都让我充满期待，说点什么吧！', en: 'Every message brings me so much joy!' },
+  { zh: '别让我等太久了，快写点什么吧！', en: "Don't keep me waiting, write something now!" },
+  { zh: '你的留言会点亮我的一天，别犹豫，写下来吧！', en: 'Your message will light up my day, so write it down!' },
+];
+
+const clampIndex = (idx: number) => {
+  const count = MESSAGE_HEADER_VARIANTS.length;
+  return ((idx % count) + count) % count;
+};
+
+const hashSeedToIndex = (seed: string) => {
+  let hash = 0;
+  for (let i = 0; i < seed.length; i += 1) {
+    hash = ((hash << 5) - hash + seed.charCodeAt(i)) | 0; // simple 32-bit hash
+  }
+  return clampIndex(Math.abs(hash));
+};
+
 export default function MessageHeader({ lang, titleIndex }: MessageHeaderProps) {
-  const TitleList = [
-    { "zh": "别害羞，留言吧！我等不及想看了！", "en": "Don't be shy, leave a message!" },
-    { "zh": "写下你的想法，让我开心一整天吧！", "en": "Share your thoughts and brighten my day!" },
-    { "zh": "来吧，说点什么，这会让我特别开心！", "en": "Say something, it would truly make my day!" },
-    { "zh": "留言吧，你的每一句话都让我充满期待！", "en": "Your words always fill me with excitement!" },
-    { "zh": "让我看到你的留言，它会是我一天中最美好的事情！", "en": "Your message will be the best part of my day!" },
-    { "zh": "写点什么吧！你的留言会让这里更有意义！", "en": "Write something meaningful to make this space special!" },
-    { "zh": "随便留言吧，哪怕只是一个\"Hi\"，我都会很开心！", "en": "Say hi, it will surely brighten my day!" },
-    { "zh": "每一条留言都让我充满期待，说点什么吧！", "en": "Every message brings me so much joy!" },
-    { "zh": "别让我等太久了，快写点什么吧！", "en": "Don't keep me waiting, write something now!" },
-    { "zh": "你的留言会点亮我的一天，别犹豫，写下来吧！", "en": "Your message will light up my day, so write it down!" }
-  ];
-  
-  // Random selection on initial load, then stays fixed
-  const [TitleIndex] = useState(() => {
-    const idx = typeof titleIndex === 'number'
-      ? titleIndex
-      : Math.floor(Math.random() * TitleList.length);
-    // Clamp to list length to avoid OOB if provided externally
-    return ((idx % TitleList.length) + TitleList.length) % TitleList.length;
-  });
+  const reactId = useId();
+  const resolvedIndex = useMemo(() => {
+    if (typeof titleIndex === 'number' && Number.isFinite(titleIndex)) {
+      return clampIndex(titleIndex);
+    }
+    return hashSeedToIndex(`${reactId}-${lang}`);
+  }, [titleIndex, reactId, lang]);
 
   return (
     <div className='container max-w-[2000px] m-auto px-5 md:px-10 lg:px-16 xl:px-20 2xl:px-24 pt-20 md:pt-32 pb-8'>
       {/* Main Title - Left aligned */}
       <div className='font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#a1c4fd] to-[#c2e9fb] text-2xl md:text-5xl lg:text-6xl !leading-tight mb-4'>
-        {TitleList[TitleIndex][lang]}
+        {MESSAGE_HEADER_VARIANTS[resolvedIndex][lang]}
       </div>
 
       {/* Welcome Message */}

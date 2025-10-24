@@ -3,14 +3,23 @@
 import { useEffect, useRef } from 'react';
 import { recordBlogVisit } from '@/app/actions/blog';
 
+interface UseBlogVisitTrackerOptions {
+  enabled?: boolean;
+}
+
 /**
  * Hook to track blog visits - records every page view (PV)
  * No deduplication - each visit/refresh counts as a new visit
  */
-export function useBlogVisitTracker(blogId: string) {
+export function useBlogVisitTracker(blogId: string, options?: UseBlogVisitTrackerOptions) {
+  const enabled = options?.enabled ?? true;
   const hasRecorded = useRef(false);
 
   useEffect(() => {
+    if (!enabled) {
+      return;
+    }
+
     // Avoid recording multiple times in the same component lifecycle/render
     if (hasRecorded.current) {
       console.log(`🔄 Visit already recorded in this render for: ${blogId}`);
@@ -40,10 +49,10 @@ export function useBlogVisitTracker(blogId: string) {
     return () => {
       clearTimeout(timeoutId);
     };
-  }, [blogId]);
+  }, [blogId, enabled]);
 
   // Reset the flag when blogId changes (navigating to different blog)
   useEffect(() => {
     hasRecorded.current = false;
-  }, [blogId]);
+  }, [blogId, enabled]);
 }

@@ -3,20 +3,29 @@
 import Foot from '@/components/Common/Foot';
 import Comments from '@/components/Comments/Comments';
 import BlogBackground from '../../blog/[blog_page]/BlogBackground';
-import MessageHeader from './MessageHeader';
-import { useState } from 'react';
+import MessageHeader, { MESSAGE_HEADER_VARIANTS } from './MessageHeader';
+import { useId, useMemo } from 'react';
 
 interface DynamicMessageLayoutProps {
   lang: 'zh' | 'en';
   message_page: number;
 }
 
-export default function DynamicMessageLayout({ 
-  lang, 
-  message_page 
+export default function DynamicMessageLayout({
+  lang,
+  message_page,
 }: DynamicMessageLayoutProps) {
-  // Ensure fixed header and spacer render identical title to keep heights in sync
-  const [titleIndex] = useState(() => Math.floor(Math.random() * 10));
+  // Ensure fixed header and spacer render identical title using deterministic index
+  const reactId = useId();
+  const titleIndex = useMemo(() => {
+    const seed = `${reactId}-${lang}-${message_page}`;
+    let hash = 0;
+    for (let i = 0; i < seed.length; i += 1) {
+      hash = ((hash << 5) - hash + seed.charCodeAt(i)) | 0;
+    }
+    const count = MESSAGE_HEADER_VARIANTS.length;
+    return ((Math.abs(hash) % count) + count) % count;
+  }, [reactId, lang, message_page]);
   return (
     <>
       {/* Fixed background */}

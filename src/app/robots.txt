@@ -6,6 +6,8 @@ Disallow: /*?p=
 Disallow: /admin/
 Disallow: /_next/
 Disallow: /private/
+Disallow: /en/blog/draft/
+Disallow: /zh/blog/draft/
 
 # Allow search engines to access important static files
 Allow: /img/
