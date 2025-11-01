@@ -17,8 +17,8 @@ function Foot(params: { lang: string; isHomePage?: boolean }) {
         setShowWeChatModal(false);
     };
     const footerBackgroundClass = params.isHomePage
-        ? "w-full bg-black/30 backdrop-blur-md border-t border-purple-500/20 snap-start overflow-hidden relative pb-safe min-h-fit"
-        : "w-full bg-white/10 backdrop-blur-lg border-t border-white/20 snap-start overflow-hidden relative pb-safe min-h-fit";
+        ? "w-full bg-gradient-to-b from-slate-950/90 via-slate-950/80 to-slate-950/95 border-t border-purple-500/20 snap-start overflow-hidden relative pb-safe min-h-fit"
+        : "w-full bg-gradient-to-b from-slate-900/90 via-slate-900/85 to-slate-950/95 border-t border-white/15 snap-start overflow-hidden relative pb-safe min-h-fit";
 
     return (
         <>
@@ -31,12 +31,7 @@ function Foot(params: { lang: string; isHomePage?: boolean }) {
             </div>
 
             {/* Background pattern overlay */}
-            <div className="absolute inset-0 opacity-10"
-                style={{
-                    backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)',
-                    backgroundSize: '24px 24px'
-                }}>
-            </div>
+            <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle,_rgba(148,163,184,0.08)_1px,_transparent_1px)] bg-[size:26px_26px] opacity-30" />
 
             <div className="w-full relative z-10">
                 <div className="max-w-[2000px] mx-auto flex flex-col xl:flex-row justify-between items-start xl:items-start
@@ -44,14 +39,7 @@ function Foot(params: { lang: string; isHomePage?: boolean }) {
 
                     {/* 左侧：版权信息 */}
                     <div
-                        className="rounded-2xl px-4 py-3 border border-white/20 mb-6 xl:mb-0 xl:mr-8"
-                        style={{
-                            background: 'rgba(255,255,255,0.1)',
-                            backdropFilter: 'blur(8px)',
-                            WebkitBackdropFilter: 'blur(8px)',
-                            boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
-                        }}
-
+                        className="rounded-2xl px-4 py-3 border border-white/15 bg-slate-800/40 shadow-lg shadow-black/20 mb-6 xl:mb-0 xl:mr-8"
                     >
                         <span className="text-white/90 font-medium">© 2012–2025 Mofei</span>
                     </div>
@@ -60,14 +48,7 @@ function Foot(params: { lang: string; isHomePage?: boolean }) {
                     <div className="flex flex-col gap-8 items-start xl:items-end w-full xl:w-auto">
                         {/* 第一行：导航链接 */}
                         <div
-                            className="grid grid-cols-2 sm:grid-cols-3 xl:flex xl:flex-row gap-3 p-3 rounded-2xl border border-white/20 w-full xl:w-auto"
-                            style={{
-                                background: 'rgba(255,255,255,0.08)',
-                                backdropFilter: 'blur(8px)',
-                                WebkitBackdropFilter: 'blur(8px)',
-                                boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
-                            }}
-                            
+                            className="grid grid-cols-2 sm:grid-cols-3 xl:flex xl:flex-row gap-3 p-3 rounded-2xl border border-white/10 bg-slate-900/60 shadow-inner shadow-black/10 w-full xl:w-auto"
                         >
                             <SPALink href={`${params?.lang == 'en' ? '/' : '/zh'}`}
                                 className="text-white/80 hover:text-white hover:opacity-90 px-3 py-1.5 rounded-lg transition-all duration-300 flex items-center gap-1">
@@ -169,7 +150,7 @@ function Foot(params: { lang: string; isHomePage?: boolean }) {
                         className="outline-none hidden md:flex" viewBox="0 0 2318 135"
                     >
                         <foreignObject width="100%" height="100%">
-                            <p className="text-[135px] text-center font-extrabold text-transparent bg-clip-text relative" style={{
+                            <p className="text-[120px] text-center font-extrabold text-transparent bg-clip-text relative" style={{
                                 fontFamily: '"Inter", sans-serif',
                                 fontWeight: 700,
                                 letterSpacing: "-0px",

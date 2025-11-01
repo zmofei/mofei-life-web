@@ -59,7 +59,7 @@ const VideoBackground = ({ isFullPage = false }: { isFullPage?: boolean }) => {
                         }}
                     />
                 )}
-                <div className="fixed top-0 left-0 w-full h-full bg-black/30 z-[-9] overlay">
+                <div className="fixed top-0 left-0 w-full h-full bg-black/20 z-[-9] overlay">
                     {/* 全页面粒子背景 */}
                 </div>
 
@@ -67,7 +67,6 @@ const VideoBackground = ({ isFullPage = false }: { isFullPage?: boolean }) => {
                     .overlay {
                         background-image: radial-gradient(transparent 1px, rgba(15, 17, 21, 0.4) 1px);
                         background-size: 4px 4px;
-                        backdrop-filter: blur(1px);
                     }
                 `}</style>
             </>
@@ -103,7 +102,7 @@ const VideoBackground = ({ isFullPage = false }: { isFullPage?: boolean }) => {
                     }}
                 />
             )}
-            <div className="absolute top-0 left-0 w-full h-full bg-black/70 z-[1] overlay">
+            <div className="absolute top-0 left-0 w-full h-full bg-black/60 z-[1] overlay">
                 {/* 粒子背景 */}
             </div>
 
@@ -111,7 +110,6 @@ const VideoBackground = ({ isFullPage = false }: { isFullPage?: boolean }) => {
                 .overlay {
                     background-image: radial-gradient(transparent 1px, #0f1115 1px);
                     background-size: 4px 4px; /* 控制点的大小和间距 */
-                    backdrop-filter: blur(3px);
                 }
                 `}</style>
         </>)
