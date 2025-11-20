@@ -1,5 +1,10 @@
 "use client";
-import Comments from '@/components/Comments/Comments';
+import dynamic from 'next/dynamic';
+
+const Comments = dynamic(() => import('@/components/Comments/Comments'), {
+    loading: () => <div className="h-96 animate-pulse bg-white/5 rounded-xl" />,
+    ssr: false
+});
 
 
 const BlogCommentPrompts: { zh: string, en: string }[] = [

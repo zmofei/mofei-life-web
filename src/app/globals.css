@@ -200,6 +200,7 @@
     background-color: rgba(255, 255, 255, 0.2);
   }
 
+@layer base {
   body {
     font-family: 'Inter variant0', sans-serif, Arial, Helvetica, sans-serif;
     color: white;
@@ -287,6 +288,7 @@
     overflow-y: auto;
     word-break: break-all;
   }
+}
 
   :root {
     --background: 0 0% 100%;
@@ -354,6 +356,7 @@
 }
 
 
+@layer components {
 .custom-paragraph a {
   color: #ff6c65;
   text-decoration: none;
@@ -538,6 +541,7 @@
 .code-block-wrapper:hover button {
   display: block;
 }
+}
 
 @layer components {
   .intro-paragraph::before {
@@ -554,6 +558,7 @@
 
 }
 
+@layer utilities {
 @keyframes fade-in {
   from {
     opacity: 0;
@@ -726,6 +731,7 @@
   50% {
     transform: scale(1.15) rotate(5deg);
     opacity: 0.8;
+    transform: scale(1.15) rotate(5deg);
   }
   100% {
     transform: scale(1) rotate(0deg);
@@ -771,4 +777,5 @@
 
 .water-ripple {
   animation: water-ripple 2s ease-in-out infinite;
+}
 }

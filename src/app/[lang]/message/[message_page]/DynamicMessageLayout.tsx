@@ -1,7 +1,12 @@
 "use client"
 
 import Foot from '@/components/Common/Foot';
-import Comments from '@/components/Comments/Comments';
+import dynamic from 'next/dynamic';
+
+const Comments = dynamic(() => import('@/components/Comments/Comments'), {
+  loading: () => <div className="h-96 animate-pulse bg-white/5 rounded-xl" />,
+  ssr: false
+});
 import BlogBackground from '../../blog/[blog_page]/BlogBackground';
 import MessageHeader, { MESSAGE_HEADER_VARIANTS } from './MessageHeader';
 import { useId, useMemo } from 'react';
