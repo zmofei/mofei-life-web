@@ -77,26 +77,6 @@ interface CommentItemProps {
     isPosting: boolean;
 }
 
-// Function to generate random offset for default avatars
-const getAvatarStyle = (email: string, name: string) => {
-    // Use email and name to generate seed, ensuring same user always has same offset
-    const seed = (email || '') + (name || '');
-    let hash = 0;
-    for (let i = 0; i < seed.length; i++) {
-        hash = ((hash << 5) - hash + seed.charCodeAt(i)) & 0xffffffff;
-    }
-    
-    // Generate random offset based on hash (-20% to +20%)
-    const offsetX = ((hash % 40) - 20);
-    const offsetY = (((hash >> 8) % 40) - 20);
-    const scale = 1 + ((hash >> 16) % 20) / 100; // 1.0 到 1.2 的缩放
-    
-    return {
-        backgroundPosition: `${50 + offsetX}% ${50 + offsetY}%`,
-        backgroundSize: `${scale * 100}%`
-    };
-};
-
 const CommentItem = memo(({ blog, lang, onSubmitReply, isPosting }: CommentItemProps) => {
     const [showOriginal, setShowOriginal] = useState(false);
     const [replyActive, setReplyActive] = useState(false);
@@ -229,7 +209,7 @@ const CommentItem = memo(({ blog, lang, onSubmitReply, isPosting }: CommentItemP
 
     // Cache original content
     const originalContent = useMemo(() => (
-        <div className="mt-3 p-3 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 text-sm text-gray-300 leading-relaxed">
+        <div className="mt-3 p-3 bg-white/[0.04] rounded-lg border border-white/10 text-sm text-gray-300 leading-relaxed">
             <div className="flex items-center gap-2 mb-2 text-xs text-gray-400">
                 <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
@@ -250,42 +230,15 @@ const CommentItem = memo(({ blog, lang, onSubmitReply, isPosting }: CommentItemP
     }, [blog.translate_zh, blog.translate_en, blog.content, lang]);
     
     return (
-        <div className='mt-5 md:mt-10'>
-            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-4 md:p-8 border border-white/20 shadow-xl relative overflow-hidden text-sm md:text-lg">
-                {/* Avatar background */}
-                {blog.email && blog.email !== '0000000000' ? (
-                    <div 
-                        className="absolute inset-0 opacity-[0.025] rounded-2xl"
-                        style={{
-                            backgroundImage: `url(https://assets-eu.mofei.life/gravatar/${blog.email}?s=200)`,
-                            backgroundSize: 'cover',
-                            backgroundRepeat: 'no-repeat',
-                            backgroundPosition: 'center'
-                        }}
-                    />
-                ) : (
-                    <div 
-                        className="absolute inset-0 opacity-[0.025] rounded-2xl"
-                        style={{
-                            backgroundImage: `url(https://assets-eu.mofei.life/gravatar/${blog.email || '0000000000'}?s=200)`,
-                            backgroundRepeat: 'no-repeat',
-                            ...getAvatarStyle(blog.email || '', blog.name || '')
-                        }}
-                    />
-                )}
-                
-                {/* Glass effect overlays */}
-                <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none rounded-2xl"></div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-white/5 pointer-events-none rounded-2xl"></div>
-                
-                
+        <div className='mt-5 md:mt-8'>
+            <div className="rounded-2xl border border-white/12 bg-white/[0.05] p-4 md:p-6 text-sm md:text-lg">
                 {/* 主体内容：手机端水平布局，电脑端左右布局 */}
-                <div className='flex gap-3 md:gap-6 relative z-10'>
+                <div className='flex gap-3 md:gap-6'>
                     {/* 左侧：头像区域 */}
                     <div className='flex-shrink-0'>
                         <Image 
                             alt='avatar' 
-                            className="rounded-2xl shadow-xl ring-2 ring-white/20 w-12 h-12 md:w-16 md:h-16 object-cover" 
+                            className="rounded-xl border border-white/15 w-12 h-12 md:w-16 md:h-16 object-cover" 
                             src={`https://assets-eu.mofei.life/gravatar/${blog.email || '0000000000'}?s=200`}
                             width={64}
                             height={64}
@@ -345,7 +298,7 @@ const CommentItem = memo(({ blog, lang, onSubmitReply, isPosting }: CommentItemP
                             <div className="text-gray-100 leading-relaxed prose prose-invert max-w-none text-sm md:text-base [&>p]:my-2 [&>p:first-child]:mt-0 [&>p:last-child]:mb-0">
                                 {/* Parent comment display - 显示被回复的内容 */}
                                 {blog.parent_comment && (
-                                    <div className="mb-4 p-3 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10">
+                                    <div className="mb-4 p-3 bg-white/[0.04] rounded-lg border border-white/10">
                                         <div className="flex items-center gap-2 mb-2 text-xs text-white/60">
                                             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
@@ -375,48 +328,40 @@ const CommentItem = memo(({ blog, lang, onSubmitReply, isPosting }: CommentItemP
                                 {translatedContent}
 
                                 {aiReplyContent && (
-                                    <div className="mt-4 overflow-hidden rounded-2xl border border-sky-400/20 bg-gradient-to-br from-sky-500/10 via-indigo-500/10 to-purple-500/10 p-4 text-sm leading-relaxed text-sky-50 shadow-[0_12px_40px_rgba(56,189,248,0.18)]">
-                                        <div className="flex flex-col gap-3">
-                                            <div className="flex flex-wrap items-center gap-3">
-                                                <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.28em] text-transparent bg-clip-text bg-gradient-to-r from-cyan-200 via-white to-indigo-200 drop-shadow-[0_0_14px_rgba(125,211,252,0.45)]">
-                                                    <svg className="h-3 w-3 text-cyan-200" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.2}>
-                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M10 2.5l1.4 3.4 3.6.4-2.6 2.4.7 3.5L10 10.8l-3.1 1.4.7-3.5L5 6.3l3.6-.4L10 2.5z" />
-                                                    </svg>
-                                                    {aiAssistantName}
-                                                </span>
-                                                <span className="flex items-center gap-1.5 rounded-full border border-cyan-300/40 bg-gradient-to-r from-cyan-500/20 via-blue-500/20 to-indigo-500/20 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-cyan-100 shadow-[0_0_12px_rgba(34,211,238,0.35)] backdrop-blur">
-                                                    <svg className="h-3 w-3 text-cyan-200" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 20 20">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 5h2l1-2h4l1 2h2l1 2-1 2h-2l-1 2-1 2H8l-1-2H5l-1-2 1-2 1-2z" />
-                                                        <circle cx="10" cy="10" r="2.5" />
-                                                    </svg>
-                                                    <span>{lang === 'zh' ? 'AI 生成' : 'AI GENERATED'}</span>
-                                                </span>
-                                            </div>
-                                            <div
-                                                className="prose prose-invert max-w-none text-sky-50 [&>p]:my-2 [&>p:first-child]:mt-0 [&>p:last-child]:mb-0"
-                                                dangerouslySetInnerHTML={{ __html: aiReplyContent.content }}
-                                            />
-                                            {aiReplyContent.isTranslated && (
-                                                <div className="text-[11px] text-sky-100/60">
-                                                    {lang === 'zh' ? '原文由 AI 自动翻译' : 'Original auto-translated by AI'}
-                                                </div>
-                                            )}
-                                            {blog.ai_comment?.time && (
-                                                <div
-                                                    className="text-[11px] text-sky-100/60"
-                                                    title={timeUtils.toLocaleDateString(blog.ai_comment.time, lang as 'zh' | 'en', {
-                                                        weekday: 'short',
-                                                        year: 'numeric',
-                                                        month: 'short',
-                                                        day: 'numeric',
-                                                        hour: 'numeric',
-                                                        minute: 'numeric',
-                                                    })}
-                                                >
-                                                    {timeUtils.fromNow(blog.ai_comment.time, lang as 'zh' | 'en')}
-                                                </div>
-                                            )}
+                                    <div className="mt-4 rounded-xl border border-sky-400/25 bg-sky-500/10 p-4 text-sm leading-relaxed text-sky-50">
+                                        <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-sky-100 mb-3">
+                                            <svg className="h-3 w-3" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.2}>
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M10 2.5l1.4 3.4 3.6.4-2.6 2.4.7 3.5L10 10.8l-3.1 1.4.7-3.5L5 6.3l3.6-.4L10 2.5z" />
+                                            </svg>
+                                            <span>{aiAssistantName}</span>
+                                            <span className="rounded-full border border-sky-300/30 px-2 py-0.5 text-[10px] tracking-[0.15em] text-sky-100/80">
+                                                {lang === 'zh' ? 'AI 生成' : 'AI GENERATED'}
+                                            </span>
                                         </div>
+                                        <div
+                                            className="prose prose-invert max-w-none text-sky-50 [&>p]:my-2 [&>p:first-child]:mt-0 [&>p:last-child]:mb-0"
+                                            dangerouslySetInnerHTML={{ __html: aiReplyContent.content }}
+                                        />
+                                        {aiReplyContent.isTranslated && (
+                                            <div className="mt-2 text-[11px] text-sky-100/60">
+                                                {lang === 'zh' ? '原文由 AI 自动翻译' : 'Original auto-translated by AI'}
+                                            </div>
+                                        )}
+                                        {blog.ai_comment?.time && (
+                                            <div
+                                                className="mt-2 text-[11px] text-sky-100/60"
+                                                title={timeUtils.toLocaleDateString(blog.ai_comment.time, lang as 'zh' | 'en', {
+                                                    weekday: 'short',
+                                                    year: 'numeric',
+                                                    month: 'short',
+                                                    day: 'numeric',
+                                                    hour: 'numeric',
+                                                    minute: 'numeric',
+                                                })}
+                                            >
+                                                {timeUtils.fromNow(blog.ai_comment.time, lang as 'zh' | 'en')}
+                                            </div>
+                                        )}
                                     </div>
                                 )}
 
@@ -457,16 +402,16 @@ const CommentItem = memo(({ blog, lang, onSubmitReply, isPosting }: CommentItemP
                                     <button
                                         onClick={handleLike}
                                         disabled={isLiking}
-                                        className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium transition-all duration-300 
+                                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-colors 
                                             ${isLiked 
-                                                ? 'text-red-400 bg-red-400/10 border border-red-400/20 hover:bg-red-400/20' 
-                                                : 'text-white/60 bg-white/5 border border-white/10 hover:text-white/80 hover:bg-white/10'
+                                                ? 'text-red-400 border-red-400/30 bg-red-400/10' 
+                                                : 'text-white/70 border-white/15 bg-transparent hover:bg-white/10 hover:text-white'
                                             } 
-                                            ${isLiking ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105'}
-                                            backdrop-blur-sm flex-shrink-0`}
+                                            ${isLiking ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+                                            flex-shrink-0`}
                                     >
                                         <svg 
-                                            className={`w-3.5 h-3.5 transition-all duration-300 ${isLiked ? 'scale-110' : ''} ${isLiking ? 'animate-pulse' : ''}`} 
+                                            className="w-3.5 h-3.5" 
                                             fill={isLiked ? "currentColor" : "none"} 
                                             stroke="currentColor" 
                                             viewBox="0 0 24 24"
@@ -486,9 +431,7 @@ const CommentItem = memo(({ blog, lang, onSubmitReply, isPosting }: CommentItemP
                                     {/* 回复按钮 */}
                                     <button
                                         onClick={() => setReplyActive(!replyActive)}
-                                        className="flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium transition-all duration-300 
-                                            text-blue-400/80 bg-blue-400/5 border border-blue-400/10 hover:text-blue-400 hover:bg-blue-400/10
-                                            cursor-pointer hover:scale-105 backdrop-blur-sm flex-shrink-0"
+                                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-blue-400/25 text-blue-300/90 bg-transparent hover:bg-blue-400/10 hover:text-blue-200 transition-colors cursor-pointer flex-shrink-0"
                                     >
                                         <svg 
                                             className="w-3.5 h-3.5" 

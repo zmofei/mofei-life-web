@@ -246,7 +246,7 @@ export default function Comments(params: CommentsParams) {
                             ' key={`${index}_loading`}
                         >
 
-                            <div className='bg-white/10 backdrop-blur-lg rounded-2xl p-4 md:p-8 border border-white/20 shadow-xl transition-all duration-500 relative group overflow-hidden break-all
+                            <div className='bg-white/[0.05] rounded-2xl p-4 md:p-6 border border-white/12 break-all
                                 text-sm
                                 md:text-xl
                                 loading-shimmer

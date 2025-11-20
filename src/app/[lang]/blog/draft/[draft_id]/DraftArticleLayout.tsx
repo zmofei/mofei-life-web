@@ -30,7 +30,7 @@ export default function DraftArticleLayout({ blog, lang, draftId }: DraftArticle
   const visitCountLabel = lang === 'zh' ? '草稿预览' : 'Draft preview';
 
   return (
-    <>
+    <div className="relative min-h-screen">
       <div className="fixed top-0 left-0 right-0 z-50">
         <SimpleReadingProgress 
           targetSelector=".prose-stone" 
@@ -38,27 +38,15 @@ export default function DraftArticleLayout({ blog, lang, draftId }: DraftArticle
         />
       </div>
 
-      <div className="fixed inset-0 z-0">
-        <BlogBackground />
-      </div>
+      <BlogBackground />
 
-      <div className="fixed top-0 left-0 right-0 z-10">
+      <div className="relative z-10">
         <ArticleHeader blog={previewBlog} lang={lang} blog_id={draftId} visitCountLabel={visitCountLabel} />
       </div>
 
-      <div className="invisible pointer-events-none" aria-hidden="true">
-        <ArticleHeader blog={previewBlog} lang={lang} blog_id={draftId} visitCountLabel={visitCountLabel} />
+      <div className="relative z-10 bg-black/10 backdrop-blur-lg border-t border-white/20 mt-6 md:mt-10 pt-6 md:pt-10">
+        <DraftArticleClient blog={previewBlog} lang={lang} draftId={draftId} />
       </div>
-
-      <div className="relative z-20">
-        <div className="bg-black/10 backdrop-blur-lg">
-          <div className="container max-w-[2000px] m-auto px-5 md:px-10 py-8 md:py-12">
-            <div className="h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-          </div>
-          
-          <DraftArticleClient blog={previewBlog} lang={lang} draftId={draftId} />
-        </div>
-      </div>
-    </>
+    </div>
   );
 }

@@ -115,18 +115,9 @@ const HtmlToReact: React.FC<{ htmlString: string }> = ({ htmlString }) => {
                             height: 'auto',
                             borderRadius: '12px',
                             boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-                            transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
                             cursor: 'pointer',
-                        }}
-                        onMouseEnter={(e) => {
-                            const target = e.currentTarget;
-                            target.style.transform = 'scale(1.02)';
-                            target.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';
-                        }}
-                        onMouseLeave={(e) => {
-                            const target = e.currentTarget;
-                            target.style.transform = 'scale(1)';
-                            target.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)';
+                            transition: 'none',
+                            animation: 'none',
                         }}
                     />
                 </PhotoView>

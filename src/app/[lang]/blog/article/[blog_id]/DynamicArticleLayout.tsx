@@ -37,8 +37,8 @@ interface DynamicArticleLayoutProps {
 export default function DynamicArticleLayout({ blog, lang, blog_id, blogRecommend }: DynamicArticleLayoutProps) {
 
   return (
-    <>
-      {/* Fixed Reading Progress Bar at top of page */}
+    <div className="relative min-h-screen">
+      {/* Reading Progress Bar stays fixed */}
       <div className="fixed top-0 left-0 right-0 z-50">
         <SimpleReadingProgress 
           targetSelector=".prose-stone" 
@@ -46,32 +46,15 @@ export default function DynamicArticleLayout({ blog, lang, blog_id, blogRecommen
         />
       </div>
 
-      {/* Fixed background */}
-      <div className="fixed inset-0 z-0">
-        <BlogBackground />
-      </div>
+      <BlogBackground />
 
-      {/* Fixed title section - behind content */}
-      <div className="fixed top-0 left-0 right-0 z-10">
+      <div className="relative z-10">
         <ArticleHeader blog={blog} lang={lang} blog_id={blog_id} />
       </div>
 
-      {/* Spacer with hidden header content to maintain exact height */}
-      <div className="invisible pointer-events-none" aria-hidden="true">
-        <ArticleHeader blog={blog} lang={lang} blog_id={blog_id} />
+      <div className="relative z-10 bg-black/10 backdrop-blur-lg border-t border-white/20 mt-6 md:mt-10 pt-6 md:pt-10">
+        <ArticlePageClient blog={blog} lang={lang} blog_id={blog_id} blogRecommend={blogRecommend} />
       </div>
-
-      {/* Scrolling content with glass effect */}
-      <div className="relative z-20">
-        <div className="bg-black/10 backdrop-blur-lg">
-          {/* Gradient separator line */}
-          <div className="container max-w-[2000px] m-auto px-5 md:px-10 py-8 md:py-12">
-            <div className="h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-          </div>
-          
-          <ArticlePageClient blog={blog} lang={lang} blog_id={blog_id} blogRecommend={blogRecommend} />
-        </div>
-      </div>
-    </>
+    </div>
   );
 }

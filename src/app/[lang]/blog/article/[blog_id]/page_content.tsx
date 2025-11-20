@@ -290,22 +290,9 @@ export default function PageContent({ params }: { params: PageContentProps }) {
             </div>
         </div>
 
-        <div className="text-center my-12 md:my-16"
-
-        >
-            <div className="inline-flex items-center justify-center gap-4 md:gap-6 bg-white/10 backdrop-blur-lg
-                rounded-full px-6 py-3 md:px-8 md:py-4 border border-white/20 shadow-xl 
-                md:hover:shadow-2xl transition-all duration-300 relative group overflow-hidden">
-
-                {/* Glass effect overlays */}
-                <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none rounded-full"></div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-white/5 pointer-events-none rounded-full"></div>
-
-                {/* Shimmer effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent 
-                    -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out
-                    skew-x-12 pointer-events-none rounded-full"></div>
-
+        <div className="text-center my-12 md:my-16">
+            <div className="inline-flex items-center justify-center gap-4 md:gap-6 bg-white/[0.08] backdrop-blur-lg
+                rounded-full px-6 py-3 md:px-8 md:py-4 border border-white/20 shadow-lg">
                 {/* THE END */}
                 <div className="flex items-center">
                     <Image src="/article/start.png" alt="" className="w-5 md:w-6 mr-2 opacity-70" width={24} height={24} />
@@ -323,14 +310,14 @@ export default function PageContent({ params }: { params: PageContentProps }) {
                             commentsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
                         }
                     }}
-                    className="group flex items-center md:hover:opacity-90 transition-all duration-300"
+                    className="flex items-center gap-2 text-blue-300 hover:text-blue-200 focus-ring"
                 >
-                    <svg className="w-4 h-4 md:w-5 md:h-5 text-blue-400 mr-2 group-hover:text-blue-300 transition-colors"
+                    <svg className="w-4 h-4 md:w-5 md:h-5 text-blue-400"
                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                             d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                     </svg>
-                    <span className="text-sm md:text-base font-medium text-blue-300 group-hover:text-blue-200 transition-colors">
+                    <span className="text-sm md:text-base font-medium">
                         {lang === 'zh' ? '要评论吗？' : 'Comment?'}
                     </span>
                 </button>
@@ -344,29 +331,17 @@ export default function PageContent({ params }: { params: PageContentProps }) {
         >
             {blog.previousArticle?._id && (
                 <SPALink href={`/${lang}/blog/article/${blog.previousArticle._id}`}
-                    className="group block p-4 rounded-xl bg-white/10 backdrop-blur-lg
-                            md:hover:bg-white/15 transition-all duration-300 
-                            border border-white/20 hover:border-white/30 hover:shadow-lg hover:opacity-90
-                            relative overflow-hidden"
+                    className="block p-4 rounded-xl bg-white/[0.08] backdrop-blur-lg border border-white/15 hover:border-white/25"
                     title={blog.previousArticle.title}>
-                    {/* Glass effect overlays */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none rounded-xl"></div>
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-white/5 pointer-events-none rounded-xl"></div>
-
-                    {/* Shimmer effect */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/8 to-transparent 
-                            -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out
-                            skew-x-12 pointer-events-none rounded-xl"></div>
-
-                    <div className="flex items-center space-x-3 relative z-10">
+                    <div className="flex items-center space-x-3">
                         <div className="flex-shrink-0">
-                            <ChevronLeftIcon className="size-6 text-blue-400 group-hover:text-blue-300 transition-colors" />
+                            <ChevronLeftIcon className="size-6 text-blue-400" />
                         </div>
                         <div className="flex-1 min-w-0">
                             <div className="text-xs text-blue-400 font-medium mb-1 uppercase tracking-wider">
                                 {lang == 'zh' ? '上一篇' : 'Previous'}
                             </div>
-                            <div className="text-gray-200 group-hover:text-white transition-colors truncate font-medium">
+                            <div className="text-gray-200 truncate font-medium">
                                 {blog.previousArticle?.title}
                             </div>
                         </div>
@@ -376,29 +351,17 @@ export default function PageContent({ params }: { params: PageContentProps }) {
             {/* nextArticle */}
             {blog.nextArticle?._id && (
                 <SPALink href={`/${lang}/blog/article/${blog.nextArticle._id}`}
-                    className="group block p-4 rounded-xl bg-white/10 backdrop-blur-lg
-                            md:hover:bg-white/15 transition-all duration-300 
-                            border border-white/20 hover:border-white/30 hover:shadow-lg hover:opacity-90
-                            relative overflow-hidden"
+                    className="block p-4 rounded-xl bg-white/[0.08] backdrop-blur-lg border border-white/15 hover:border-white/25"
                     title={blog.nextArticle.title}>
-                    {/* Glass effect overlays */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none rounded-xl"></div>
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-white/5 pointer-events-none rounded-xl"></div>
-
-                    {/* Shimmer effect */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/8 to-transparent 
-                            -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out
-                            skew-x-12 pointer-events-none rounded-xl"></div>
-
-                    <div className="flex items-center space-x-3 md:flex-row-reverse md:space-x-reverse md:space-x-3 md:text-right relative z-10">
+                    <div className="flex items-center space-x-3 md:flex-row-reverse md:space-x-reverse md:space-x-3 md:text-right">
                         <div className="flex-shrink-0">
-                            <ChevronRightIcon className="size-6 text-emerald-400 group-hover:text-emerald-300 transition-colors" />
+                            <ChevronRightIcon className="size-6 text-emerald-400" />
                         </div>
                         <div className="flex-1 min-w-0">
                             <div className="text-xs text-emerald-400 font-medium mb-1 uppercase tracking-wider">
                                 {lang == 'zh' ? '下一篇' : 'Next'}
                             </div>
-                            <div className="text-gray-200 group-hover:text-white transition-colors truncate font-medium">
+                            <div className="text-gray-200 truncate font-medium">
                                 {blog.nextArticle?.title}
                             </div>
                         </div>

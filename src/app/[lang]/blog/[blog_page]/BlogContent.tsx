@@ -130,7 +130,7 @@ export default function BlogContent({
       <BlogTagFilter lang={lang} tagList={tagList} />
       
       {/* Scroll anchor */}
-      <div ref={blogListRef} id="blogList" className='relative -top-24 invisible'></div>
+      <div ref={blogListRef} id="blogList" className="h-0" aria-hidden="true" />
       
       {isPageOutOfBounds && (
         <div className="flex flex-col items-center justify-center text-white mt-20 mb-20">

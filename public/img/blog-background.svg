@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="base" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1f1b4d" stop-opacity="0.95"/>
+      <stop offset="50%" stop-color="#211b4f" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#101827" stop-opacity="0.95"/>
+    </linearGradient>
+    <radialGradient id="glow-blue" cx="18%" cy="22%" r="42%">
+      <stop offset="0%" stop-color="#60a5fa" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#60a5fa" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow-purple" cx="78%" cy="28%" r="40%">
+      <stop offset="0%" stop-color="#c084fc" stop-opacity="0.32"/>
+      <stop offset="100%" stop-color="#c084fc" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow-pink" cx="32%" cy="80%" r="38%">
+      <stop offset="0%" stop-color="#f472b6" stop-opacity="0.28"/>
+      <stop offset="100%" stop-color="#f472b6" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow-cyan" cx="72%" cy="78%" r="35%">
+      <stop offset="0%" stop-color="#22d3ee" stop-opacity="0.24"/>
+      <stop offset="100%" stop-color="#22d3ee" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#base)"/>
+  <rect width="1920" height="1080" fill="url(#glow-blue)"/>
+  <rect width="1920" height="1080" fill="url(#glow-purple)"/>
+  <rect width="1920" height="1080" fill="url(#glow-pink)"/>
+  <rect width="1920" height="1080" fill="url(#glow-cyan)"/>
+</svg>

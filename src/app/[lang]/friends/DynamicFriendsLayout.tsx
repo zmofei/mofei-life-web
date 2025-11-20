@@ -6,6 +6,7 @@ import Foot from '@/components/Common/Foot';
 import Comments from '@/components/Comments/Comments';
 import OptimizedImage from '@/components/util/OptimizedImage';
 import Link from 'next/link';
+import BlogBackground from '../blog/[blog_page]/BlogBackground';
 
 interface RecentFeedUpdate {
   title?: string;
@@ -40,54 +41,15 @@ export default function DynamicFriendsLayout({
   const [showSiteInfo, setShowSiteInfo] = useState(false);
 
   return (
-    <>
-      {/* Animated background pattern to make glass effects visible */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        {/* Main gradient background with animation */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/30 via-purple-500/30 to-pink-500/30" />
+    <div className="relative min-h-screen">
+      <BlogBackground />
 
-        {/* Animated colorful circles with gentle, flowing movement */}
-        <div className="absolute inset-0">
-          <div className="absolute top-20 left-20 w-96 h-96 bg-blue-400/20 rounded-full blur-3xl" />
-          <div className="absolute top-40 right-20 w-80 h-80 bg-purple-400/20 rounded-full blur-3xl" />
-          <div className="absolute bottom-20 left-40 w-72 h-72 bg-pink-400/20 rounded-full blur-3xl" />
-          <div className="absolute bottom-40 right-40 w-64 h-64 bg-cyan-400/20 rounded-full blur-3xl" />
-        </div>
-
-        {/* Subtle animated pattern overlay */}
-        <div
-          className="absolute inset-0 opacity-10"
-          style={{
-            backgroundImage: `repeating-linear-gradient(
-              45deg,
-              transparent,
-              transparent 80px,
-              rgba(255,255,255,0.1) 80px,
-              rgba(255,255,255,0.1) 81px
-            )`
-          }}
-        />
-      </div>
-
-      {/* Fixed header section */}
-      <div className="fixed top-0 left-0 right-0 z-10">
+      <div className="relative z-10">
         <FriendsHeader lang={lang} />
       </div>
 
-      {/* Spacer with hidden header content to maintain exact height */}
-      <div className="invisible pointer-events-none" aria-hidden="true">
-        <FriendsHeader lang={lang} />
-      </div>
-
-      {/* Scrolling content with glass effect */}
-      <div className="relative z-20">
-        <div className="bg-black/10 backdrop-blur-lg">
-          {/* Gradient separator line */}
-          <div className="container max-w-[2000px] m-auto px-5 md:px-10 py-8 md:py-12">
-            <div className="h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-          </div>
-          
-          <div className='container max-w-[2000px] m-auto min-h-screen px-5 md:px-10 lg:px-16 py-6 md:py-8 lg:py-12'>
+      <div className="relative z-10 mt-6 md:mt-10">
+        <div className='container max-w-[2000px] m-auto px-5 md:px-10 lg:px-16 py-6 md:py-10 lg:py-12'>
             <div className="mb-12 md:mb-16">
               <div className="grid lg:grid-cols-3 gap-8">
                 {/* 左侧友链列表 - 占2列 */}
@@ -133,7 +95,7 @@ export default function DynamicFriendsLayout({
                             <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-white/5 pointer-events-none rounded-2xl"></div>
 
                             {/* Shimmer effect */}
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent 
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent
                             -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out
                             skew-x-12 pointer-events-none rounded-2xl"></div>
 
@@ -202,14 +164,9 @@ export default function DynamicFriendsLayout({
                     </div>
 
                     {/* 引导文字卡片 */}
-                    <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-lg rounded-3xl p-6 border border-white/20 shadow-2xl relative overflow-hidden group hover:shadow-3xl transition-all duration-500 mb-6">
-                      {/* 装饰性渐变背景 */}
-                      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-pink-500/10 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-
-                      {/* 内容 */}
-                      <div className="relative z-10 space-y-4">
-                        <div className="flex items-start gap-3">
-                          <div className="w-2.5 h-2.5 bg-gradient-to-r from-[#e04b45] to-[#ff7b54] rounded-full mt-2 flex-shrink-0"></div>
+                    <div className="rounded-3xl border border-white/15 bg-white/[0.05] p-6 mb-6 space-y-4">
+                      <div className="flex items-start gap-3">
+                          <div className="w-2.5 h-2.5 bg-white/40 rounded-full mt-2 flex-shrink-0"></div>
                           <p className="text-white/90 text-sm md:text-base leading-relaxed">
                             {lang === 'zh'
                               ? '时代很快，能慢下来写点东西挺难得的。'
@@ -219,7 +176,7 @@ export default function DynamicFriendsLayout({
                         </div>
 
                         <div className="flex items-start gap-3">
-                          <div className="w-2.5 h-2.5 bg-gradient-to-r from-[#ff7b54] to-[#ffa726] rounded-full mt-2 flex-shrink-0"></div>
+                          <div className="w-2.5 h-2.5 bg-white/40 rounded-full mt-2 flex-shrink-0"></div>
                           <p className="text-white/90 text-sm md:text-base leading-relaxed">
                             {lang === 'zh'
                               ? '你还在写，我也还在写，那就一起链接起来吧。'
@@ -229,7 +186,7 @@ export default function DynamicFriendsLayout({
                         </div>
 
                         <div className="flex items-start gap-3">
-                          <div className="w-2.5 h-2.5 bg-gradient-to-r from-[#ffa726] to-[#f39c12] rounded-full mt-2 flex-shrink-0"></div>
+                          <div className="w-2.5 h-2.5 bg-white/40 rounded-full mt-2 flex-shrink-0"></div>
                           <p className="text-white/90 text-sm md:text-base leading-relaxed">
                             {lang === 'zh'
                               ? '说不定有人路过，刚好喜欢上了你的世界。'
@@ -246,19 +203,14 @@ export default function DynamicFriendsLayout({
                             }
                           </p>
                         </div>
-                      </div>
                     </div>
 
                     {/* 本站信息卡片 */}
-                    <div className="bg-gradient-to-br from-white/15 to-white/5 backdrop-blur-lg rounded-2xl p-4 border border-white/30 shadow-2xl relative overflow-hidden mb-6">
-                      {/* 装饰性背景 */}
-                      <div className="absolute inset-0 bg-gradient-to-br from-[#e04b45]/10 to-[#ff7b54]/10 rounded-2xl opacity-50"></div>
-
-                      {/* 头部按钮 */}
+                    <div className="rounded-2xl border border-white/15 bg-white/[0.05] p-4 mb-6">
                       <button
                         type="button"
                         onClick={() => setShowSiteInfo(!showSiteInfo)}
-                        className="relative z-10 text-center mb-4 w-full text-white/60 text-sm font-medium flex items-center justify-center gap-2"
+                        className="text-center mb-4 w-full text-white/60 text-sm font-medium flex items-center justify-center gap-2"
                         aria-expanded={showSiteInfo}
                         aria-controls="site-info-details"
                       >
@@ -270,12 +222,12 @@ export default function DynamicFriendsLayout({
 
                       {/* 信息列表 */}
                       {showSiteInfo && (
-                      <div id="site-info-details" className="relative z-10 space-y-3">
+                      <div id="site-info-details" className="space-y-3">
                         <div className="group/item">
                           <div className="text-white/60 text-xs font-medium mb-1">
                             {lang === 'zh' ? '网站名称' : 'Site Name'}
                           </div>
-                          <div className="bg-white/10 rounded-md p-3 group-hover/item:bg-white/20 transition-colors duration-200">
+                          <div className="bg-white/[0.04] rounded-md p-3">
                             <code className="text-white/90 text-sm select-all break-all font-mono">
                               {lang === 'zh' ? 'Mofei - 一个在芬兰的超级奶爸程序员' : 'Mofei - A Super Dad Programmer in Finland'}
                             </code>
@@ -286,7 +238,7 @@ export default function DynamicFriendsLayout({
                           <div className="text-white/60 text-xs font-medium mb-1">
                             {lang === 'zh' ? '网址' : 'URL'}
                           </div>
-                          <div className="bg-white/10 rounded-md p-3 group-hover/item:bg-white/20 transition-colors duration-200">
+                          <div className="bg-white/[0.04] rounded-md p-3">
                             <code className="text-white/90 text-sm select-all break-all font-mono">
                               https://www.mofei.life
                             </code>
@@ -297,7 +249,7 @@ export default function DynamicFriendsLayout({
                           <div className="text-white/60 text-xs font-medium mb-1">
                             {lang === 'zh' ? '头像' : 'Avatar'}
                           </div>
-                          <div className="bg-white/10 rounded-md p-3 group-hover/item:bg-white/20 transition-colors duration-200">
+                          <div className="bg-white/[0.04] rounded-md p-3">
                             <code className="text-white/90 text-sm select-all break-all font-mono">
                               https://www.mofei.life/img/mofei-logo_500_500.png
                             </code>
@@ -308,7 +260,7 @@ export default function DynamicFriendsLayout({
                           <div className="text-white/60 text-xs font-medium mb-1">
                             {lang === 'zh' ? '描述' : 'Description'}
                           </div>
-                          <div className="bg-white/10 rounded-md p-3 group-hover/item:bg-white/20 transition-colors duration-200">
+                          <div className="bg-white/[0.04] rounded-md p-3">
                             <code className="text-white/90 text-sm select-all break-all leading-relaxed font-mono">
                               {lang === 'zh'
                                 ? '在芬兰的程序员超级奶爸，写写博客，聊聊移居生活和带娃日常。有时也会唠两句技术'
@@ -438,6 +390,5 @@ export default function DynamicFriendsLayout({
           </div>
         </div>
       </div>
-    </>
   );
 }
